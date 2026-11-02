@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<title>Safaridex</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Réglages pour que l'app ressemble à une vraie app sur iPhone -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Safaridex">
+<meta name="theme-color" content="#f3eee4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+/* Base : marges des bords d'écran (encoche, barre du bas) */
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-family:system-ui,sans-serif;font-size:14px}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout : carnet de terrain — en-tête, vues (encyclopédie, carte, collection, profil), barre d'onglets en bas, feuille de détail glissante */
+:root{
+  --bg:#f3eee4; --surface:#fffaf1; --ink:#2a2419; --muted:#7a6d58; --line:#e2d7c3;
+  --ochre:#c7741f; --acacia:#4f6b3a; --plate:#ebe1cf;
+  --sea:#e4ddcd; --land:#cfc2a8; --dotsea:#d3c9b4;
+  --r-common:#8d8578; --r-uncommon:#4f8a3c; --r-rare:#2f6fb3; --r-epic:#8a4cb8; --r-legend:#c99312;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --shadow:0 10px 30px rgba(60,40,10,.18);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
+  --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
+  --sea:#1d1914; --land:#3b3328; --dotsea:#2e281f;
+  --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
+  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
+  --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
+  --sea:#1d1914; --land:#3b3328; --dotsea:#2e281f;
+  --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
+  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,6vw,34px);letter-spacing:-.02em;margin:0;line-height:1}
+.brand h1 span{color:var(--ochre)}
+.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.meter{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.meter b{color:var(--ink);font-size:18px}
+.bar{width:110px;height:8px;background:var(--plate);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acacia);border-radius:99px;transition:width .4s}
+
+/* Barre d'onglets en bas, comme une app */
+nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabbar button{background:none;border:0;padding:8px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--muted)}
+nav.tabbar svg{width:24px;height:24px}
+nav.tabbar button[aria-selected="true"]{color:var(--ochre)}
+
+main .wrap{padding-block:18px calc(96px + env(safe-area-inset-bottom,0px))}
+h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
+.lede{color:var(--muted);margin:-6px 0 14px;font-size:14px;max-width:62ch}
+
+.filters{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px}
+.card{position:relative;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s}
+.card:hover{transform:translateY(-2px)}
+.plate{aspect-ratio:4/3;max-width:100%;background:var(--plate);display:grid;place-items:center;position:relative;overflow:hidden}
+.plate img{width:100%;height:100%;object-fit:cover}
+.plate svg{width:44%;height:auto;opacity:.28;color:var(--ink)}
+.plate .no{position:absolute;top:8px;left:10px;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted);background:var(--surface);padding:1px 6px;border-radius:6px}
+.card.seen .plate .no{color:var(--ink)}
+.plate .count{position:absolute;bottom:8px;right:8px;font-family:var(--mono);font-size:11px;background:var(--acacia);color:var(--bg);padding:2px 7px;border-radius:99px;font-weight:700}
+.cbody{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px}
+.cname{font-family:var(--display);font-weight:700;font-size:16px;line-height:1.15}
+.card:not(.seen) .cname{color:var(--muted)}
+.rar{display:inline-flex;align-items:center;gap:5px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.stripe{position:absolute;top:0;left:0;right:0;height:4px}
+.empty{padding:30px 10px;text-align:center;color:var(--muted)}
+
+/* Carte du monde */
+.mapbox{background:var(--sea);border:1px solid var(--line);border-radius:16px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+.mapbox svg{display:block;width:max(100%,1180px);height:auto}
+.mapbox .hex{stroke:var(--sea);stroke-width:1.2;cursor:pointer;transition:filter .15s}
+.mapbox g.c:hover .hex{filter:brightness(1.08)}
+.mapbox .locked .hex{fill:var(--land)}
+.mapbox .open .hex{fill:var(--acacia)}
+.mapbox .visited .hex{stroke:var(--ochre);stroke-width:2.4}
+.mapbox text{font-family:var(--mono);font-size:6.5px;font-weight:700;pointer-events:none;text-anchor:middle;dominant-baseline:central}
+.mapbox .locked text{fill:var(--muted)}
+.mapbox .open text{fill:var(--surface)}
+.mapbox .sea{fill:var(--dotsea)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:12px 0 22px;font-size:13px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:7px}
+.sw{width:16px;height:16px;border-radius:4px;flex:none}
+.countries{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.crow{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);text-align:left;width:100%}
+.crow .code{font-family:var(--mono);font-weight:700;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--land);color:var(--muted)}
+.crow.isopen .code{background:var(--acacia);color:var(--surface)}
+.crow div{min-width:0}
+.crow b{display:block;font-family:var(--display)}
+.crow small{color:var(--muted)}
+
+/* Collection */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h3{font-family:var(--display);margin:0 0 12px;font-size:17px}
+.row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-size:14px;margin-bottom:10px}
+.row .bar{grid-column:1/-1;width:100%}
+.row span:last-child{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:28px}
+.badge{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;border:1px dashed var(--line);color:var(--muted)}
+.badge.on{border-style:solid;border-color:var(--ochre);color:var(--ink);background:var(--surface)}
+.medal{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;background:var(--plate);color:var(--muted)}
+.badge.on .medal{background:var(--ochre);color:var(--surface)}
+.badge b{display:block;font-family:var(--display);font-size:15px}
+.badge small{font-size:12px}
+.journal{display:flex;flex-direction:column;gap:8px}
+.jitem{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:left;width:100%}
+.jitem img{width:56px;height:56px;object-fit:cover;border-radius:8px;flex:none}
+.jitem div{min-width:0}
+.jitem small{color:var(--muted);display:block}
+
+/* Profil : permis de pisteuse */
+.permit{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;max-width:620px;margin-bottom:22px}
+.permit .band{background:var(--acacia);color:var(--surface);padding:10px 18px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.permit .id{display:flex;gap:16px;padding:18px;align-items:center}
+.avatar{width:92px;height:92px;border-radius:50%;flex:none;border:3px solid var(--ochre);background:var(--plate);overflow:hidden;padding:0;display:grid;place-items:center;color:var(--muted);font-size:11px;text-align:center}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.id .who{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.nameIn{font-family:var(--display);font-weight:800;font-size:26px;border:0;border-bottom:1px dashed var(--line);background:transparent;padding:0;width:100%;line-height:1.2}
+.title{color:var(--ochre);font-weight:700}
+.lvl{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.lvl .bar{flex:1;width:auto}
+.lvl .bar i{background:var(--ochre)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.kpis div{padding:12px 6px;text-align:center;border-right:1px solid var(--line)}
+.kpis div:last-child{border-right:0}
+.kpis b{display:block;font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.kpis small{color:var(--muted);font-size:11px}
+.faves{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:620px;margin-bottom:22px}
+.fave{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;text-align:left;padding:0;display:flex;flex-direction:column}
+.fave .plate{aspect-ratio:4/3}
+.fave div.t{padding:10px 12px}
+.fave small{display:block;color:var(--muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.fave b{font-family:var(--display)}
+.dedic{max-width:620px;background:var(--plate);border-radius:14px;padding:18px 20px;margin-bottom:28px;font-size:16px}
+.dedic p{margin:0 0 8px}
+.dedic .sig{font-family:var(--display);font-weight:700;color:var(--ochre);margin:0}
+.backup{max-width:620px;display:flex;flex-direction:column;gap:10px}
+.backup .acts{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:420px){.kpis b{font-size:19px}.nameIn{font-size:22px}.avatar{width:76px;height:76px}}
+
+/* Feuilles */
+.scrim{position:fixed;inset:0;background:rgba(20,14,5,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:92%;overflow-y:auto;border-radius:20px 20px 0 0;box-shadow:var(--shadow);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));animation:up .25s ease-out}
+@media (min-width:700px){.scrim{align-items:center}.sheet{border-radius:20px;max-height:88%}}
+@keyframes up{from{transform:translateY(30px);opacity:.5}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}.card,.bar i{transition:none}}
+.hero{position:relative;aspect-ratio:16/10;max-width:100%;background:var(--plate);display:grid;place-items:center;overflow:hidden}
+.hero img{width:100%;height:100%;object-fit:cover}
+.hero svg{width:30%;opacity:.25;color:var(--ink)}
+.hero.small{aspect-ratio:auto;height:120px}
+.close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface);font-size:20px;line-height:1;box-shadow:var(--shadow)}
+.sbody{padding:18px max(18px,env(safe-area-inset-left,0px)) 0;display:flex;flex-direction:column;gap:16px}
+.sbody h2{font-family:var(--display);font-weight:800;font-size:28px;margin:0;line-height:1.05;text-wrap:balance}
+.sci{font-style:italic;color:var(--muted);margin:2px 0 0}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--plate);font-weight:700}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+.fact b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ochre);margin-bottom:4px}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.dl dt{color:var(--muted)}
+.dl dd{margin:0}
+.capture{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.capture h3{margin:0;font-family:var(--display);font-size:17px}
+.capture label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.capture select{padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.btn{border:0;border-radius:12px;padding:13px 16px;font-family:var(--display);font-weight:700;font-size:16px;background:var(--ochre);color:#fff}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-size:14px;padding:9px 12px}
+.btn.alt{background:var(--acacia)}
+.note{font-size:12px;color:var(--muted);margin:0}
+.obs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.ob{position:relative;border-radius:10px;overflow:hidden;background:var(--plate)}
+.ob img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.ob div{padding:6px 8px;font-size:11px;background:var(--surface)}
+.ob button{position:absolute;top:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:1}
+.ob .del{right:4px}
+.ob .star{left:4px}
+.ob .star[aria-pressed="true"]{background:#c99312}
+.lockline{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;color:var(--muted);font-size:14px}
+.lockline svg{width:22px;height:22px;flex:none}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:700;z-index:40;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Safari<span>dex</span></h1>
+      <p id="subtitle">Afrique du Sud · carnet d'observations</p>
+    </div>
+    <div class="meter"><b id="seenN">0</b>/<span id="totalN">0</span> espèces <div class="bar"><i id="seenBar" style="width:0"></i></div></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section id="view-dex">
+      <div class="filters">
+        <div class="chiprow" id="classChips"></div>
+        <div class="chiprow" id="rarChips"></div>
+      </div>
+      <div class="grid" id="grid"></div>
+      <p class="empty" id="empty" hidden>Aucune espèce ne correspond à ces filtres.</p>
+    </section>
+
+    <section id="view-map" hidden>
+      <h2 class="sec">Carte du monde</h2>
+      <p class="lede">Chaque pays s'ouvre quand son encyclopédie est prête. Touche un pays pour le marquer comme visité.</p>
+      <div class="mapbox" id="mapbox"></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--acacia)"></i>Encyclopédie disponible</span>
+        <span><i class="sw" style="background:var(--land)"></i>Verrouillé</span>
+        <span><i class="sw" style="background:var(--land);outline:2.5px solid var(--ochre);outline-offset:-2.5px"></i>Pays visité</span>
+      </div>
+      <h2 class="sec">Pays visités</h2>
+      <div class="countries" id="visitedList"></div>
+    </section>
+
+    <section id="view-col" hidden>
+      <div class="stats">
+        <div class="panel"><h3>Par classe</h3><div id="byClass"></div></div>
+        <div class="panel"><h3>Par rareté</h3><div id="byRar"></div></div>
+      </div>
+      <h2 class="sec">Badges</h2>
+      <div class="badges" id="badges"></div>
+      <h2 class="sec">Journal</h2>
+      <div class="journal" id="journal"></div>
+    </section>
+
+    <section id="view-pro" hidden>
+      <div id="profile"></div>
+    </section>
+  </div>
+</main>
+
+<nav class="tabbar" role="tablist">
+  <div class="in">
+    <button role="tab" data-tab="dex" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 7h6"/></svg>Encyclopédie</button>
+    <button role="tab" data-tab="map" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Carte</button>
+    <button role="tab" data-tab="col" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 7 5-3 5 3-1.5-7"/></svg>Collection</button>
+    <button role="tab" data-tab="pro" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profil</button>
+  </div>
+</nav>
+
+<input type="file" id="fileIn" accept="image/*" hidden>
+<input type="file" id="avatarIn" accept="image/*" hidden>
+<input type="file" id="importIn" accept=".json,application/json" hidden>
+<div id="sheetHost"></div>
+
+<script>
+/* =========================================================
+   À PERSONNALISER : ton message, affiché sur son profil
+   ========================================================= */
+const DEDICACE = {
+  texte: "Joyeux anniversaire Chatoune ! Que cette collection grandisse à chacun de nos voyages.",
+  signature: "Ton explorateur préféré de la savane"
+};
+
+/* ---------- Données espèces ----------
+   Rareté = statut UICN (liste rouge mondiale), à vérifier sur iucnredlist.org. */
+const RARITY = {
+  LC:{label:"Commun",    uicn:"Préoccupation mineure", v:"--r-common", xp:10},
+  NT:{label:"Peu commun",uicn:"Quasi menacé",          v:"--r-uncommon", xp:20},
+  VU:{label:"Rare",      uicn:"Vulnérable",            v:"--r-rare", xp:40},
+  EN:{label:"Épique",    uicn:"En danger",             v:"--r-epic", xp:80},
+  CR:{label:"Légendaire",uicn:"En danger critique",    v:"--r-legend", xp:150}
+};
+const RORDER = ["LC","NT","VU","EN","CR"];
+const CLASSES = ["Mammifères","Oiseaux","Reptiles","Poissons"];
+const REGIONS = { ZA:["Limpopo","Mpumalanga","KwaZulu-Natal","Cap-Occidental","Cap-Oriental","Cap-du-Nord","Nord-Ouest","État-Libre","Gauteng","En mer"] };
+
+const SPECIES = [
+ {id:1, n:"Lion", s:"Panthera leo", c:"Mammifères", r:"VU", big5:1, f:"Le rugissement d'un lion porte jusqu'à 8 km. Les femelles assurent l'essentiel de la chasse, souvent en équipe."},
+ {id:2, n:"Léopard", s:"Panthera pardus", c:"Mammifères", r:"VU", big5:1, f:"Il hisse ses proies dans les arbres, parfois plus lourdes que lui, pour les mettre à l'abri des hyènes."},
+ {id:3, n:"Éléphant de savane", s:"Loxodonta africana", c:"Mammifères", r:"EN", big5:1, f:"Le plus grand animal terrestre. Sa trompe compte environ 40 000 muscles."},
+ {id:4, n:"Buffle d'Afrique", s:"Syncerus caffer", c:"Mammifères", r:"NT", big5:1, f:"Un troupeau peut contre-attaquer en groupe pour défendre un membre attaqué par des lions."},
+ {id:5, n:"Rhinocéros noir", s:"Diceros bicornis", c:"Mammifères", r:"CR", big5:1, f:"Sa lèvre supérieure pointue lui sert à attraper les feuilles des buissons. Il est plus solitaire et nerveux que le rhinocéros blanc."},
+ {id:6, n:"Rhinocéros blanc", s:"Ceratotherium simum", c:"Mammifères", r:"NT", big5:1, f:"Sa lèvre large et carrée est faite pour brouter l'herbe. L'Afrique du Sud abrite la majorité de la population mondiale."},
+ {id:7, n:"Girafe", s:"Giraffa camelopardalis", c:"Mammifères", r:"VU", f:"Son cou compte seulement 7 vertèbres, comme le nôtre, mais chacune peut mesurer plus de 25 cm."},
+ {id:8, n:"Zèbre des plaines", s:"Equus quagga", c:"Mammifères", r:"NT", f:"Chaque zèbre a un motif de rayures unique, comme une empreinte digitale."},
+ {id:9, n:"Lycaon", s:"Lycaon pictus", c:"Mammifères", r:"EN", f:"Aussi appelé chien sauvage d'Afrique. Ses chasses en meute réussissent bien plus souvent que celles des lions."},
+ {id:10,n:"Guépard", s:"Acinonyx jubatus", c:"Mammifères", r:"VU", f:"Le plus rapide des animaux terrestres, il peut dépasser 100 km/h sur de courtes distances."},
+ {id:11,n:"Hippopotame", s:"Hippopotamus amphibius", c:"Mammifères", r:"VU", f:"Il passe ses journées dans l'eau et sort la nuit pour brouter, parfois plusieurs kilomètres plus loin."},
+ {id:12,n:"Pangolin de Temminck", s:"Smutsia temminckii", c:"Mammifères", r:"VU", f:"Couvert d'écailles de kératine, il se roule en boule pour se protéger. C'est l'un des mammifères les plus braconnés au monde."},
+ {id:13,n:"Impala", s:"Aepyceros melampus", c:"Mammifères", r:"LC", f:"Capable de bonds de 3 m de haut et de 10 m de long pour semer ses prédateurs."},
+ {id:14,n:"Hyène tachetée", s:"Crocuta crocuta", c:"Mammifères", r:"LC", f:"Contrairement à sa réputation, elle chasse elle-même la majorité de ses proies."},
+ {id:15,n:"Suricate", s:"Suricata suricatta", c:"Mammifères", r:"LC", f:"Pendant que le groupe cherche à manger, une sentinelle monte la garde et donne l'alerte."},
+ {id:16,n:"Phacochère", s:"Phacochoerus africanus", c:"Mammifères", r:"LC", f:"Il s'agenouille sur ses pattes avant pour brouter l'herbe rase."},
+ {id:17,n:"Calao terrestre du Sud", s:"Bucorvus leadbeateri", c:"Oiseaux", r:"VU", f:"Son appel grave, qui ressemble à celui d'un lion lointain, s'entend à plusieurs kilomètres."},
+ {id:18,n:"Rollier à longs brins", s:"Coracias caudatus", c:"Oiseaux", r:"LC", f:"Un des oiseaux les plus photographiés en safari, avec sa poitrine lilas et ses ailes turquoise."},
+ {id:19,n:"Aigle bateleur", s:"Terathopius ecaudatus", c:"Oiseaux", r:"EN", f:"Il peut parcourir plusieurs centaines de kilomètres par jour en vol plané."},
+ {id:20,n:"Manchot du Cap", s:"Spheniscus demersus", c:"Oiseaux", r:"CR", f:"Le seul manchot d'Afrique. On peut l'observer à Boulders Beach, près du Cap."},
+ {id:21,n:"Crocodile du Nil", s:"Crocodylus niloticus", c:"Reptiles", r:"LC", f:"Il peut rester immobile des heures et rester sous l'eau plus d'une heure en cas de besoin."},
+ {id:22,n:"Grand requin blanc", s:"Carcharodon carcharias", c:"Poissons", r:"VU", f:"La baie False Bay est célèbre pour ses requins qui bondissent hors de l'eau en chassant les phoques."}
+].map(s => ({...s, country:"ZA"}));
+const BIG5 = [1,2,3,4,[5,6]];
+
+/* ---------- Pays : code, nom, continent, positions (lat,lon) ----------
+   Les grands pays ont plusieurs tuiles. Un pays s'ouvre dès qu'il a des espèces. */
+const CONTINENTS = {AF:"Afrique",EU:"Europe",AS:"Asie",NA:"Amérique du Nord",SA:"Amérique du Sud",OC:"Océanie"};
+const COUNTRY_DATA = `
+RU|Russie|EU|56,40;60,58;62,78;63,98;64,118;64,138;62,158;66,170
+CA|Canada|NA|56,-112;54,-92;50,-74;62,-100;64,-125;48,-62
+US|États-Unis|NA|40,-100;38,-86;40,-116;35,-110;42,-76;64,-152;32,-96
+GL|Groenland|NA|74,-42;68,-48
+BR|Brésil|SA|-6,-60;-12,-50;-6,-42;-20,-46;-26,-52
+CN|Chine|AS|35,104;30,92;32,114;40,116;44,88;26,108
+AU|Australie|OC|-24,134;-28,120;-28,146;-20,144;-33,142
+IN|Inde|AS|23,79;16,77;26,85
+KZ|Kazakhstan|AS|48,66;47,78
+AR|Argentine|SA|-32,-64;-40,-67;-48,-69
+DZ|Algérie|AF|28,2;34,4
+CD|RD Congo|AF|-2,23;-8,26
+ID|Indonésie|AS|-1,102;-7,110;-2,116;-3,122;-4,137
+MX|Mexique|NA|25,-104;19,-98
+SA|Arabie saoudite|AS|24,44;22,49
+LY|Libye|AF|27,17
+SD|Soudan|AF|15,30
+IR|Iran|AS|32,54
+MN|Mongolie|AS|47,102
+PE|Pérou|SA|-9,-75
+CL|Chili|SA|-24,-70;-34,-71;-44,-73
+TD|Tchad|AF|15,19
+NE|Niger|AF|17,9
+AO|Angola|AF|-12,18
+ML|Mali|AF|17,-4
+ZA|Afrique du Sud|AF|-30,24;-27,29;-33,20
+CO|Colombie|SA|4,-73
+ET|Éthiopie|AF|9,39
+BO|Bolivie|SA|-16.5,-64.5
+MR|Mauritanie|AF|20,-10
+EG|Égypte|AF|26,30
+TZ|Tanzanie|AF|-6,35
+NG|Nigeria|AF|9,8
+VE|Venezuela|SA|7,-66
+NA|Namibie|AF|-22,17
+MZ|Mozambique|AF|-18,35
+PK|Pakistan|AS|30,70
+TR|Turquie|AS|39,35
+ZM|Zambie|AF|-14,27
+MM|Birmanie|AS|21,96
+AF|Afghanistan|AS|34,66
+SS|Soudan du Sud|AF|7,30
+SO|Somalie|AF|6,46
+CF|Centrafrique|AF|7,21
+UA|Ukraine|EU|49,31
+MG|Madagascar|AF|-19,47
+BW|Botswana|AF|-22,24
+KE|Kenya|AF|0,38
+FR|France|EU|46.5,2.5
+YE|Yémen|AS|15.5,48
+TH|Thaïlande|AS|15,101
+ES|Espagne|EU|40,-4
+TM|Turkménistan|AS|39,59.5
+CM|Cameroun|AF|6,12
+PG|Papouasie-N.-Guinée|OC|-6,145
+SE|Suède|EU|62,16
+UZ|Ouzbékistan|AS|41.4,64.5
+MA|Maroc|AF|32,-6
+IQ|Irak|AS|33,44
+PY|Paraguay|SA|-23,-58
+ZW|Zimbabwe|AF|-19,30
+JP|Japon|AS|36,138;42,142
+DE|Allemagne|EU|51,10
+CG|Congo|AF|-1,15
+FI|Finlande|EU|63,26
+VN|Vietnam|AS|16,107.8
+MY|Malaisie|AS|4,102;3,114
+NO|Norvège|EU|62,10
+CI|Côte d'Ivoire|AF|7.5,-5.5
+PL|Pologne|EU|52,19
+OM|Oman|AS|21,57
+IT|Italie|EU|42.8,12.5
+PH|Philippines|AS|12,122
+EC|Équateur|SA|-1.5,-78
+BF|Burkina Faso|AF|12,-1.5
+NZ|Nouvelle-Zélande|OC|-39,175;-45,169
+GA|Gabon|AF|-1,11.7
+GN|Guinée|AF|10,-11
+GB|Royaume-Uni|EU|53,-2
+UG|Ouganda|AF|1,32
+GH|Ghana|AF|8,-1
+RO|Roumanie|EU|45.9,25
+LA|Laos|AS|19,102.5
+GY|Guyana|SA|5,-59
+BY|Biélorussie|EU|53.7,28
+KG|Kirghizistan|AS|41.2,74.7
+SN|Sénégal|AF|14,-14.5
+SY|Syrie|AS|35,38
+KH|Cambodge|AS|12.5,105
+UY|Uruguay|SA|-33,-56
+SR|Suriname|SA|4,-56
+TN|Tunisie|AF|34,9
+BD|Bangladesh|AS|24,90
+NP|Népal|AS|28,84
+TJ|Tadjikistan|AS|38.8,71
+GR|Grèce|EU|39,22
+NI|Nicaragua|NA|12.9,-85.2
+KP|Corée du Nord|AS|40,127
+MW|Malawi|AF|-13,34
+ER|Érythrée|AF|15,39
+BJ|Bénin|AF|9.3,2.3
+HN|Honduras|NA|15,-86.5
+LR|Liberia|AF|6.4,-9.4
+BG|Bulgarie|EU|42.7,25.5
+CU|Cuba|NA|21.5,-79
+GT|Guatemala|NA|15.7,-90.3
+IS|Islande|EU|65,-18
+KR|Corée du Sud|AS|36,128
+HU|Hongrie|EU|47.2,19.5
+PT|Portugal|EU|39.5,-8
+JO|Jordanie|AS|31,36.5
+RS|Serbie|EU|44,20.8
+AZ|Azerbaïdjan|AS|40.3,47.6
+AT|Autriche|EU|47.5,14.5
+AE|Émirats arabes unis|AS|24,54
+CZ|Tchéquie|EU|49.8,15.5
+PA|Panama|NA|8.5,-80
+SL|Sierra Leone|AF|8.5,-11.8
+IE|Irlande|EU|53.2,-8
+GE|Géorgie|AS|42.3,43.4
+LK|Sri Lanka|AS|7.8,80.7
+LT|Lituanie|EU|55.2,23.9
+LV|Lettonie|EU|56.9,24.6
+TG|Togo|AF|8.6,1
+HR|Croatie|EU|45.1,15.5
+BA|Bosnie-Herzégovine|EU|44,17.8
+CR|Costa Rica|NA|9.8,-84
+SK|Slovaquie|EU|48.7,19.5
+DO|Rép. dominicaine|NA|18.7,-70.2
+EE|Estonie|EU|58.6,25
+DK|Danemark|EU|56,9.5
+NL|Pays-Bas|EU|52.2,5.5
+CH|Suisse|EU|46.8,8.2
+BT|Bhoutan|AS|27.5,90.4
+TW|Taïwan|AS|23.7,121
+GW|Guinée-Bissau|AF|12,-15
+MD|Moldavie|EU|47,28.5
+BE|Belgique|EU|50.6,4.6
+LS|Lesotho|AF|-29.6,28.2
+AM|Arménie|AS|40.1,45
+AL|Albanie|EU|41,20
+BI|Burundi|AF|-3.4,29.9
+GQ|Guinée équatoriale|AF|1.6,10.5
+RW|Rwanda|AF|-2,30
+MK|Macédoine du Nord|EU|41.6,21.7
+DJ|Djibouti|AF|11.8,42.6
+BZ|Belize|NA|17.2,-88.7
+SV|Salvador|NA|13.8,-88.9
+IL|Israël|AS|31,35
+SI|Slovénie|EU|46.1,14.8
+FJ|Fidji|OC|-17.8,178
+KW|Koweït|AS|29.3,47.6
+SZ|Eswatini|AF|-26.5,31.5
+BS|Bahamas|NA|24.5,-77.5
+ME|Monténégro|EU|42.7,19.3
+QA|Qatar|AS|25.3,51.2
+JM|Jamaïque|NA|18.1,-77.3
+GM|Gambie|AF|13.4,-15.3
+LB|Liban|AS|33.9,35.9
+CY|Chypre|EU|35,33
+LU|Luxembourg|EU|49.8,6.1
+HT|Haïti|NA|19,-72.3
+CV|Cap-Vert|AF|16,-24
+MU|Maurice|AF|-20.3,57.5
+SC|Seychelles|AF|-4.6,55.5
+MV|Maldives|AS|3.2,73
+MT|Malte|EU|35.9,14.4
+SG|Singapour|AS|1.35,103.8`;
+const COUNTRIES = COUNTRY_DATA.trim().split("\n").map(l => { const [code,name,ct,pts] = l.split("|");
+  return {code,name,ct,pts:pts.split(";").map(p=>p.split(",").map(Number))}; });
+const CBY = Object.fromEntries(COUNTRIES.map(c=>[c.code,c]));
+const isOpen = cc => SPECIES.some(s=>s.country===cc);
+
+/* ---------- Icônes ---------- */
+const ICON = {
+ "Mammifères":'<svg viewBox="0 0 64 64" fill="currentColor"><ellipse cx="32" cy="42" rx="13" ry="11"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="25" cy="15" rx="6" ry="8"/><ellipse cx="39" cy="15" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/></svg>',
+ "Oiseaux":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M8 56C20 30 38 10 58 6 50 22 40 40 14 56Z"/><path d="M20 46 34 36 26 50Z" opacity=".5"/></svg>',
+ "Reptiles":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M32 6 52 18v28L32 58 12 46V18Z"/></svg>',
+ "Poissons":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M6 32c10-14 30-16 42-4l10-8v24l-10-8C36 48 16 46 6 32Z"/></svg>'
+};
+const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+
+/* =========================================================
+   Stockage : IndexedDB (photos en Blob, sans limite de 5 Mo)
+   ========================================================= */
+let db = null;
+function idbOpen(){
+  return new Promise((res,rej)=>{
+    try{
+      const rq = indexedDB.open("safaridex",1);
+      rq.onupgradeneeded = () => { const d=rq.result;
+        d.createObjectStore("obs",{keyPath:"id",autoIncrement:true});
+        d.createObjectStore("kv"); };
+      rq.onsuccess = () => res(rq.result);
+      rq.onerror = () => rej(rq.error);
+    }catch(e){ rej(e); }
+  });
+}
+function idb(store, mode, fn){
+  if(!db) return Promise.resolve(undefined);
+  return new Promise((res,rej)=>{
+    const t = db.transaction(store, mode); const rq = fn(t.objectStore(store));
+    t.oncomplete = () => res(rq ? rq.result : undefined);
+    t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+  });
+}
+let memId = 1;
+async function dbAddObs(o){ const rec={...o}; delete rec.url;
+  const id = db ? await idb("obs","readwrite",s=>s.add(rec)) : memId++; return id; }
+const dbDelObs = id => idb("obs","readwrite",s=>s.delete(id));
+const dbPutObs = o => { const rec={...o}; delete rec.url; return idb("obs","readwrite",s=>s.put(rec)); };
+const dbSaveProfile = () => idb("kv","readwrite",s=>s.put(profile,"profile")).catch(()=>toast("Le profil n'a pas pu être enregistré."));
+
+/* ---------- État ---------- */
+let OBS = [];          // {id, sp, country, region, date, blob, url}
+let profile = { name:"", avatar:null, favSp:null, bestObs:null, visited:[] };
+let avatarURL = null;
+let fClass="Toutes", fRar="Toutes", tab="dex", sheet=null, confirmId=null;
+let pendingRegion = REGIONS.ZA[0];
+
+const $ = s => document.querySelector(s);
+const obsOf = id => OBS.filter(o=>o.sp===id);
+const seen = id => OBS.some(o=>o.sp===id);
+const rcol = r => `var(${RARITY[r].v})`;
+const fmtDate = d => new Date(d).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
+const esc = s => String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num = id => "#" + String(id).padStart(3,"0");
+const spById = id => SPECIES.find(s=>s.id===id);
+const visitedSet = () => new Set([...profile.visited, ...OBS.map(o=>o.country)]);
+const lastPhoto = id => { const l=obsOf(id); return l.length ? l[l.length-1].url : null; };
+
+/* ---------- Progression ---------- */
+function xp(){
+  let total=0; const got=new Set();
+  [...OBS].sort((a,b)=>a.date-b.date).forEach(o => {
+    if(!got.has(o.sp)){ got.add(o.sp); total += RARITY[spById(o.sp).r].xp; } else total += 5;
+  });
+  return total;
+}
+const need = L => 25*L*(L-1);            // XP nécessaire pour atteindre le niveau L
+function levelOf(x){ let L=1; while(x>=need(L+1)) L++; return L; }
+function titleOf(L){
+  if(L>=10) return "Gardienne de la savane";
+  if(L>=7) return "Exploratrice";
+  if(L>=5) return "Rangeuse";
+  if(L>=3) return "Pisteuse";
+  return "Novice";
+}
+
+/* ---------- Encyclopédie ---------- */
+function chips(){
+  $("#classChips").innerHTML = ["Toutes",...CLASSES].map(c =>
+    `<button class="chip" aria-pressed="${fClass===c}" data-c="${c}">${c==="Toutes"?"Toutes les classes":c}</button>`).join("");
+  $("#rarChips").innerHTML = ["Toutes",...RORDER].map(r =>
+    `<button class="chip" aria-pressed="${fRar===r}" data-r="${r}">${r==="Toutes"?"Toutes les raretés":`<span class="dot" style="background:${rcol(r)}"></span>${RARITY[r].label}`}</button>`).join("");
+}
+$("#classChips").addEventListener("click", e => { const b=e.target.closest("[data-c]"); if(b){ fClass=b.dataset.c; render(); } });
+$("#rarChips").addEventListener("click", e => { const b=e.target.closest("[data-r]"); if(b){ fRar=b.dataset.r; render(); } });
+
+function cardHTML(sp){
+  const n = obsOf(sp.id).length, s = n>0, ph = lastPhoto(sp.id);
+  return `<button class="card ${s?"seen":""}" data-id="${sp.id}">
+    <span class="stripe" style="background:${rcol(sp.r)}"></span>
+    <div class="plate">${ph?`<img src="${ph}" alt="${esc(sp.n)}">`:ICON[sp.c]}<span class="no">${num(sp.id)}</span>${n>1?`<span class="count">×${n}</span>`:""}</div>
+    <div class="cbody"><span class="cname">${esc(sp.n)}</span>
+    <span class="rar" style="color:${rcol(sp.r)}"><span class="dot" style="background:${rcol(sp.r)}"></span>${RARITY[sp.r].label}</span></div>
+  </button>`;
+}
+$("#grid").addEventListener("click", e => { const b=e.target.closest(".card"); if(b) openSpecies(+b.dataset.id); });
+
+/* =========================================================
+   Carte du monde en tuiles hexagonales
+   ========================================================= */
+const HR = 11.5, HW = Math.sqrt(3)*HR, COLS = 62, ROWS = 30;
+const LON0=-170, LON1=180, LAT0=78, LAT1=-56;
+const MW = COLS*HW + HW/2, MH = ROWS*1.5*HR + HR/2;
+const cellXY = (c,r) => [c*HW + (r%2?HW:HW/2), r*1.5*HR + HR];
+/* Surfaces approximatives des grands pays : [lat nord, lat sud, lon ouest, lon est] */
+const BOXES = {
+ RU:[[70,50,30,60],[72,49,60,180]], CA:[[72,49,-140,-60]], US:[[49,30,-124,-70],[70,58,-165,-141]], GL:[[80,62,-55,-22]],
+ MX:[[32,16,-115,-90]], BR:[[3,-30,-72,-36]], AR:[[-22,-52,-68,-58]], CL:[[-18,-52,-75,-70]], PE:[[-1,-17,-80,-70]],
+ CO:[[11,-3,-78,-68]], VE:[[11,1,-72,-61]], BO:[[-10,-22,-69,-58]],
+ CN:[[48,22,78,122]], MN:[[52,42,88,118]], KZ:[[54,41,50,86]], IN:[[32,8,70,88]], IR:[[38,26,46,62]], SA:[[31,17,37,55]],
+ PK:[[36,24,61,75]], AF:[[38,30,61,71]], TR:[[42,36,26,44]], UA:[[52,45,23,40]], AU:[[-12,-38,114,152]],
+ DZ:[[36,20,-8,11]], LY:[[33,20,10,25]], EG:[[31,22,25,35]], SD:[[22,9,22,38]], TD:[[23,8,14,24]], NE:[[23,12,0,16]],
+ ML:[[24,11,-12,4]], MR:[[27,15,-17,-5]], MA:[[36,28,-13,-1]], CD:[[5,-13,12,31]], AO:[[-5,-18,12,24]], ZA:[[-22,-34,17,33]],
+ NA:[[-17,-29,12,25]], BW:[[-18,-27,20,29]], ET:[[15,3,33,48]], TZ:[[-1,-11,30,40]], NG:[[13,4,3,14]], ZM:[[-8,-18,22,33]],
+ MZ:[[-11,-26,30,41]], MG:[[-12,-25,43,50]], KE:[[5,-4,34,42]], SO:[[12,-1,41,51]], CF:[[11,2,15,27]], SS:[[12,4,24,35]]
+};
+let TILES = null; // [{code, c, r, x, y, label}]
+function layoutMap(){
+  if(TILES) return TILES;
+  const used = new Set(); TILES = [];
+  const toXY = (lat,lon) => [(lon-LON0)/(LON1-LON0)*(MW-HW), (LAT0-lat)/(LAT0-LAT1)*(MH-HR*2)+HR];
+  const toLL = (x,y) => [LAT0-(y-HR)/(MH-HR*2)*(LAT0-LAT1), LON0+x/(MW-HW)*(LON1-LON0)];
+  function nearest(lat,lon){
+    const [tx,ty]=toXY(lat,lon), r0=Math.round((ty-HR)/(1.5*HR)), c0=Math.round(tx/HW);
+    let best=null, bd=Infinity;
+    for(let R=0; R<10 && !best; R++)
+      for(let r=r0-R; r<=r0+R; r++) for(let c=c0-R; c<=c0+R; c++){
+        if(r<0||c<0||r>=ROWS||c>=COLS||used.has(c+","+r)) continue;
+        const [x,y]=cellXY(c,r), d=(x-tx)**2+(y-ty)**2; if(d<bd){ bd=d; best={c,r,x,y}; }
+      }
+    return best;
+  }
+  const take = (code,cell) => { used.add(cell.c+","+cell.r); const t={code,...cell,label:false}; TILES.push(t); return t; };
+  // 1. Les pays sans surface : une tuile par point, au plus près de leur position
+  COUNTRIES.filter(c=>!BOXES[c.code]).sort((a,b)=>b.pts.length-a.pts.length).forEach(ct =>
+    ct.pts.forEach(([lat,lon],i) => { const cell=nearest(lat,lon); if(cell) take(ct.code,cell).label = i===0; }));
+  // 2. Les grands pays remplissent leur surface, du plus petit au plus grand
+  const area = b => b.reduce((s,[n,so,w,e])=>s+(n-so)*(e-w),0);
+  COUNTRIES.filter(c=>BOXES[c.code]).sort((a,b)=>area(BOXES[a.code])-area(BOXES[b.code])).forEach(ct => {
+    const mine=[];
+    for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
+      if(used.has(c+","+r)) continue; const [x,y]=cellXY(c,r), [lat,lon]=toLL(x,y);
+      if(BOXES[ct.code].some(([n,so,w,e])=>lat<=n&&lat>=so&&lon>=w&&lon<=e)) mine.push(take(ct.code,{c,r,x,y}));
+    }
+    if(!mine.length){ const cell=nearest(...ct.pts[0]); if(cell) mine.push(take(ct.code,cell)); }
+    const [lx,ly]=toXY(...ct.pts[0]);
+    mine.sort((a,b)=>((a.x-lx)**2+(a.y-ly)**2)-((b.x-lx)**2+(b.y-ly)**2));
+    if(mine[0]) mine[0].label=true;
+  });
+  TILES.used = used;
+  return TILES;
+}
+function hexPts(x,y){ let p=[]; for(let i=0;i<6;i++){ const a=Math.PI/180*(60*i-30); p.push((x+(HR-.6)*Math.cos(a)).toFixed(1)+","+(y+(HR-.6)*Math.sin(a)).toFixed(1)); } return p.join(" "); }
+let mapScrolled=false;
+function renderMap(){
+  const T = layoutMap(), vis = visitedSet();
+  let dots = "";
+  for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){ if(T.used.has(c+","+r)) continue; const [x,y]=cellXY(c,r); dots+=`<circle class="sea" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.3"/>`; }
+  const tiles = T.map(t => { const cls = (isOpen(t.code)?"open":"locked") + (vis.has(t.code)?" visited":"");
+    return `<g class="c ${cls}" data-cc="${t.code}"><polygon class="hex" points="${hexPts(t.x,t.y)}"><title>${esc(CBY[t.code].name)}</title></polygon>${t.label?`<text x="${t.x.toFixed(1)}" y="${t.y.toFixed(1)}">${t.code}</text>`:""}</g>`; }).join("");
+  $("#mapbox").innerHTML = `<svg viewBox="0 0 ${MW.toFixed(0)} ${MH.toFixed(0)}" role="img" aria-label="Carte du monde des pays">${dots}${tiles}</svg>`;
+  if(!mapScrolled && tab==="map"){ const za=T.find(t=>t.code==="ZA"&&t.label), box=$("#mapbox"), svg=box.querySelector("svg");
+    requestAnimationFrame(()=>{ const k = svg.clientWidth/MW; box.scrollLeft = za.x*k - box.clientWidth/2; mapScrolled=true; }); }
+  const list = [...vis].map(c=>CBY[c]).filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name,"fr"));
+  $("#visitedList").innerHTML = list.length ? list.map(c=>`<button class="crow ${isOpen(c.code)?"isopen":""}" data-cc="${c.code}"><span class="code">${c.code}</span><div><b>${esc(c.name)}</b><small>${isOpen(c.code)?`${SPECIES.filter(s=>s.country===c.code&&seen(s.id)).length}/${SPECIES.filter(s=>s.country===c.code).length} espèces`:"Encyclopédie en préparation"}</small></div></button>`).join("")
+    : `<p class="empty">Aucun pays visité pour l'instant.</p>`;
+}
+$("#mapbox").addEventListener("click", e => { const g=e.target.closest("[data-cc]"); if(g) openCountry(g.dataset.cc); });
+$("#visitedList").addEventListener("click", e => { const g=e.target.closest("[data-cc]"); if(g) openCountry(g.dataset.cc); });
+
+/* ---------- Collection ---------- */
+function progRow(label, have, total, color){
+  return `<div class="row"><span>${label}</span><span>${have}/${total}</span>
+  <div class="bar"><i style="width:${total?have/total*100:0}%;${color?`background:${color}`:""}"></i></div></div>`;
+}
+function badgeList(){
+  const nSeen = SPECIES.filter(s=>seen(s.id)).length;
+  const big5 = BIG5.filter(x => Array.isArray(x) ? x.some(seen) : seen(x)).length;
+  const birds = SPECIES.filter(s=>s.c==="Oiseaux"&&seen(s.id)).length;
+  const legend = SPECIES.some(s=>s.r==="CR"&&seen(s.id));
+  const regions = new Set(OBS.map(o=>o.region)).size;
+  const countries = visitedSet().size;
+  return [
+    {t:"Première rencontre", d:"Observer une première espèce", ok:nSeen>=1, m:"1"},
+    {t:"Big Five", d:`Lion, léopard, éléphant, buffle, rhinocéros · ${big5}/5`, ok:big5===5, m:"5"},
+    {t:"Ornithologue", d:`Observer 3 oiseaux · ${Math.min(birds,3)}/3`, ok:birds>=3, m:"O"},
+    {t:"Légende vivante", d:"Observer une espèce légendaire", ok:legend, m:"★"},
+    {t:"Grande voyageuse", d:`Observer dans 3 régions · ${Math.min(regions,3)}/3`, ok:regions>=3, m:"R"},
+    {t:"Globe-trotteuse", d:`Visiter 5 pays · ${Math.min(countries,5)}/5`, ok:countries>=5, m:"G"},
+    {t:"Encyclopédiste", d:`Toutes les espèces · ${nSeen}/${SPECIES.length}`, ok:nSeen===SPECIES.length, m:"∞"}
+  ];
+}
+function renderCollection(){
+  $("#byClass").innerHTML = CLASSES.map(c => { const a=SPECIES.filter(s=>s.c===c); return progRow(c, a.filter(s=>seen(s.id)).length, a.length); }).join("");
+  $("#byRar").innerHTML = RORDER.map(r => { const a=SPECIES.filter(s=>s.r===r); return progRow(RARITY[r].label, a.filter(s=>seen(s.id)).length, a.length, rcol(r)); }).join("");
+  $("#badges").innerHTML = badgeList().map(b=>`<div class="badge ${b.ok?"on":""}"><span class="medal">${b.m}</span><div><b>${b.t}</b><small>${b.d}</small></div></div>`).join("");
+  const all = [...OBS].sort((a,b)=>b.date-a.date);
+  $("#journal").innerHTML = all.length ? all.slice(0,40).map(o => `<button class="jitem" data-id="${o.sp}"><img src="${o.url}" alt=""><div><b>${esc(spById(o.sp).n)}</b><small>${fmtDate(o.date)} · ${esc(o.region)}</small></div></button>`).join("")
+    : `<p class="empty">Aucune observation pour l'instant. Ouvre une fiche dans l'Encyclopédie et ajoute ta première photo.</p>`;
+}
+$("#journal").addEventListener("click", e => { const b=e.target.closest(".jitem"); if(b) openSpecies(+b.dataset.id); });
+
+/* ---------- Profil ---------- */
+async function renderProfile(){
+  const X = xp(), L = levelOf(X), lo = need(L), hi = need(L+1);
+  const nSeen = SPECIES.filter(s=>seen(s.id)).length;
+  const nBadges = badgeList().filter(b=>b.ok).length;
+  const fav = profile.favSp ? spById(profile.favSp) : null;
+  const best = OBS.find(o=>o.id===profile.bestObs);
+  $("#profile").innerHTML = `
+    <div class="permit">
+      <div class="band"><span>Permis de pisteuse</span><span>Nº ${String(L).padStart(2,"0")}-${String(X).padStart(4,"0")}</span></div>
+      <div class="id">
+        <button class="avatar" id="avatarBtn" aria-label="Changer la photo de profil">${avatarURL?`<img src="${avatarURL}" alt="">`:"Ajouter<br>une photo"}</button>
+        <div class="who">
+          <input class="nameIn" id="nameIn" value="${esc(profile.name)}" placeholder="Ton prénom" maxlength="30" aria-label="Prénom">
+          <span class="title">${titleOf(L)} · niveau ${L}</span>
+          <div class="lvl"><div class="bar"><i style="width:${(X-lo)/(hi-lo)*100}%"></i></div><span>${X}/${hi} XP</span></div>
+        </div>
+      </div>
+      <div class="kpis">
+        <div><b>${nSeen}</b><small>espèces</small></div>
+        <div><b>${OBS.length}</b><small>photos</small></div>
+        <div><b>${nBadges}</b><small>badges</small></div>
+        <div><b>${visitedSet().size}</b><small>pays</small></div>
+      </div>
+    </div>
+    <div class="faves">
+      <button class="fave" id="favBtn"><div class="plate">${fav?(lastPhoto(fav.id)?`<img src="${lastPhoto(fav.id)}" alt="">`:ICON[fav.c]):ICON["Mammifères"]}</div>
+        <div class="t"><small>Animal préféré</small><b>${fav?esc(fav.n):"À choisir"}</b></div></button>
+      <button class="fave" id="bestBtn"><div class="plate">${best?`<img src="${best.url}" alt="">`:ICON["Oiseaux"]}</div>
+        <div class="t"><small>Plus belle photo</small><b>${best?esc(spById(best.sp).n):"À choisir"}</b></div></button>
+    </div>
+    <div class="dedic"><p>${esc(DEDICACE.texte)}</p><p class="sig">${esc(DEDICACE.signature)}</p></div>
+    <h2 class="sec">Sauvegarde</h2>
+    <div class="backup">
+      <p class="note" id="storeInfo" style="font-size:14px">Tes photos sont enregistrées sur ce téléphone.</p>
+      <div class="acts"><button class="btn alt" id="exportBtn">Exporter ma collection</button><button class="btn ghost" id="importBtn">Importer une sauvegarde</button></div>
+      <p class="note">L'export crée un fichier avec toutes tes photos et observations. Range-le dans iCloud Drive pour pouvoir tout récupérer sur un autre téléphone.</p>
+    </div>`;
+  $("#avatarBtn").onclick = () => { $("#avatarIn").value=""; $("#avatarIn").click(); };
+  $("#nameIn").onchange = e => { profile.name = e.target.value.trim(); dbSaveProfile(); toast("Prénom enregistré"); };
+  $("#favBtn").onclick = () => openPicker("fav");
+  $("#bestBtn").onclick = () => openPicker("best");
+  $("#exportBtn").onclick = exportAll;
+  $("#importBtn").onclick = () => { $("#importIn").value=""; $("#importIn").click(); };
+  try{
+    if(navigator.storage?.estimate){ const e = await navigator.storage.estimate(); const p = navigator.storage.persisted ? await navigator.storage.persisted() : false;
+      $("#storeInfo").textContent = `${OBS.length} photo${OBS.length>1?"s":""} · ${(e.usage/1048576).toFixed(1)} Mo utilisés sur ce téléphone${p?" · stockage protégé":""}.`; }
+  }catch(e){}
+}
+$("#avatarIn").addEventListener("change", async e => {
+  const f=e.target.files[0]; if(!f) return;
+  try{ profile.avatar = await toCleanBlob(f, 400); if(avatarURL) URL.revokeObjectURL(avatarURL); avatarURL = URL.createObjectURL(profile.avatar);
+    await dbSaveProfile(); renderProfile(); toast("Photo de profil mise à jour"); }
+  catch(err){ toast("Impossible de lire cette image."); }
+});
+
+/* ---------- Onglets ---------- */
+function setTab(t){
+  tab=t;
+  document.querySelectorAll("nav.tabbar button").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t));
+  ["dex","map","col","pro"].forEach(v => $("#view-"+v).hidden = v!==t);
+  if(t==="map") renderMap();
+  if(t==="pro") renderProfile();
+  window.scrollTo(0,0);
+}
+document.querySelector("nav.tabbar").addEventListener("click", e => { const b=e.target.closest("[data-tab]"); if(b) setTab(b.dataset.tab); });
+
+function render(){
+  chips();
+  const list = SPECIES.filter(s => (fClass==="Toutes"||s.c===fClass) && (fRar==="Toutes"||s.r===fRar));
+  $("#grid").innerHTML = list.map(cardHTML).join("");
+  $("#empty").hidden = list.length>0;
+  const n = SPECIES.filter(s=>seen(s.id)).length;
+  $("#seenN").textContent = n; $("#totalN").textContent = SPECIES.length;
+  $("#seenBar").style.width = (n/SPECIES.length*100)+"%";
+  renderCollection();
+  if(tab==="map") renderMap();
+  if(tab==="pro") renderProfile();
+}
+
+/* =========================================================
+   Feuilles : espèce, pays, sélecteur
+   ========================================================= */
+function closeSheet(){ sheet=null; $("#sheetHost").innerHTML=""; }
+function shell(heroHTML, body, small){
+  $("#sheetHost").innerHTML = `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true">
+    <div class="hero ${small?"small":""}">${heroHTML}<button class="close" id="closeBtn" aria-label="Fermer">×</button></div>
+    <div class="sbody">${body}</div></div></div>`;
+  $("#scrim").onclick = e => { if(e.target.id==="scrim") closeSheet(); };
+  $("#closeBtn").onclick = closeSheet;
+}
+document.addEventListener("keydown", e => { if(e.key==="Escape" && sheet) closeSheet(); });
+
+function openSpecies(id){ sheet={type:"sp",id}; confirmId=null; drawSpecies(); }
+function drawSpecies(){
+  const sp = spById(sheet.id), list = obsOf(sp.id), R = RARITY[sp.r], ph = lastPhoto(sp.id);
+  const isFav = profile.favSp===sp.id;
+  shell(ph?`<img src="${ph}" alt="${esc(sp.n)}">`:ICON[sp.c], `
+    <div><span class="rar" style="color:${rcol(sp.r)}">${num(sp.id)} · ${R.label} · ${R.xp} XP</span>
+      <h2>${esc(sp.n)}</h2><p class="sci">${esc(sp.s)}</p></div>
+    <div class="tags"><span class="tag">${sp.c}</span>${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${R.uicn}</span></div>
+    <div class="fact"><b>Le savais-tu ?</b>${esc(sp.f)}</div>
+    ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${fmtDate(list[0].date)} · ${esc(list[0].region)}</dd></dl>
+      <button class="btn ghost" id="favSp">${isFav?"♥ Ton animal préféré":"♡ Choisir comme animal préféré"}</button>`:""}
+    <div class="capture">
+      <h3>${list.length?"Nouvelle observation":"Capturer cette espèce"}</h3>
+      <label for="regionSel">Région de l'observation
+        <select id="regionSel">${REGIONS[sp.country].map(r=>`<option ${r===pendingRegion?"selected":""}>${r}</option>`).join("")}</select></label>
+      <button class="btn" id="addPhoto">Ajouter une photo</button>
+      <p class="note">La position GPS de la photo est supprimée automatiquement. Seule la région est enregistrée, pour ne jamais révéler où se trouvent les animaux.</p>
+    </div>
+    ${list.length?`<div class="obs">${list.map(o=>`<div class="ob"><img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><div>${fmtDate(o.date)}<br>${esc(o.region)}</div>
+      <button class="star" data-star="${o.id}" aria-pressed="${profile.bestObs===o.id}" aria-label="Plus belle photo">★</button>
+      <button class="del" data-del="${o.id}" aria-label="Supprimer cette photo">×</button></div>`).join("")}</div>`:""}
+    ${confirmId!==null?`<div class="confirm" id="confirmBox">Supprimer cette photo ? <button class="btn ghost" id="yesDel">Supprimer</button><button class="btn ghost" id="noDel">Annuler</button></div>`:""}
+  `);
+  $("#regionSel").onchange = e => { pendingRegion=e.target.value; };
+  $("#addPhoto").onclick = () => { $("#fileIn").value=""; $("#fileIn").click(); };
+  const fb=$("#favSp"); if(fb) fb.onclick = () => { profile.favSp = isFav?null:sp.id; dbSaveProfile(); drawSpecies(); toast(isFav?"Animal préféré retiré":`${sp.n} est ton animal préféré`); };
+  document.querySelectorAll("[data-star]").forEach(b => b.onclick = () => { const id=+b.dataset.star; profile.bestObs = profile.bestObs===id?null:id; dbSaveProfile(); drawSpecies(); toast(profile.bestObs?"Plus belle photo choisie":"Choix retiré"); });
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { confirmId=+b.dataset.del; drawSpecies(); $("#confirmBox")?.scrollIntoView({block:"nearest"}); });
+  if(confirmId!==null){
+    $("#yesDel").onclick = async () => { const o=OBS.find(x=>x.id===confirmId);
+      try{ await dbDelObs(confirmId); }catch(e){}
+      OBS = OBS.filter(x=>x.id!==confirmId); if(o) URL.revokeObjectURL(o.url);
+      if(profile.bestObs===confirmId){ profile.bestObs=null; dbSaveProfile(); }
+      confirmId=null; render(); drawSpecies(); toast("Photo supprimée"); };
+    $("#noDel").onclick = () => { confirmId=null; drawSpecies(); };
+  }
+}
+
+function openCountry(cc){ sheet={type:"ct",cc}; drawCountry(); }
+function drawCountry(){
+  const c = CBY[sheet.cc], open = isOpen(c.code), vis = visitedSet().has(c.code), auto = OBS.some(o=>o.country===c.code);
+  const sps = SPECIES.filter(s=>s.country===c.code);
+  shell(`<span style="font-family:var(--mono);font-weight:700;font-size:44px;color:${open?"var(--acacia)":"var(--muted)"}">${c.code}</span>`, `
+    <div><span class="rar" style="color:var(--muted)">${CONTINENTS[c.ct]}</span><h2>${esc(c.name)}</h2></div>
+    ${open?`<div class="fact"><b>Encyclopédie disponible</b>${sps.filter(s=>seen(s.id)).length} espèces observées sur ${sps.length}.</div>
+        <button class="btn alt" id="goDex">Ouvrir l'encyclopédie</button>`
+      :`<div class="lockline">${LOCK}<span>L'encyclopédie de ce pays est en préparation. Elle s'ouvrira dans une prochaine mise à jour.</span></div>`}
+    ${auto?`<p class="note">Marqué comme visité grâce à tes observations.</p>`
+      :`<button class="btn ghost" id="visitBtn">${vis?"Retirer des pays visités":"J'ai visité ce pays"}</button>`}
+  `, true);
+  const g=$("#goDex"); if(g) g.onclick = () => { closeSheet(); setTab("dex"); };
+  const v=$("#visitBtn"); if(v) v.onclick = () => {
+    profile.visited = vis ? profile.visited.filter(x=>x!==c.code) : [...profile.visited, c.code];
+    dbSaveProfile(); renderMap(); drawCountry(); toast(vis?"Pays retiré":`${c.name} ajouté à tes voyages`); };
+}
+
+function openPicker(kind){
+  sheet={type:"pick",kind};
+  const items = kind==="fav"
+    ? SPECIES.filter(s=>seen(s.id)).map(s=>({k:s.id, img:lastPhoto(s.id), t:s.n, sel:profile.favSp===s.id}))
+    : [...OBS].sort((a,b)=>b.date-a.date).map(o=>({k:o.id, img:o.url, t:spById(o.sp).n, sel:profile.bestObs===o.id}));
+  shell(`<span style="font-family:var(--display);font-weight:800;font-size:24px">${kind==="fav"?"Animal préféré":"Plus belle photo"}</span>`,
+    items.length ? `<div class="obs" id="pickGrid">${items.map(i=>`<button class="ob" data-k="${i.k}" style="padding:0;border:${i.sel?"3px solid var(--ochre)":"0"};text-align:left"><img src="${i.img}" alt=""><div>${esc(i.t)}</div></button>`).join("")}</div>`
+      : `<p class="empty">Ajoute d'abord une photo depuis l'Encyclopédie.</p>`, true);
+  const g=$("#pickGrid"); if(g) g.onclick = e => { const b=e.target.closest("[data-k]"); if(!b) return;
+    if(kind==="fav") profile.favSp=+b.dataset.k; else profile.bestObs=+b.dataset.k;
+    dbSaveProfile(); closeSheet(); renderProfile(); toast("C'est noté"); };
+}
+
+/* =========================================================
+   Photos : redimensionnées et ré-encodées (supprime les données GPS/EXIF)
+   ========================================================= */
+async function toCleanBlob(file, maxSide=1600){
+  let src;
+  try{ src = await createImageBitmap(file, {imageOrientation:"from-image"}); }
+  catch(e){ src = await new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=URL.createObjectURL(file); }); }
+  const k = Math.min(1, maxSide/Math.max(src.width,src.height));
+  const c = document.createElement("canvas"); c.width=Math.round(src.width*k); c.height=Math.round(src.height*k);
+  c.getContext("2d").drawImage(src,0,0,c.width,c.height);
+  return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("encode")),"image/jpeg",0.82)); // JPEG neuf, sans métadonnées
+}
+async function addObservation(sp, blob, region, date){
+  const o = {sp, country:spById(sp).country, region, date, blob};
+  o.id = await dbAddObs(o); o.url = URL.createObjectURL(blob); OBS.push(o); return o;
+}
+$("#fileIn").addEventListener("change", async e => {
+  const file = e.target.files[0]; if(!file || sheet?.type!=="sp") return;
+  const id = sheet.id, first = !seen(id);
+  try{
+    const blob = await toCleanBlob(file);
+    await addObservation(id, blob, pendingRegion, Date.now());
+    try{ navigator.storage?.persist?.(); }catch(err){}
+    render(); drawSpecies();
+    const sp = spById(id);
+    toast(first ? `${sp.n} ajouté à ta collection ! +${RARITY[sp.r].xp} XP` : "Observation ajoutée · +5 XP");
+  }catch(err){ toast("Impossible d'enregistrer cette photo. Vérifie l'espace libre du téléphone."); }
+});
+
+/* ---------- Export / import ---------- */
+const blobToDataURL = b => new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(b); });
+function dataURLToBlob(u){ const [h,d]=u.split(","); const bin=atob(d); const a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return new Blob([a],{type:h.match(/:(.*?);/)[1]}); }
+async function exportAll(){
+  try{
+    toast("Préparation de la sauvegarde…");
+    const out = {app:"safaridex", version:2, exported:Date.now(),
+      profile:{...profile, avatar: profile.avatar ? await blobToDataURL(profile.avatar) : null},
+      obs: await Promise.all(OBS.map(async o=>({sp:o.sp,country:o.country,region:o.region,date:o.date,img:await blobToDataURL(o.blob),best:profile.bestObs===o.id})))};
+    const blob = new Blob([JSON.stringify(out)],{type:"application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = `safaridex-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
+  }catch(e){ toast("L'export a échoué. Réessaie."); }
+}
+$("#importIn").addEventListener("change", async e => {
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const data = JSON.parse(await f.text());
+    if(data.app!=="safaridex") throw new Error("format");
+    const known = new Set(OBS.map(o=>o.sp+"|"+o.date)); let added=0, bestNew=null;
+    for(const o of data.obs||[]){
+      if(!spById(o.sp) || known.has(o.sp+"|"+o.date)) continue;
+      const n = await addObservation(o.sp, dataURLToBlob(o.img), o.region, o.date); added++;
+      if(o.best) bestNew = n.id;
+    }
+    const p = data.profile||{};
+    if(!profile.name && p.name) profile.name = p.name;
+    if(!profile.favSp && p.favSp) profile.favSp = p.favSp;
+    if(!profile.bestObs && bestNew) profile.bestObs = bestNew;
+    profile.visited = [...new Set([...profile.visited, ...(p.visited||[])])];
+    if(!profile.avatar && p.avatar){ profile.avatar = dataURLToBlob(p.avatar); avatarURL = URL.createObjectURL(profile.avatar); }
+    await dbSaveProfile(); render(); renderProfile();
+    toast(`${added} observation${added>1?"s":""} importée${added>1?"s":""}`);
+  }catch(err){ toast("Ce fichier n'est pas une sauvegarde Safaridex."); }
+});
+
+let tt;
+function toast(msg){
+  document.querySelector(".toast")?.remove();
+  const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t);
+  clearTimeout(tt); tt=setTimeout(()=>t.remove(),2600);
+}
+
+/* ---------- Démarrage ---------- */
+async function boot(){
+  render();
+  try{ db = await idbOpen(); }catch(e){ db = null; }
+  try{
+    if(db){
+      const recs = await idb("obs","readonly",s=>s.getAll()) || [];
+      OBS = recs.map(r=>({...r, url:URL.createObjectURL(r.blob)}));
+      const p = await idb("kv","readonly",s=>s.get("profile"));
+      if(p) profile = {...profile, ...p};
+      if(profile.avatar) avatarURL = URL.createObjectURL(profile.avatar);
+    }
+    // Reprise des photos de la première version (stockées dans localStorage)
+    let old=null; try{ old = JSON.parse(localStorage.getItem("safaridex.v1")); }catch(e){}
+    if(old && db){
+      for(const [sid,list] of Object.entries(old)) for(const o of list){
+        if(spById(+sid)) await addObservation(+sid, dataURLToBlob(o.img), o.region, o.date);
+      }
+      try{ localStorage.removeItem("safaridex.v1"); }catch(e){}
+    }
+  }catch(e){ toast("Tes données n'ont pas pu être chargées."); }
+  render();
+}
+boot();
+</script>
+
+<script>
+/* Mode hors ligne : enregistre le "service worker" (fichier sw.js) */
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>

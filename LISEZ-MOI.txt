@@ -1,0 +1,15 @@
+SAFARIDEX - contenu du dossier
+==============================
+
+index.html            L'application : la page, son style et son code.
+                      C'est le seul fichier que tu modifieras souvent.
+manifest.webmanifest  La "carte d'identité" de l'app : son nom, ses
+                      couleurs et son icône sur l'écran d'accueil.
+sw.js                 Permet à l'app de s'ouvrir sans réseau.
+icons/                Les icônes de l'app.
+
+Pour tester : ouvre ce dossier dans VS Code, puis clic droit sur
+index.html > "Open with Live Server".
+
+Pour écrire ta dédicace : dans index.html, cherche (Ctrl+F) le mot
+DEDICACE et remplace le texte entre guillemets.
