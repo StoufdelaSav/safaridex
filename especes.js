@@ -26,6 +26,33 @@ window.SAFARIDEX_PAYS = window.SAFARIDEX_PAYS || {};
 window.SAFARIDEX_PAYS.ZA = {
   nom: "Afrique du Sud",
   regions: ["Limpopo","Mpumalanga","KwaZulu-Natal","Cap-Occidental","Cap-Oriental","Cap-du-Nord","Nord-Ouest","État-Libre","Gauteng","En mer"],
+
+  /* Lieux connus proposés à l'ajout d'une photo : n = nom affiché, r = province enregistrée.
+     Volontairement larges (parcs, villes, régions) pour ne jamais localiser un animal précisément. */
+  lieux: [
+    {n:"Parc national Kruger", r:"Mpumalanga / Limpopo"},
+    {n:"Réserves privées du Grand Kruger (Sabi Sand, Timbavati…)", r:"Mpumalanga / Limpopo"},
+    {n:"Canyon de la Blyde River", r:"Mpumalanga"},
+    {n:"Parc national de Mapungubwe", r:"Limpopo"},
+    {n:"Parc de Hluhluwe-iMfolozi", r:"KwaZulu-Natal"},
+    {n:"iSimangaliso (lac Sainte-Lucie)", r:"KwaZulu-Natal"},
+    {n:"Drakensberg", r:"KwaZulu-Natal"},
+    {n:"Durban et la côte du KwaZulu-Natal", r:"KwaZulu-Natal"},
+    {n:"Le Cap et la montagne de la Table", r:"Cap-Occidental"},
+    {n:"Péninsule du Cap (Boulders Beach, Cap de Bonne-Espérance)", r:"Cap-Occidental"},
+    {n:"Hermanus et Gansbaai", r:"Cap-Occidental"},
+    {n:"Route des Jardins (Knysna, Plettenberg Bay)", r:"Cap-Occidental"},
+    {n:"Tsitsikamma", r:"Cap-Oriental"},
+    {n:"Parc national des Éléphants d'Addo", r:"Cap-Oriental"},
+    {n:"Karoo", r:"Cap-Occidental / Cap-du-Nord"},
+    {n:"Parc transfrontalier de Kgalagadi", r:"Cap-du-Nord"},
+    {n:"Namaqualand", r:"Cap-du-Nord"},
+    {n:"Parc de Pilanesberg", r:"Nord-Ouest"},
+    {n:"Réserve de Madikwe", r:"Nord-Ouest"},
+    {n:"Golden Gate Highlands", r:"État-Libre"},
+    {n:"Johannesburg et Pretoria", r:"Gauteng"},
+    {n:"En mer (sortie en bateau, plongée)", r:"En mer"}
+  ],
   especes: [
 
 /* ---------- Les premières espèces (Big Five et incontournables) ---------- */

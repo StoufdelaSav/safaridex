@@ -91,7 +91,10 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .card{position:relative;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s}
 .card:hover{transform:translateY(-2px)}
 .plate{aspect-ratio:4/3;max-width:100%;background:var(--plate);display:grid;place-items:center;position:relative;overflow:hidden}
-.plate img{width:100%;height:100%;object-fit:cover}
+/* Photo entière (paysage ou portrait) sur un fond flou de la même photo */
+.ph-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(14px) saturate(1.1);transform:scale(1.2);opacity:.6}
+.ph-fg{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:contain}
+.plate .no,.plate .count{z-index:2}
 .plate svg{width:44%;height:auto;opacity:.28;color:var(--ink)}
 .plate .no{position:absolute;top:8px;left:10px;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted);background:var(--surface);padding:1px 6px;border-radius:6px}
 .card.seen .plate .no{color:var(--ink)}
@@ -180,10 +183,13 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .scrim{position:fixed;inset:0;background:rgba(20,14,5,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--bg);width:100%;max-width:640px;max-height:92%;overflow-y:auto;border-radius:20px 20px 0 0;box-shadow:var(--shadow);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));animation:up .25s ease-out}
 @media (min-width:700px){.scrim{align-items:center}.sheet{border-radius:20px;max-height:88%}}
+.sheet.still{animation:none}
 @keyframes up{from{transform:translateY(30px);opacity:.5}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}.card,.bar i{transition:none}}
 .hero{position:relative;aspect-ratio:16/10;max-width:100%;background:var(--plate);display:grid;place-items:center;overflow:hidden}
-.hero img{width:100%;height:100%;object-fit:cover}
+.hero{aspect-ratio:4/3}
+.hero.tap{cursor:zoom-in}
+.hero .close{z-index:3}
 .hero svg{width:30%;opacity:.25;color:var(--ink)}
 .hero.small{aspect-ratio:auto;height:120px}
 .close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:var(--surface);font-size:20px;line-height:1;box-shadow:var(--shadow)}
@@ -209,10 +215,38 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .ob{position:relative;border-radius:10px;overflow:hidden;background:var(--plate)}
 .ob img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
 .ob div{padding:6px 8px;font-size:11px;background:var(--surface)}
-.ob button{position:absolute;top:4px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:1}
-.ob .del{right:4px}
-.ob .star{left:4px}
-.ob .star[aria-pressed="true"]{background:#c99312}
+/* Vignettes des observations */
+.thumb{position:relative;border:0;padding:0;border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;display:flex;flex-direction:column;border:1px solid var(--line)}
+.thumb img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.thumb span{padding:6px 8px;font-size:11px;line-height:1.35;color:var(--muted)}
+.thumb span b{color:var(--ink);font-weight:700}
+.thumb i{position:absolute;top:6px;left:6px;font-style:normal;background:var(--r-legend);color:#fff;border-radius:99px;font-size:11px;font-weight:700;padding:1px 7px}
+/* Formulaire d'observation */
+.form{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:700}
+.field input,.field select{padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:16px;color:var(--ink);font-weight:400;width:100%}
+.field small{font-weight:400}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;background:var(--plate);padding:4px;border-radius:12px}
+.seg button{border:0;background:transparent;padding:10px 4px;border-radius:9px;font-weight:700;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.formacts{display:flex;gap:8px;flex-wrap:wrap}
+.formacts .btn{flex:1}
+/* Visionneuse plein écran (toujours sombre, comme une galerie photo) */
+.viewer{position:fixed;inset:0;z-index:30;background:#000;color:#f1e8d6;display:flex;flex-direction:column}
+.viewer .stage{flex:1;min-height:0;display:grid;place-items:center;position:relative;padding-top:env(safe-area-inset-top,0px);touch-action:pan-y pinch-zoom}
+.viewer .stage img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.vbtn{position:absolute;z-index:2;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:22px;line-height:1;display:grid;place-items:center}
+.vclose{top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px))}
+.vprev{left:calc(10px + env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%)}
+.vnext{right:calc(10px + env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%)}
+.vcount{position:absolute;top:calc(22px + env(safe-area-inset-top,0px));left:calc(16px + env(safe-area-inset-left,0px));font-family:var(--mono);font-size:12px;color:#c9bda5}
+.vbar{background:#15120d;padding:14px max(16px,env(safe-area-inset-left,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:10px}
+.vbar b{font-family:var(--display);font-size:18px;color:#fff}
+.vbar p{margin:0;font-size:14px;color:#c9bda5}
+.vbar .acts{display:flex;gap:8px;flex-wrap:wrap}
+.vbar .acts button{border:1px solid #3a3226;background:#221e17;color:#f1e8d6;border-radius:10px;padding:9px 12px;font-weight:700;font-size:14px}
+.vbar .acts button[aria-pressed="true"]{background:#c99312;border-color:#c99312;color:#fff}
+.vbar .acts .danger{color:#ff9b8a}
 .lockline{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;color:var(--muted);font-size:14px}
 .lockline svg{width:22px;height:22px;flex:none}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:700;z-index:40;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
@@ -532,11 +566,13 @@ const dbSaveProfile = () => idb("kv","readwrite",s=>s.put(profile,"profile")).ca
 let OBS = [];          // {id, sp, country, region, date, blob, url}
 let profile = { name:"", avatar:null, favSp:null, bestObs:null, visited:[] };
 let avatarURL = null;
-let fQuery="", fClass="Toutes", fRar="Toutes", tab="dex", sheet=null, confirmId=null;
-let pendingRegion = REGIONS.ZA[0];
+let fQuery="", fClass="Toutes", fRar="Toutes", tab="dex", sheet=null;
+const LIEUX = Object.fromEntries(Object.entries(PAYS).map(([cc,p]) => [cc, p.lieux || []]));
+let lastChoice = { place:"", region:"", wild:true };   // dernier lieu et conditions utilisés
+try{ lastChoice = {...lastChoice, ...JSON.parse(localStorage.getItem("safaridex.last")||"{}")}; }catch(e){}
 
 const $ = s => document.querySelector(s);
-const obsOf = id => OBS.filter(o=>o.sp===id);
+const obsOf = id => OBS.filter(o=>o.sp===id).sort((a,b)=>a.date-b.date);
 const seen = id => OBS.some(o=>o.sp===id);
 const rcol = r => `var(${RARITY[r].v})`;
 const fmtDate = d => new Date(d).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
@@ -545,6 +581,12 @@ const num = id => "#" + String(id).padStart(3,"0");
 const spById = id => SPECIES.find(s=>s.id===id);
 const visitedSet = () => new Set([...profile.visited, ...OBS.map(o=>o.country)]);
 const lastPhoto = id => { const l=obsOf(id); return l.length ? l[l.length-1].url : null; };
+const photo = (url, alt="", lazy=false) => `<img class="ph-bg" src="${url}" alt="" aria-hidden="true"${lazy?' loading="lazy"':''}><img class="ph-fg" src="${url}" alt="${esc(alt)}"${lazy?' loading="lazy"':''}>`;
+const wildLabel = o => o.wild===true ? "En liberté" : o.wild===false ? "En captivité" : "";
+const placeLabel = o => o.place || (o.region && o.region!=="Inconnue" ? o.region : "Lieu inconnu");
+const obsMeta = o => [fmtDate(o.date), placeLabel(o), wildLabel(o)].filter(Boolean).join(" · ");
+const newUid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const toDay = t => { const d=new Date(t); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
 
 /* ---------- Progression ---------- */
 function xp(){
@@ -580,7 +622,7 @@ function cardHTML(sp){
   const n = obsOf(sp.id).length, s = n>0, ph = lastPhoto(sp.id);
   return `<button class="card ${s?"seen":""}" data-id="${sp.id}">
     <span class="stripe" style="background:${rcol(sp.r)}"></span>
-    <div class="plate">${ph?`<img src="${ph}" alt="${esc(sp.n)}" loading="lazy">`:ICON[sp.c]}<span class="no">${num(sp.id)}</span>${n>1?`<span class="count">×${n}</span>`:""}</div>
+    <div class="plate">${ph?photo(ph, sp.n, true):ICON[sp.c]}<span class="no">${num(sp.id)}</span>${n>1?`<span class="count">×${n}</span>`:""}</div>
     <div class="cbody"><span class="cname">${esc(sp.n)}</span>
     <span class="rar" style="color:${rcol(sp.r)}"><span class="dot" style="background:${rcol(sp.r)}"></span>${RARITY[sp.r].label}</span></div>
   </button>`;
@@ -672,7 +714,7 @@ function badgeList(){
   const birds = nOf("Oiseaux"), herps = nOf("Reptiles")+nOf("Amphibiens"), fish = nOf("Poissons");
   const marine = SPECIES.filter(s=>s.id>=94&&s.id<=101&&seen(s.id)).length + fish;
   const legend = SPECIES.some(s=>s.r==="CR"&&seen(s.id));
-  const regions = new Set(OBS.map(o=>o.region)).size;
+  const regions = new Set(OBS.map(o=>o.region).filter(r=>r && r!=="Inconnue")).size;
   const countries = visitedSet().size;
   return [
     {t:"Première rencontre", d:"Observer une première espèce", ok:nSeen>=1, m:"1"},
@@ -691,7 +733,7 @@ function renderCollection(){
   $("#byRar").innerHTML = RORDER.map(r => { const a=SPECIES.filter(s=>s.r===r); return progRow(RARITY[r].label, a.filter(s=>seen(s.id)).length, a.length, rcol(r)); }).join("");
   $("#badges").innerHTML = badgeList().map(b=>`<div class="badge ${b.ok?"on":""}"><span class="medal">${b.m}</span><div><b>${b.t}</b><small>${b.d}</small></div></div>`).join("");
   const all = [...OBS].sort((a,b)=>b.date-a.date);
-  $("#journal").innerHTML = all.length ? all.slice(0,40).map(o => `<button class="jitem" data-id="${o.sp}"><img src="${o.url}" alt=""><div><b>${esc(spById(o.sp).n)}</b><small>${fmtDate(o.date)} · ${esc(o.region)}</small></div></button>`).join("")
+  $("#journal").innerHTML = all.length ? all.slice(0,40).map(o => `<button class="jitem" data-id="${o.sp}"><img src="${o.url}" alt=""><div><b>${esc(spById(o.sp).n)}</b><small>${esc(obsMeta(o))}</small></div></button>`).join("")
     : `<p class="empty">Aucune observation pour l'instant. Ouvre une fiche dans l'Encyclopédie et ajoute ta première photo.</p>`;
 }
 $("#journal").addEventListener("click", e => { const b=e.target.closest(".jitem"); if(b) openSpecies(+b.dataset.id); });
@@ -722,9 +764,9 @@ async function renderProfile(){
       </div>
     </div>
     <div class="faves">
-      <button class="fave" id="favBtn"><div class="plate">${fav?(lastPhoto(fav.id)?`<img src="${lastPhoto(fav.id)}" alt="">`:ICON[fav.c]):ICON["Mammifères"]}</div>
+      <button class="fave" id="favBtn"><div class="plate">${fav?(lastPhoto(fav.id)?photo(lastPhoto(fav.id)):ICON[fav.c]):ICON["Mammifères"]}</div>
         <div class="t"><small>Animal préféré</small><b>${fav?esc(fav.n):"À choisir"}</b></div></button>
-      <button class="fave" id="bestBtn"><div class="plate">${best?`<img src="${best.url}" alt="">`:ICON["Oiseaux"]}</div>
+      <button class="fave" id="bestBtn"><div class="plate">${best?photo(best.url):ICON["Oiseaux"]}</div>
         <div class="t"><small>Plus belle photo</small><b>${best?esc(spById(best.sp).n):"À choisir"}</b></div></button>
     </div>
     <div class="dedic"><p>${esc(DEDICACE.texte)}</p><p class="sig">${esc(DEDICACE.signature)}</p></div>
@@ -789,51 +831,157 @@ function render(){
    ========================================================= */
 function closeSheet(){ sheet=null; $("#sheetHost").innerHTML=""; }
 function shell(heroHTML, body, small){
-  $("#sheetHost").innerHTML = `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true">
+  const prev = document.querySelector("#sheetHost .sheet"), keep = prev ? prev.scrollTop : 0;
+  $("#sheetHost").innerHTML = `<div class="scrim" id="scrim"><div class="sheet${prev?" still":""}" role="dialog" aria-modal="true">
     <div class="hero ${small?"small":""}">${heroHTML}<button class="close" id="closeBtn" aria-label="Fermer">×</button></div>
     <div class="sbody">${body}</div></div></div>`;
+  if(prev) document.querySelector("#sheetHost .sheet").scrollTop = keep;
   $("#scrim").onclick = e => { if(e.target.id==="scrim") closeSheet(); };
   $("#closeBtn").onclick = closeSheet;
 }
-document.addEventListener("keydown", e => { if(e.key==="Escape" && sheet) closeSheet(); });
+document.addEventListener("keydown", e => { if(e.key!=="Escape" || !sheet) return;
+  if(sheet.type==="view") openSpecies(sheet.sp); else if(sheet.type==="form") $("#cancelObs")?.click(); else closeSheet(); });
 
-function openSpecies(id){ sheet={type:"sp",id}; confirmId=null; drawSpecies(); }
+function openSpecies(id){ sheet={type:"sp",id}; drawSpecies(); }
 function drawSpecies(){
-  const sp = spById(sheet.id), list = obsOf(sp.id), R = RARITY[sp.r], ph = lastPhoto(sp.id);
+  const sp = spById(sheet.id), list = obsOf(sp.id), R = RARITY[sp.r], last = list[list.length-1];
   const isFav = profile.favSp===sp.id;
-  shell(ph?`<img src="${ph}" alt="${esc(sp.n)}">`:ICON[sp.c], `
+  shell(last?photo(last.url, sp.n):ICON[sp.c], `
     <div><span class="rar" style="color:${rcol(sp.r)}">${num(sp.id)} · ${R.label} · ${R.xp} XP</span>
       <h2>${esc(sp.n)}</h2><p class="sci">${esc(sp.s)}</p></div>
     <div class="tags"><span class="tag">${sp.c}</span>${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${R.uicn}</span></div>
     <div class="fact"><b>Le savais-tu ?</b>${esc(sp.f)}</div>
-    ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${fmtDate(list[0].date)} · ${esc(list[0].region)}</dd></dl>
+    ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${esc(obsMeta(list[0]))}</dd></dl>
+      <div class="obs" id="thumbs">${list.map((o,i)=>`<button class="thumb" data-view="${i}">${profile.bestObs===o.id?"<i>★</i>":""}<img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><span><b>${fmtDate(o.date)}</b><br>${esc(placeLabel(o))}</span></button>`).join("")}</div>
       <button class="btn ghost" id="favSp">${isFav?"♥ Ton animal préféré":"♡ Choisir comme animal préféré"}</button>`:""}
     <div class="capture">
       <h3>${list.length?"Nouvelle observation":"Capturer cette espèce"}</h3>
-      <label for="regionSel">Région de l'observation
-        <select id="regionSel">${REGIONS[sp.country].map(r=>`<option ${r===pendingRegion?"selected":""}>${r}</option>`).join("")}</select></label>
       <button class="btn" id="addPhoto">Ajouter une photo</button>
-      <p class="note">La position GPS de la photo est supprimée automatiquement. Seule la région est enregistrée, pour ne jamais révéler où se trouvent les animaux.</p>
+      <p class="note">Tu choisiras ensuite la date, le lieu et si l'animal était en liberté. La position GPS de la photo est toujours supprimée, pour ne jamais révéler où se trouvent les animaux.</p>
     </div>
-    ${list.length?`<div class="obs">${list.map(o=>`<div class="ob"><img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><div>${fmtDate(o.date)}<br>${esc(o.region)}</div>
-      <button class="star" data-star="${o.id}" aria-pressed="${profile.bestObs===o.id}" aria-label="Plus belle photo">★</button>
-      <button class="del" data-del="${o.id}" aria-label="Supprimer cette photo">×</button></div>`).join("")}</div>`:""}
-    ${confirmId!==null?`<div class="confirm" id="confirmBox">Supprimer cette photo ? <button class="btn ghost" id="yesDel">Supprimer</button><button class="btn ghost" id="noDel">Annuler</button></div>`:""}
   `);
-  $("#regionSel").onchange = e => { pendingRegion=e.target.value; };
+  if(last){ const h=document.querySelector(".hero"); h.classList.add("tap"); h.onclick = e => { if(!e.target.closest(".close")) openViewer(sp.id, list.length-1); }; }
   $("#addPhoto").onclick = () => { $("#fileIn").value=""; $("#fileIn").click(); };
+  const t=$("#thumbs"); if(t) t.onclick = e => { const b=e.target.closest("[data-view]"); if(b) openViewer(sp.id, +b.dataset.view); };
   const fb=$("#favSp"); if(fb) fb.onclick = () => { profile.favSp = isFav?null:sp.id; dbSaveProfile(); drawSpecies(); toast(isFav?"Animal préféré retiré":`${sp.n} est ton animal préféré`); };
-  document.querySelectorAll("[data-star]").forEach(b => b.onclick = () => { const id=+b.dataset.star; profile.bestObs = profile.bestObs===id?null:id; dbSaveProfile(); drawSpecies(); toast(profile.bestObs?"Plus belle photo choisie":"Choix retiré"); });
-  document.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { confirmId=+b.dataset.del; drawSpecies(); $("#confirmBox")?.scrollIntoView({block:"nearest"}); });
-  if(confirmId!==null){
-    $("#yesDel").onclick = async () => { const o=OBS.find(x=>x.id===confirmId);
-      try{ await dbDelObs(confirmId); }catch(e){}
-      OBS = OBS.filter(x=>x.id!==confirmId); if(o) URL.revokeObjectURL(o.url);
-      if(profile.bestObs===confirmId){ profile.bestObs=null; dbSaveProfile(); }
-      confirmId=null; render(); drawSpecies(); toast("Photo supprimée"); };
-    $("#noDel").onclick = () => { confirmId=null; drawSpecies(); };
+}
+
+/* ---------- Formulaire d'observation (nouvelle photo ou modification) ---------- */
+function openObsForm(draft){ sheet={type:"form", draft}; drawObsForm(); }
+function drawObsForm(){
+  const d = sheet.draft, sp = spById(d.sp), lieux = LIEUX[sp.country]||[], regions = REGIONS[sp.country]||[];
+  const mode = d.place==="__autre" ? "autre" : d.place==="__inconnu" ? "inconnu" : "lieu";
+  const lieu = lieux.find(l=>l.n===d.place);
+  shell(photo(d.url, sp.n), `
+    <div><span class="rar" style="color:${rcol(sp.r)}">${num(sp.id)} · ${RARITY[sp.r].label}</span>
+      <h2>${d.id?"Modifier l'observation":esc(sp.n)}</h2></div>
+    <div class="form">
+      <label class="field" for="obsDate">Date de l'observation
+        <input type="date" id="obsDate" value="${toDay(d.date)}" max="${toDay(Date.now())}">
+        ${d.fromPhoto?`<small>Date retrouvée dans la photo.</small>`:""}</label>
+      <div class="field">L'animal était
+        <div class="seg" id="wildSeg">
+          <button type="button" data-w="1" aria-pressed="${d.wild===true}">En liberté</button>
+          <button type="button" data-w="0" aria-pressed="${d.wild===false}">En captivité</button>
+          <button type="button" data-w="" aria-pressed="${d.wild==null}">Je ne sais pas</button>
+        </div></div>
+      <label class="field" for="obsPlace">Lieu
+        <select id="obsPlace">
+          ${lieux.map(l=>`<option value="${esc(l.n)}" ${d.place===l.n?"selected":""}>${esc(l.n)}</option>`).join("")}
+          <option value="__autre" ${mode==="autre"?"selected":""}>Autre lieu (choisir la province)</option>
+          <option value="__inconnu" ${mode==="inconnu"?"selected":""}>Je ne sais pas</option>
+        </select>
+        <small>${mode==="lieu"&&lieu?`Province : ${esc(lieu.r)}`:mode==="inconnu"?"Aucun lieu ne sera enregistré.":""}</small></label>
+      ${mode==="autre"?`<label class="field" for="obsRegion">Province
+        <select id="obsRegion">${regions.map(r=>`<option ${d.region===r?"selected":""}>${esc(r)}</option>`).join("")}</select></label>`:""}
+      <div class="formacts">
+        <button class="btn ghost" id="cancelObs">Annuler</button>
+        <button class="btn" id="saveObs">${d.id?"Enregistrer":"Ajouter à ma collection"}</button>
+      </div>
+    </div>`);
+  $("#obsDate").onchange = e => { if(!e.target.value) return; const [y,m,dd]=e.target.value.split("-").map(Number);
+    if(toDay(d.date)!==e.target.value){ d.date = new Date(y,m-1,dd,12).getTime(); d.fromPhoto=false; } };
+  $("#wildSeg").onclick = e => { const b=e.target.closest("[data-w]"); if(!b) return; d.wild = b.dataset.w==="" ? null : b.dataset.w==="1"; drawObsForm(); };
+  $("#obsPlace").onchange = e => { d.place = e.target.value;
+    if(d.place==="__autre" && !regions.includes(d.region)) d.region = regions[0]; drawObsForm(); };
+  const rs=$("#obsRegion"); if(rs) rs.onchange = e => { d.region = e.target.value; };
+  $("#cancelObs").onclick = () => { if(!d.id) URL.revokeObjectURL(d.url); d.id ? openViewer(d.sp, d.viewIdx) : openSpecies(d.sp); };
+  $("#saveObs").onclick = saveObsForm;
+}
+async function saveObsForm(){
+  const d = sheet.draft, sp = spById(d.sp), lieux = LIEUX[sp.country]||[];
+  const lieu = lieux.find(l=>l.n===d.place);
+  const fields = {
+    date: d.date, wild: d.wild,
+    place: lieu ? lieu.n : null,
+    region: lieu ? lieu.r : d.place==="__autre" ? d.region : "Inconnue"
+  };
+  lastChoice = { place:d.place, region:d.region, wild:d.wild };
+  try{ localStorage.setItem("safaridex.last", JSON.stringify(lastChoice)); }catch(e){}
+  try{
+    if(d.id){
+      const o = OBS.find(x=>x.id===d.id); Object.assign(o, fields); await dbPutObs(o);
+      render(); toast("Observation modifiée");
+      openViewer(o.sp, obsOf(o.sp).indexOf(o));
+    }else{
+      const first = !seen(d.sp);
+      await addObservation({sp:d.sp, blob:d.blob, ...fields});
+      URL.revokeObjectURL(d.url);
+      try{ navigator.storage?.persist?.(); }catch(err){}
+      render(); openSpecies(d.sp);
+      toast(first ? `${sp.n} ajouté à ta collection ! +${RARITY[sp.r].xp} XP` : "Observation ajoutée · +5 XP");
+    }
+  }catch(err){ toast("Impossible d'enregistrer. Vérifie l'espace libre du téléphone."); }
+}
+
+/* ---------- Visionneuse plein écran ---------- */
+let viewerConfirm = false;
+function openViewer(spId, idx){ sheet={type:"view", sp:spId, idx}; viewerConfirm=false; drawViewer(); }
+function drawViewer(){
+  const list = obsOf(sheet.sp); if(!list.length) return openSpecies(sheet.sp);
+  sheet.idx = Math.max(0, Math.min(sheet.idx, list.length-1));
+  const o = list[sheet.idx], sp = spById(o.sp), isBest = profile.bestObs===o.id, many = list.length>1;
+  $("#sheetHost").innerHTML = `<div class="viewer" role="dialog" aria-modal="true" aria-label="Photo de ${esc(sp.n)}">
+    <div class="stage" id="stage">
+      <img src="${o.url}" alt="${esc(sp.n)}, ${fmtDate(o.date)}">
+      ${many?`<span class="vcount">${sheet.idx+1} / ${list.length}</span>
+        <button class="vbtn vprev" id="vPrev" aria-label="Photo précédente">‹</button>
+        <button class="vbtn vnext" id="vNext" aria-label="Photo suivante">›</button>`:""}
+      <button class="vbtn vclose" id="vClose" aria-label="Fermer">×</button>
+    </div>
+    <div class="vbar">
+      <div><b>${esc(sp.n)}</b><p>${esc(obsMeta(o))}</p></div>
+      ${viewerConfirm
+        ? `<div class="acts"><span style="align-self:center">Supprimer cette photo ?</span><button class="danger" id="vYes">Supprimer</button><button id="vNo">Annuler</button></div>`
+        : `<div class="acts"><button id="vBest" aria-pressed="${isBest}">★ ${isBest?"Plus belle photo":"Choisir comme plus belle"}</button><button id="vEdit">Modifier</button><button class="danger" id="vDel">Supprimer</button></div>`}
+    </div></div>`;
+  const go = k => { sheet.idx = (sheet.idx + k + list.length) % list.length; viewerConfirm=false; drawViewer(); };
+  $("#vClose").onclick = () => openSpecies(sheet.sp);
+  if(many){ $("#vPrev").onclick = () => go(-1); $("#vNext").onclick = () => go(1);
+    let x0=null; const st=$("#stage");
+    st.addEventListener("touchstart", e => { x0 = e.touches.length===1 ? e.touches[0].clientX : null; }, {passive:true});
+    st.addEventListener("touchend", e => { if(x0==null) return; const dx = e.changedTouches[0].clientX - x0; if(Math.abs(dx)>50) go(dx<0?1:-1); x0=null; }); }
+  if(viewerConfirm){
+    $("#vNo").onclick = () => { viewerConfirm=false; drawViewer(); };
+    $("#vYes").onclick = async () => {
+      try{ await dbDelObs(o.id); }catch(e){}
+      OBS = OBS.filter(x=>x.id!==o.id); URL.revokeObjectURL(o.url);
+      if(profile.bestObs===o.id){ profile.bestObs=null; dbSaveProfile(); }
+      render(); toast("Photo supprimée");
+      if(obsOf(sheet.sp).length) { viewerConfirm=false; drawViewer(); } else openSpecies(sheet.sp);
+    };
+  }else{
+    $("#vBest").onclick = () => { profile.bestObs = isBest?null:o.id; dbSaveProfile(); drawViewer(); toast(isBest?"Choix retiré":"Plus belle photo choisie"); };
+    $("#vEdit").onclick = () => openObsForm({ id:o.id, sp:o.sp, url:o.url, date:o.date, wild:o.wild??null,
+      place: o.place || (o.region && o.region!=="Inconnue" ? "__autre" : "__inconnu"), region:o.region, viewIdx:sheet.idx });
+    $("#vDel").onclick = () => { viewerConfirm=true; drawViewer(); };
   }
 }
+document.addEventListener("keydown", e => {
+  if(sheet?.type!=="view") return;
+  if(e.key==="ArrowLeft") $("#vPrev")?.click();
+  if(e.key==="ArrowRight") $("#vNext")?.click();
+});
 
 function openCountry(cc){ sheet={type:"ct",cc}; drawCountry(); }
 function drawCountry(){
@@ -878,21 +1026,47 @@ async function toCleanBlob(file, maxSide=1600){
   c.getContext("2d").drawImage(src,0,0,c.width,c.height);
   return await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("encode")),"image/jpeg",0.82)); // JPEG neuf, sans métadonnées
 }
-async function addObservation(sp, blob, region, date){
-  const o = {sp, country:spById(sp).country, region, date, blob};
-  o.id = await dbAddObs(o); o.url = URL.createObjectURL(blob); OBS.push(o); return o;
+/* Lit la date de prise de vue (EXIF) d'une photo JPEG, sans rien garder d'autre. */
+async function photoDate(file){
+  try{
+    const v = new DataView(await file.slice(0, 262144).arrayBuffer());
+    if(v.getUint16(0)!==0xFFD8) return null;
+    let p=2;
+    while(p+4 < v.byteLength){
+      const m=v.getUint16(p), len=v.getUint16(p+2);
+      if(m===0xFFE1 && v.getUint32(p+4)===0x45786966){            // "Exif"
+        const t=p+10, le=v.getUint16(t)===0x4949;
+        const u16=o=>v.getUint16(t+o,le), u32=o=>v.getUint32(t+o,le);
+        const findTag=(ifd,tag)=>{ const n=u16(ifd); for(let i=0;i<n;i++){ const e=ifd+2+i*12; if(u16(e)===tag) return e; } return null; };
+        const readStr=e=>{ const off=u32(e+8); let str=""; for(let i=0;i<19;i++) str+=String.fromCharCode(v.getUint8(t+off+i)); return str; };
+        const ifd0=u32(4); let e=null; const ex=findTag(ifd0,0x8769);
+        if(ex!=null) e=findTag(u32(ex+8),0x9003);
+        if(e==null) e=findTag(ifd0,0x0132);
+        if(e==null) return null;
+        const mt=readStr(e).match(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2})/);
+        if(!mt) return null;
+        const ts=new Date(+mt[1],+mt[2]-1,+mt[3],+mt[4],+mt[5]).getTime();
+        return ts>0 && ts<=Date.now()+86400000 ? ts : null;
+      }
+      if((m & 0xFF00)!==0xFF00) break;
+      p += 2+len;
+    }
+  }catch(e){}
+  return null;
+}
+async function addObservation(o){
+  const rec = {sp:o.sp, country:spById(o.sp).country, region:o.region||"Inconnue", place:o.place||null,
+    wild:o.wild??null, date:o.date, uid:o.uid||newUid(), blob:o.blob};
+  rec.id = await dbAddObs(rec); rec.url = URL.createObjectURL(o.blob); OBS.push(rec); return rec;
 }
 $("#fileIn").addEventListener("change", async e => {
   const file = e.target.files[0]; if(!file || sheet?.type!=="sp") return;
-  const id = sheet.id, first = !seen(id);
+  const spId = sheet.id;
   try{
-    const blob = await toCleanBlob(file);
-    await addObservation(id, blob, pendingRegion, Date.now());
-    try{ navigator.storage?.persist?.(); }catch(err){}
-    render(); drawSpecies();
-    const sp = spById(id);
-    toast(first ? `${sp.n} ajouté à ta collection ! +${RARITY[sp.r].xp} XP` : "Observation ajoutée · +5 XP");
-  }catch(err){ toast("Impossible d'enregistrer cette photo. Vérifie l'espace libre du téléphone."); }
+    const [blob, taken] = await Promise.all([toCleanBlob(file), photoDate(file)]);
+    openObsForm({ sp:spId, blob, url:URL.createObjectURL(blob), date: taken || Date.now(), fromPhoto: !!taken,
+      wild: lastChoice.wild, place: lastChoice.place || ((LIEUX[spById(spId).country]||[])[0]||{}).n || "__inconnu", region: lastChoice.region });
+  }catch(err){ toast("Impossible de lire cette photo. Essaie avec une autre."); }
 });
 
 /* ---------- Export / import ---------- */
@@ -904,9 +1078,9 @@ let readyExport = null;
 async function exportAll(){
   try{
     toast("Préparation de la sauvegarde…");
-    const out = {app:"safaridex", version:2, exported:Date.now(),
+    const out = {app:"safaridex", version:3, exported:Date.now(),
       profile:{...profile, avatar: profile.avatar ? await blobToDataURL(profile.avatar) : null},
-      obs: await Promise.all(OBS.map(async o=>({sp:o.sp,country:o.country,region:o.region,date:o.date,img:await blobToDataURL(o.blob),best:profile.bestObs===o.id})))};
+      obs: await Promise.all(OBS.map(async o=>({sp:o.sp,country:o.country,region:o.region,place:o.place,wild:o.wild,date:o.date,uid:o.uid,img:await blobToDataURL(o.blob),best:profile.bestObs===o.id})))};
     readyExport = new File([JSON.stringify(out)], `safaridex-${new Date().toISOString().slice(0,10)}.json`, {type:"application/json"});
     renderProfile(); toast("Sauvegarde prête");
   }catch(e){ toast("L'export a échoué. Réessaie."); }
@@ -932,10 +1106,10 @@ $("#importIn").addEventListener("change", async e => {
   try{
     const data = JSON.parse(await f.text());
     if(data.app!=="safaridex") throw new Error("format");
-    const known = new Set(OBS.map(o=>o.sp+"|"+o.date)); let added=0, skipped=0, bestNew=null;
+    const known = new Set([...OBS.map(o=>o.uid), ...OBS.map(o=>o.sp+"|"+o.date)]); let added=0, skipped=0, bestNew=null;
     for(const o of data.obs||[]){
-      if(!spById(o.sp) || known.has(o.sp+"|"+o.date)){ skipped++; continue; }
-      const n = await addObservation(o.sp, dataURLToBlob(o.img), o.region, o.date); added++;
+      if(!spById(o.sp) || known.has(o.uid) || known.has(o.sp+"|"+o.date)){ skipped++; continue; }
+      const n = await addObservation({...o, blob:dataURLToBlob(o.img)}); added++;
       if(o.best) bestNew = n.id;
     }
     const p = data.profile||{};
@@ -973,7 +1147,7 @@ async function boot(){
     let old=null; try{ old = JSON.parse(localStorage.getItem("safaridex.v1")); }catch(e){}
     if(old && db){
       for(const [sid,list] of Object.entries(old)) for(const o of list){
-        if(spById(+sid)) await addObservation(+sid, dataURLToBlob(o.img), o.region, o.date);
+        if(spById(+sid)) await addObservation({sp:+sid, blob:dataURLToBlob(o.img), region:o.region, date:o.date});
       }
       try{ localStorage.removeItem("safaridex.v1"); }catch(e){}
     }
