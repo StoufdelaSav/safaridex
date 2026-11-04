@@ -216,7 +216,9 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .ob img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
 .ob div{padding:6px 8px;font-size:11px;background:var(--surface)}
 /* Vignettes des observations */
-.thumb{position:relative;border:0;padding:0;border-radius:10px;overflow:hidden;background:var(--surface);text-align:left;display:flex;flex-direction:column;border:1px solid var(--line)}
+.thumb{position:relative;border-radius:10px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}
+.tview{border:0;padding:0;background:none;text-align:left;display:flex;flex-direction:column;width:100%}
+.tdel{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:17px;line-height:1;display:grid;place-items:center}
 .thumb img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
 .thumb span{padding:6px 8px;font-size:11px;line-height:1.35;color:var(--muted)}
 .thumb span b{color:var(--ink);font-weight:700}
@@ -234,7 +236,9 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 /* Visionneuse plein écran (toujours sombre, comme une galerie photo) */
 .viewer{position:fixed;inset:0;z-index:30;background:#000;color:#f1e8d6;display:flex;flex-direction:column}
 .viewer .stage{flex:1;min-height:0;display:grid;place-items:center;position:relative;padding-top:env(safe-area-inset-top,0px);touch-action:pan-y pinch-zoom}
-.viewer .stage img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.viewer .stage img{position:absolute;inset:0;margin:auto;width:100%;height:100%;object-fit:contain;display:block}
+.vbar{position:relative;z-index:3}
+.formdel{background:none;border:0;color:#c2412d;font-weight:700;padding:6px 0;text-align:left;font-size:15px}
 .vbtn{position:absolute;z-index:2;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:22px;line-height:1;display:grid;place-items:center}
 .vclose{top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px))}
 .vprev{left:calc(10px + env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%)}
@@ -852,7 +856,8 @@ function drawSpecies(){
     <div class="tags"><span class="tag">${sp.c}</span>${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${R.uicn}</span></div>
     <div class="fact"><b>Le savais-tu ?</b>${esc(sp.f)}</div>
     ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${esc(obsMeta(list[0]))}</dd></dl>
-      <div class="obs" id="thumbs">${list.map((o,i)=>`<button class="thumb" data-view="${i}">${profile.bestObs===o.id?"<i>★</i>":""}<img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><span><b>${fmtDate(o.date)}</b><br>${esc(placeLabel(o))}</span></button>`).join("")}</div>
+      <div class="obs" id="thumbs">${list.map((o,i)=>`<div class="thumb"><button class="tview" data-view="${i}">${profile.bestObs===o.id?"<i>★</i>":""}<img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><span><b>${fmtDate(o.date)}</b><br>${esc(placeLabel(o))}</span></button><button class="tdel" data-del="${o.id}" aria-label="Supprimer cette photo">×</button></div>`).join("")}</div>
+      ${sheet.del?`<div class="confirm" id="confirmBox">Supprimer cette photo ? <button class="btn ghost" id="yesDel">Supprimer</button><button class="btn ghost" id="noDel">Annuler</button></div>`:""}
       <button class="btn ghost" id="favSp">${isFav?"♥ Ton animal préféré":"♡ Choisir comme animal préféré"}</button>`:""}
     <div class="capture">
       <h3>${list.length?"Nouvelle observation":"Capturer cette espèce"}</h3>
@@ -862,7 +867,13 @@ function drawSpecies(){
   `);
   if(last){ const h=document.querySelector(".hero"); h.classList.add("tap"); h.onclick = e => { if(!e.target.closest(".close")) openViewer(sp.id, list.length-1); }; }
   $("#addPhoto").onclick = () => { $("#fileIn").value=""; $("#fileIn").click(); };
-  const t=$("#thumbs"); if(t) t.onclick = e => { const b=e.target.closest("[data-view]"); if(b) openViewer(sp.id, +b.dataset.view); };
+  const t=$("#thumbs"); if(t) t.onclick = e => {
+    const d=e.target.closest("[data-del]"); if(d){ sheet.del=+d.dataset.del; drawSpecies(); $("#confirmBox")?.scrollIntoView({block:"nearest"}); return; }
+    const b=e.target.closest("[data-view]"); if(b) openViewer(sp.id, +b.dataset.view); };
+  if(sheet.del){
+    $("#noDel").onclick = () => { sheet.del=null; drawSpecies(); };
+    $("#yesDel").onclick = async () => { await deleteObs(sheet.del); sheet.del=null; drawSpecies(); };
+  }
   const fb=$("#favSp"); if(fb) fb.onclick = () => { profile.favSp = isFav?null:sp.id; dbSaveProfile(); drawSpecies(); toast(isFav?"Animal préféré retiré":`${sp.n} est ton animal préféré`); };
 }
 
@@ -894,6 +905,9 @@ function drawObsForm(){
         <small>${mode==="lieu"&&lieu?`Province : ${esc(lieu.r)}`:mode==="inconnu"?"Aucun lieu ne sera enregistré.":""}</small></label>
       ${mode==="autre"?`<label class="field" for="obsRegion">Province
         <select id="obsRegion">${regions.map(r=>`<option ${d.region===r?"selected":""}>${esc(r)}</option>`).join("")}</select></label>`:""}
+      ${d.id ? (d.confirmDel
+        ? `<div class="confirm">Supprimer cette photo ? <button class="btn ghost" id="formYes">Supprimer</button><button class="btn ghost" id="formNo">Annuler</button></div>`
+        : `<button class="formdel" id="formDel">Supprimer cette photo</button>`) : ""}
       <div class="formacts">
         <button class="btn ghost" id="cancelObs">Annuler</button>
         <button class="btn" id="saveObs">${d.id?"Enregistrer":"Ajouter à ma collection"}</button>
@@ -907,6 +921,11 @@ function drawObsForm(){
   const rs=$("#obsRegion"); if(rs) rs.onchange = e => { d.region = e.target.value; };
   $("#cancelObs").onclick = () => { if(!d.id) URL.revokeObjectURL(d.url); d.id ? openViewer(d.sp, d.viewIdx) : openSpecies(d.sp); };
   $("#saveObs").onclick = saveObsForm;
+  if(d.id){
+    if(d.confirmDel){ $("#formNo").onclick = () => { d.confirmDel=false; drawObsForm(); };
+      $("#formYes").onclick = async () => { await deleteObs(d.id); obsOf(d.sp).length ? openViewer(d.sp, d.viewIdx) : openSpecies(d.sp); }; }
+    else $("#formDel").onclick = () => { d.confirmDel=true; drawObsForm(); };
+  }
 }
 async function saveObsForm(){
   const d = sheet.draft, sp = spById(d.sp), lieux = LIEUX[sp.country]||[];
@@ -932,6 +951,14 @@ async function saveObsForm(){
       toast(first ? `${sp.n} ajouté à ta collection ! +${RARITY[sp.r].xp} XP` : "Observation ajoutée · +5 XP");
     }
   }catch(err){ toast("Impossible d'enregistrer. Vérifie l'espace libre du téléphone."); }
+}
+
+async function deleteObs(id){
+  const o = OBS.find(x=>x.id===id); if(!o) return;
+  try{ await dbDelObs(id); }catch(e){}
+  OBS = OBS.filter(x=>x.id!==id); URL.revokeObjectURL(o.url);
+  if(profile.bestObs===id){ profile.bestObs=null; dbSaveProfile(); }
+  render(); toast("Photo supprimée");
 }
 
 /* ---------- Visionneuse plein écran ---------- */
@@ -964,10 +991,7 @@ function drawViewer(){
   if(viewerConfirm){
     $("#vNo").onclick = () => { viewerConfirm=false; drawViewer(); };
     $("#vYes").onclick = async () => {
-      try{ await dbDelObs(o.id); }catch(e){}
-      OBS = OBS.filter(x=>x.id!==o.id); URL.revokeObjectURL(o.url);
-      if(profile.bestObs===o.id){ profile.bestObs=null; dbSaveProfile(); }
-      render(); toast("Photo supprimée");
+      await deleteObs(o.id);
       if(obsOf(sheet.sp).length) { viewerConfirm=false; drawViewer(); } else openSpecies(sheet.sp);
     };
   }else{
