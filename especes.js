@@ -1,0 +1,315 @@
+/* =========================================================
+   SAFARIDEX — Encyclopédie de l'Afrique du Sud
+   =========================================================
+   Une ligne = une espèce. Pour en ajouter une, copie une ligne,
+   donne-lui un nouveau numéro (id) et change les informations.
+
+   id    : numéro unique. Ne change JAMAIS le numéro d'une espèce
+           existante (les photos y sont rattachées).
+   n     : nom français
+   s     : nom scientifique
+   c     : classe (M, O, R, A ou P, voir plus bas)
+   r     : statut UICN, qui donne la rareté dans le jeu
+           LC = Commun, NT = Peu commun, VU = Rare,
+           EN = Épique, CR = Légendaire
+   big5  : 1 si l'espèce fait partie du Big Five
+   f     : l'anecdote « Le savais-tu ? »
+
+   Statuts UICN vérifiés en novembre 2026 (iucnredlist.org).
+   Prochain pays : utiliser des numéros à partir de 1001.
+   ========================================================= */
+
+(function () {
+const M = "Mammifères", O = "Oiseaux", R = "Reptiles", A = "Amphibiens", P = "Poissons";
+
+window.SAFARIDEX_PAYS = window.SAFARIDEX_PAYS || {};
+window.SAFARIDEX_PAYS.ZA = {
+  nom: "Afrique du Sud",
+  regions: ["Limpopo","Mpumalanga","KwaZulu-Natal","Cap-Occidental","Cap-Oriental","Cap-du-Nord","Nord-Ouest","État-Libre","Gauteng","En mer"],
+  especes: [
+
+/* ---------- Les premières espèces (Big Five et incontournables) ---------- */
+{id:1, n:"Lion", s:"Panthera leo", c:M, r:"VU", big5:1, f:"Le rugissement d'un lion porte jusqu'à 8 km. Les femelles assurent l'essentiel de la chasse, souvent en équipe."},
+{id:2, n:"Léopard", s:"Panthera pardus", c:M, r:"VU", big5:1, f:"Il hisse ses proies dans les arbres, parfois plus lourdes que lui, pour les mettre à l'abri des hyènes."},
+{id:3, n:"Éléphant de savane", s:"Loxodonta africana", c:M, r:"EN", big5:1, f:"Le plus grand animal terrestre. Sa trompe compte environ 40 000 muscles."},
+{id:4, n:"Buffle d'Afrique", s:"Syncerus caffer", c:M, r:"NT", big5:1, f:"Un troupeau peut contre-attaquer en groupe pour défendre un membre attaqué par des lions."},
+{id:5, n:"Rhinocéros noir", s:"Diceros bicornis", c:M, r:"CR", big5:1, f:"Sa lèvre supérieure pointue lui sert à attraper les feuilles des buissons. Il est plus solitaire et nerveux que le rhinocéros blanc."},
+{id:6, n:"Rhinocéros blanc", s:"Ceratotherium simum", c:M, r:"NT", big5:1, f:"Sa lèvre large et carrée est faite pour brouter l'herbe. L'Afrique du Sud abrite la majorité de la population mondiale."},
+{id:7, n:"Girafe", s:"Giraffa camelopardalis", c:M, r:"VU", f:"Depuis 2025, les scientifiques distinguent quatre espèces de girafes ; celle d'Afrique australe est la plus nombreuse. Son cou ne compte que 7 vertèbres, comme le nôtre."},
+{id:8, n:"Zèbre des plaines", s:"Equus quagga", c:M, r:"NT", f:"Chaque zèbre a un motif de rayures unique, comme une empreinte digitale."},
+{id:9, n:"Lycaon", s:"Lycaon pictus", c:M, r:"EN", f:"Aussi appelé chien sauvage d'Afrique. Ses chasses en meute réussissent bien plus souvent que celles des lions."},
+{id:10, n:"Guépard", s:"Acinonyx jubatus", c:M, r:"VU", f:"Le plus rapide des animaux terrestres, il peut dépasser 100 km/h sur de courtes distances."},
+{id:11, n:"Hippopotame", s:"Hippopotamus amphibius", c:M, r:"VU", f:"Il passe ses journées dans l'eau et sort la nuit pour brouter, parfois plusieurs kilomètres plus loin."},
+{id:12, n:"Pangolin de Temminck", s:"Smutsia temminckii", c:M, r:"VU", f:"Couvert d'écailles de kératine, il se roule en boule pour se protéger. C'est l'un des mammifères les plus braconnés au monde."},
+{id:13, n:"Impala", s:"Aepyceros melampus", c:M, r:"LC", f:"Capable de bonds de 3 m de haut et de 10 m de long pour semer ses prédateurs."},
+{id:14, n:"Hyène tachetée", s:"Crocuta crocuta", c:M, r:"LC", f:"Contrairement à sa réputation, elle chasse elle-même la majorité de ses proies."},
+{id:15, n:"Suricate", s:"Suricata suricatta", c:M, r:"LC", f:"Pendant que le groupe cherche à manger, une sentinelle monte la garde et donne l'alerte."},
+{id:16, n:"Phacochère", s:"Phacochoerus africanus", c:M, r:"LC", f:"Il s'agenouille sur ses pattes avant pour brouter l'herbe rase."},
+{id:17, n:"Bucorve du Sud", s:"Bucorvus leadbeateri", c:O, r:"VU", f:"Elle vit en groupes familiaux et chasse au sol. Son appel grave, qui rappelle un lion lointain, s'entend à plusieurs kilomètres."},
+{id:18, n:"Rollier à longs brins", s:"Coracias caudatus", c:O, r:"LC", f:"Un des oiseaux les plus photographiés en safari, avec sa poitrine lilas et ses ailes turquoise."},
+{id:19, n:"Aigle bateleur", s:"Terathopius ecaudatus", c:O, r:"EN", f:"Il peut parcourir plusieurs centaines de kilomètres par jour en vol plané."},
+{id:20, n:"Manchot du Cap", s:"Spheniscus demersus", c:O, r:"CR", f:"Le seul manchot d'Afrique. On peut l'observer à Boulders Beach, près du Cap."},
+{id:21, n:"Crocodile du Nil", s:"Crocodylus niloticus", c:R, r:"LC", f:"Il peut rester immobile des heures et rester sous l'eau plus d'une heure en cas de besoin."},
+{id:22, n:"Grand requin blanc", s:"Carcharodon carcharias", c:P, r:"VU", f:"La baie False Bay est célèbre pour ses requins qui bondissent hors de l'eau en chassant les phoques."},
+
+/* ---------- Mammifères : carnivores ---------- */
+{id:23, n:"Hyène brune", s:"Parahyaena brunnea", c:M, r:"NT", f:"Elle vit surtout dans les régions arides et se nourrit beaucoup de charognes. On la surnomme « loup des plages » car elle fouille aussi les côtes désertiques."},
+{id:24, n:"Protèle", s:"Proteles cristatus", c:M, r:"LC", f:"Cousin des hyènes, il se nourrit presque uniquement de termites : plus de 200 000 en une seule nuit."},
+{id:25, n:"Chacal à chabraque", s:"Lupulella mesomelas", c:M, r:"LC", f:"Reconnaissable à la « selle » noire argentée sur son dos. Les couples restent souvent ensemble toute leur vie."},
+{id:26, n:"Chacal à flancs rayés", s:"Lupulella adusta", c:M, r:"LC", f:"Plus discret que le chacal à chabraque, il préfère les zones boisées et humides."},
+{id:27, n:"Otocyon", s:"Otocyon megalotis", c:M, r:"LC", f:"Ses immenses oreilles lui permettent d'entendre les insectes sous terre. Il a jusqu'à 50 dents, plus que presque tous les mammifères terrestres."},
+{id:28, n:"Renard du Cap", s:"Vulpes chama", c:M, r:"LC", f:"Le seul vrai renard d'Afrique australe. Il est surtout actif la nuit et chasse rongeurs et insectes."},
+{id:29, n:"Caracal", s:"Caracal caracal", c:M, r:"LC", f:"Il peut bondir à plus de 3 m de haut pour attraper un oiseau en plein vol."},
+{id:30, n:"Serval", s:"Leptailurus serval", c:M, r:"LC", f:"Il a les plus longues pattes de tous les félins par rapport à sa taille, et entend les rongeurs cachés sous les herbes."},
+{id:31, n:"Chat à pieds noirs", s:"Felis nigripes", c:M, r:"VU", f:"Le plus petit félin d'Afrique, mais l'un des chasseurs les plus efficaces : il réussit environ 60 % de ses attaques."},
+{id:32, n:"Chat sauvage d'Afrique", s:"Felis lybica", c:M, r:"LC", f:"L'ancêtre de nos chats domestiques. Il ressemble à un chat tigré aux oreilles rousses."},
+{id:33, n:"Civette africaine", s:"Civettictis civetta", c:M, r:"LC", f:"Elle marque son territoire avec une substance musquée autrefois utilisée en parfumerie."},
+{id:34, n:"Genette à grandes taches", s:"Genetta maculata", c:M, r:"LC", f:"Agile grimpeuse nocturne, elle s'aide de sa longue queue annelée pour garder l'équilibre."},
+{id:35, n:"Ratel", s:"Mellivora capensis", c:M, r:"LC", f:"Réputé pour son audace, il n'hésite pas à tenir tête à des lions ou à des serpents venimeux."},
+{id:36, n:"Loutre à joues blanches du Cap", s:"Aonyx capensis", c:M, r:"NT", f:"Elle n'a presque pas de griffes et utilise ses doigts agiles pour attraper crabes et poissons."},
+{id:37, n:"Loutre à cou tacheté", s:"Hydrictis maculicollis", c:M, r:"NT", f:"Très aquatique, elle a besoin d'une eau claire pour chasser à vue."},
+{id:38, n:"Mangouste rayée", s:"Mungos mungo", c:M, r:"LC", f:"Elle vit en bandes pouvant dépasser 40 individus, qui se défendent ensemble contre les prédateurs."},
+{id:39, n:"Mangouste naine", s:"Helogale parvula", c:M, r:"LC", f:"La plus petite mangouste d'Afrique. Elle s'associe parfois aux calaos, qui la préviennent de l'arrivée des rapaces."},
+{id:40, n:"Mangouste jaune", s:"Cynictis penicillata", c:M, r:"LC", f:"Elle partage parfois ses terriers avec les suricates et les écureuils terrestres."},
+{id:41, n:"Mangouste rouge", s:"Galerella sanguinea", c:M, r:"LC", f:"Petite mangouste solitaire, elle relève le bout noir de sa queue quand elle traverse la piste."},
+{id:42, n:"Mangouste des marais", s:"Atilax paludinosus", c:M, r:"LC", f:"Bonne nageuse, elle fouille la vase des berges à la recherche de crabes et de grenouilles."},
+{id:43, n:"Mangouste à queue blanche", s:"Ichneumia albicauda", c:M, r:"LC", f:"La plus grande mangouste solitaire, active la nuit. Sa queue blanche se voit de loin dans les phares."},
+{id:44, n:"Zorille", s:"Ictonyx striatus", c:M, r:"LC", f:"Rayé noir et blanc comme une mouffette, il projette lui aussi un liquide nauséabond pour se défendre."},
+{id:45, n:"Poecilogale", s:"Poecilogale albinucha", c:M, r:"LC", f:"Une petite belette rayée au corps très allongé, qui chasse les rongeurs jusque dans leurs terriers."},
+
+/* ---------- Mammifères : ongulés ---------- */
+{id:46, n:"Zèbre de montagne", s:"Equus zebra", c:M, r:"VU", f:"Il a un petit repli de peau sous la gorge, et ses rayures s'arrêtent avant son ventre blanc."},
+{id:47, n:"Potamochère", s:"Potamochoerus larvatus", c:M, r:"LC", f:"Ce cochon sauvage nocturne vit en petits groupes et retourne le sol en quête de racines."},
+{id:48, n:"Gnou bleu", s:"Connochaetes taurinus", c:M, r:"LC", f:"Les petits tiennent debout quelques minutes après leur naissance et suivent le troupeau presque aussitôt."},
+{id:49, n:"Gnou à queue blanche", s:"Connochaetes gnou", c:M, r:"LC", f:"Il a frôlé l'extinction au XIXe siècle : il n'en restait que quelques centaines, sauvées dans des fermes."},
+{id:50, n:"Bubale roux", s:"Alcelaphus buselaphus", c:M, r:"LC", f:"Malgré son allure maladroite, c'est l'une des antilopes les plus rapides, capable de dépasser 70 km/h."},
+{id:51, n:"Bontebok", s:"Damaliscus pygargus", c:M, r:"LC", f:"Il a frôlé l'extinction : vers 1830, il n'en restait qu'une vingtaine. Un parc national a été créé pour le sauver."},
+{id:52, n:"Sassaby", s:"Damaliscus lunatus", c:M, r:"LC", f:"L'une des antilopes les plus rapides d'Afrique. Les mâles montent sur les termitières pour surveiller leur territoire."},
+{id:53, n:"Grand koudou", s:"Tragelaphus strepsiceros", c:M, r:"LC", f:"Les cornes en spirale du mâle peuvent dépasser 1,5 m. Il saute facilement des clôtures de 2 m."},
+{id:54, n:"Nyala", s:"Tragelaphus angasii", c:M, r:"LC", f:"Le mâle, gris ardoise à crinière, et la femelle, rousse rayée de blanc, semblent appartenir à deux espèces différentes."},
+{id:55, n:"Guib harnaché", s:"Tragelaphus sylvaticus", c:M, r:"LC", f:"Discret et solitaire, il vit dans les fourrés près de l'eau et aboie quand il est surpris."},
+{id:56, n:"Éland du Cap", s:"Taurotragus oryx", c:M, r:"LC", f:"La plus grande antilope du monde. Quand il marche, ses genoux émettent un cliquetis caractéristique."},
+{id:57, n:"Hippotrague noir", s:"Hippotragus niger", c:M, r:"LC", f:"Ses longues cornes recourbées comme des sabres en font l'une des antilopes les plus impressionnantes."},
+{id:58, n:"Hippotrague rouan", s:"Hippotragus equinus", c:M, r:"LC", f:"Une des plus grandes antilopes, reconnaissable à son masque noir et blanc et à ses oreilles en pointe."},
+{id:59, n:"Oryx gazelle", s:"Oryx gazella", c:M, r:"LC", f:"Adapté au désert, il peut se passer de boire pendant de longues périodes grâce à l'eau contenue dans les plantes."},
+{id:60, n:"Cobe à croissant", s:"Kobus ellipsiprymnus", c:M, r:"LC", f:"Il porte un anneau blanc sur les fesses, comme s'il s'était assis sur un banc fraîchement peint."},
+{id:61, n:"Cobe des roseaux", s:"Redunca arundinum", c:M, r:"LC", f:"Il vit près de l'eau dans les hautes herbes et pousse un sifflement aigu en cas d'alerte."},
+{id:62, n:"Cobe de montagne", s:"Redunca fulvorufula", c:M, r:"EN", f:"Il vit sur les pentes herbeuses et rocheuses. Ses populations ont fortement diminué à cause de la chasse."},
+{id:63, n:"Péléa", s:"Pelea capreolus", c:M, r:"NT", f:"Petite antilope des montagnes au pelage laineux gris. C'est la seule espèce de son genre."},
+{id:64, n:"Springbok", s:"Antidorcas marsupialis", c:M, r:"LC", f:"Il fait des bonds verticaux, pattes raides et dos arqué : c'est le « pronking ». Il a donné son nom à l'équipe nationale de rugby."},
+{id:65, n:"Oréotrague", s:"Oreotragus oreotragus", c:M, r:"LC", f:"Il se tient sur la pointe de ses petits sabots pour escalader les rochers avec une agilité étonnante."},
+{id:66, n:"Ourébi", s:"Ourebia ourebi", c:M, r:"LC", f:"Petite antilope des prairies, très menacée en Afrique du Sud même si l'espèce reste commune ailleurs en Afrique."},
+{id:67, n:"Steenbok", s:"Raphicerus campestris", c:M, r:"LC", f:"Il enterre ses crottes, peut-être pour ne pas laisser de traces aux prédateurs."},
+{id:68, n:"Grysbok du Cap", s:"Raphicerus melanotis", c:M, r:"LC", f:"Une petite antilope qu'on ne trouve que dans le sud du pays, au pelage roux moucheté de blanc."},
+{id:69, n:"Grysbok de Sharpe", s:"Raphicerus sharpei", c:M, r:"LC", f:"Très discret et nocturne, il se cache dans les fourrés du nord-est du pays."},
+{id:70, n:"Céphalophe de Grimm", s:"Sylvicapra grimmia", c:M, r:"LC", f:"Son nom anglais, « duiker », signifie « plongeur » : il plonge dans les buissons quand il est dérangé."},
+{id:71, n:"Céphalophe bleu", s:"Philantomba monticola", c:M, r:"LC", f:"Une des plus petites antilopes du monde : environ 35 cm au garrot."},
+{id:72, n:"Céphalophe du Natal", s:"Cephalophus natalensis", c:M, r:"LC", f:"Il vit dans les forêts et profite des fruits que laissent tomber les singes depuis les arbres."},
+{id:73, n:"Suni", s:"Nesotragus moschatus", c:M, r:"LC", f:"Une antilope minuscule, à peine plus grande qu'un lièvre, qui vit dans les fourrés denses."},
+
+/* ---------- Mammifères : primates ---------- */
+{id:74, n:"Babouin chacma", s:"Papio ursinus", c:M, r:"LC", f:"L'un des plus grands babouins. Ses troupes sont organisées selon une hiérarchie stricte."},
+{id:75, n:"Vervet", s:"Chlorocebus pygerythrus", c:M, r:"LC", f:"Il utilise des cris d'alarme différents pour l'aigle, le léopard et le serpent."},
+{id:76, n:"Samango", s:"Cercopithecus albogularis", c:M, r:"LC", f:"Ce singe des forêts de l'est du pays passe presque toute sa vie dans les arbres."},
+{id:77, n:"Galago moholi", s:"Galago moholi", c:M, r:"LC", f:"Ce petit primate nocturne aux yeux immenses peut bondir de plusieurs mètres d'une branche à l'autre."},
+{id:78, n:"Grand galago", s:"Otolemur crassicaudatus", c:M, r:"LC", f:"Ses cris nocturnes ressemblent aux pleurs d'un bébé, d'où son nom anglais de « bushbaby »."},
+
+/* ---------- Mammifères : petits et curieux ---------- */
+{id:79, n:"Daman des rochers", s:"Procavia capensis", c:M, r:"LC", f:"Malgré son allure de gros cochon d'Inde, il est un lointain cousin de l'éléphant."},
+{id:80, n:"Oryctérope", s:"Orycteropus afer", c:M, r:"LC", f:"Un champion du creusement : ses anciens terriers servent d'abri à des dizaines d'autres espèces."},
+{id:81, n:"Porc-épic du Cap", s:"Hystrix africaeaustralis", c:M, r:"LC", f:"Le plus grand rongeur d'Afrique australe. Il ne lance pas ses piquants : il recule vers l'ennemi pour les planter."},
+{id:82, n:"Lièvre sauteur", s:"Pedetes capensis", c:M, r:"LC", f:"Il se déplace en bondissant comme un petit kangourou. La nuit, ses yeux brillent intensément dans les phares."},
+{id:83, n:"Écureuil terrestre du Cap", s:"Xerus inauris", c:M, r:"LC", f:"Il se sert de sa queue touffue comme d'une ombrelle pour se protéger du soleil."},
+{id:84, n:"Écureuil de Smith", s:"Paraxerus cepapi", c:M, r:"LC", f:"Cet écureuil des arbres de la savane pousse des cris d'alarme qui préviennent aussi les autres animaux."},
+{id:85, n:"Grand aulacode", s:"Thryonomys swinderianus", c:M, r:"LC", f:"Ce gros rongeur des roselières peut peser plus de 5 kg."},
+{id:86, n:"Rat-taupe des dunes du Cap", s:"Bathyergus suillus", c:M, r:"LC", f:"Le plus grand rat-taupe : il creuse de longues galeries dans le sable de la côte du Cap."},
+{id:87, n:"Hérisson d'Afrique du Sud", s:"Atelerix frontalis", c:M, r:"LC", f:"Il reste inactif pendant les mois froids et se roule en boule hérissée de piquants au moindre danger."},
+{id:88, n:"Sengi des rochers", s:"Elephantulus myurus", c:M, r:"LC", f:"On l'appelle aussi musaraigne-éléphant pour son long museau mobile, mais il est plus proche des éléphants que des musaraignes."},
+{id:89, n:"Taupe dorée du Cap", s:"Chrysochloris asiatica", c:M, r:"LC", f:"Elle n'a pas d'yeux visibles et sa fourrure a des reflets métalliques irisés."},
+{id:90, n:"Lièvre du Cap", s:"Lepus capensis", c:M, r:"LC", f:"Ses grandes oreilles l'aident à repérer les prédateurs et à évacuer la chaleur."},
+{id:91, n:"Lapin des rivières", s:"Bunolagus monticularis", c:M, r:"CR", f:"L'un des mammifères les plus menacés du monde. Il vit uniquement le long des rivières saisonnières du Karoo."},
+{id:92, n:"Épomophore de Wahlberg", s:"Epomophorus wahlbergi", c:M, r:"LC", f:"Chez cette chauve-souris frugivore, les mâles déploient des touffes de poils blancs sur les épaules pour séduire."},
+{id:93, n:"Roussette d'Égypte", s:"Rousettus aegyptiacus", c:M, r:"LC", f:"Une des rares chauves-souris frugivores à s'orienter par écholocation, grâce à des claquements de langue."},
+
+/* ---------- Mammifères marins ---------- */
+{id:94, n:"Otarie à fourrure du Cap", s:"Arctocephalus pusillus", c:M, r:"LC", f:"Elle forme d'immenses colonies sur la côte. C'est la proie favorite des grands requins blancs de False Bay."},
+{id:95, n:"Baleine franche australe", s:"Eubalaena australis", c:M, r:"LC", f:"De juin à novembre, elle vient mettre bas près des côtes. Hermanus est l'un des meilleurs endroits au monde pour l'observer depuis la terre."},
+{id:96, n:"Baleine à bosse", s:"Megaptera novaeangliae", c:M, r:"LC", f:"Ses nageoires pectorales mesurent jusqu'à 5 m. Les mâles chantent des mélodies complexes qui évoluent au fil des saisons."},
+{id:97, n:"Baleine de Bryde", s:"Balaenoptera edeni", c:M, r:"LC", f:"Contrairement à la plupart des baleines, elle ne migre pas et reste toute l'année dans les eaux sud-africaines."},
+{id:98, n:"Grand dauphin de l'océan Indien", s:"Tursiops aduncus", c:M, r:"NT", f:"Il suit chaque hiver la migration des sardines le long de la côte est."},
+{id:99, n:"Dauphin à bosse de l'océan Indien", s:"Sousa plumbea", c:M, r:"EN", f:"Il vit tout près des côtes, ce qui l'expose aux filets de pêche et à la pollution."},
+{id:100, n:"Dauphin de Heaviside", s:"Cephalorhynchus heavisidii", c:M, r:"NT", f:"Ce petit dauphin ne vit que sur la côte ouest, dans les eaux froides du courant de Benguela."},
+{id:101, n:"Dauphin commun", s:"Delphinus delphis", c:M, r:"LC", f:"Il se rassemble parfois par milliers pour chasser les sardines, aux côtés des requins et des fous du Cap."},
+
+/* ---------- Oiseaux : rapaces ---------- */
+{id:102, n:"Aigle martial", s:"Polemaetus bellicosus", c:O, r:"EN", f:"Le plus grand aigle d'Afrique. Sa vue lui permet de repérer une proie à plusieurs kilomètres."},
+{id:103, n:"Aigle de Verreaux", s:"Aquila verreauxii", c:O, r:"LC", f:"Il vit dans les falaises et chasse surtout les damans des rochers."},
+{id:104, n:"Aigle ravisseur", s:"Aquila rapax", c:O, r:"VU", f:"Opportuniste, il chasse mais vole aussi les proies d'autres rapaces. Ses populations déclinent fortement."},
+{id:105, n:"Pygargue vocifère", s:"Haliaeetus vocifer", c:O, r:"LC", f:"Son cri sonore, lancé tête rejetée en arrière, est l'un des sons emblématiques des rivières africaines."},
+{id:106, n:"Circaète brun", s:"Circaetus cinereus", c:O, r:"LC", f:"Il est spécialisé dans la chasse aux serpents, même venimeux."},
+{id:107, n:"Aigle couronné", s:"Stephanoaetus coronatus", c:O, r:"NT", f:"Assez puissant pour capturer des singes et de petites antilopes dans les forêts."},
+{id:108, n:"Aigle huppard", s:"Lophaetus occipitalis", c:O, r:"LC", f:"Sa longue huppe flotte au vent quand il guette les rongeurs depuis un poteau."},
+{id:109, n:"Aigle de Wahlberg", s:"Hieraaetus wahlbergi", c:O, r:"LC", f:"Migrateur, il arrive en Afrique du Sud au printemps pour s'y reproduire."},
+{id:110, n:"Autour chanteur pâle", s:"Melierax canorus", c:O, r:"LC", f:"Il suit parfois les ratels ou les mangoustes pour attraper les proies qu'ils dérangent."},
+{id:111, n:"Serpentaire", s:"Sagittarius serpentarius", c:O, r:"EN", f:"Il tue les serpents à coups de pattes très rapides. Il figure sur les armoiries de l'Afrique du Sud."},
+{id:112, n:"Vautour africain", s:"Gyps africanus", c:O, r:"CR", f:"Le vautour le plus répandu des savanes, mais il a fortement décliné à cause des empoisonnements."},
+{id:113, n:"Vautour du Cap", s:"Gyps coprotheres", c:O, r:"VU", f:"Il niche en colonies sur des falaises. C'est le seul vautour qu'on ne trouve qu'en Afrique australe."},
+{id:114, n:"Vautour oricou", s:"Torgos tracheliotos", c:O, r:"EN", f:"Le plus grand vautour d'Afrique. Son bec puissant déchire les peaux que les autres vautours ne peuvent pas ouvrir."},
+{id:115, n:"Vautour charognard", s:"Necrosyrtes monachus", c:O, r:"CR", f:"Ce petit vautour a une face rose qui rougit quand il est excité."},
+{id:116, n:"Vautour à tête blanche", s:"Trigonoceps occipitalis", c:O, r:"CR", f:"Souvent le premier arrivé sur une carcasse, il vit généralement en couple."},
+{id:117, n:"Gypaète barbu", s:"Gypaetus barbatus", c:O, r:"NT", f:"Il lâche les os en vol sur les rochers pour les briser et se nourrir de la moelle."},
+{id:118, n:"Faucon lanier", s:"Falco biarmicus", c:O, r:"LC", f:"Il chasse les oiseaux en vol en les poursuivant à basse altitude."},
+{id:119, n:"Faucon pèlerin", s:"Falco peregrinus", c:O, r:"LC", f:"L'animal le plus rapide du monde : il dépasse 300 km/h en piqué."},
+{id:120, n:"Élanion blanc", s:"Elanus caeruleus", c:O, r:"LC", f:"Il fait du surplace au-dessus des prairies avant de plonger sur un rongeur. Ses yeux sont rouge vif."},
+{id:121, n:"Milan à bec jaune", s:"Milvus aegyptius", c:O, r:"LC", f:"Migrateur, il arrive en été et récupère volontiers les restes près des campements."},
+{id:122, n:"Buse chacal", s:"Buteo rufofuscus", c:O, r:"LC", f:"Son cri ressemble à celui d'un chacal, d'où son nom."},
+{id:123, n:"Gymnogène d'Afrique", s:"Polyboroides typus", c:O, r:"LC", f:"Ses pattes très souples lui permettent d'aller chercher des oisillons au fond des trous d'arbres."},
+{id:124, n:"Busard maure", s:"Circus maurus", c:O, r:"EN", f:"L'un des rapaces les plus rares d'Afrique australe. Il niche surtout dans le fynbos."},
+
+/* ---------- Oiseaux : rapaces nocturnes ---------- */
+{id:125, n:"Grand-duc de Verreaux", s:"Ketupa lactea", c:O, r:"LC", f:"Le plus grand hibou d'Afrique, reconnaissable à ses paupières roses."},
+{id:126, n:"Grand-duc africain", s:"Bubo africanus", c:O, r:"LC", f:"Ce grand-duc commun vit même dans les jardins des villes."},
+{id:127, n:"Chevêchette perlée", s:"Glaucidium perlatum", c:O, r:"LC", f:"Elle a deux faux yeux dessinés à l'arrière de la tête pour tromper les prédateurs."},
+{id:128, n:"Effraie des clochers", s:"Tyto alba", c:O, r:"LC", f:"Elle chasse dans le noir complet en se fiant à son ouïe exceptionnelle."},
+{id:129, n:"Chouette-pêcheuse de Pel", s:"Scotopelia peli", c:O, r:"LC", f:"Une chouette géante qui pêche la nuit dans les rivières. Elle est très recherchée par les ornithologues."},
+
+/* ---------- Oiseaux : grands oiseaux de la savane ---------- */
+{id:130, n:"Autruche", s:"Struthio camelus", c:O, r:"LC", f:"Le plus grand oiseau du monde. Elle court à 70 km/h et pond les plus gros œufs de tous les oiseaux."},
+{id:131, n:"Outarde kori", s:"Ardeotis kori", c:O, r:"NT", f:"L'un des oiseaux volants les plus lourds du monde."},
+{id:132, n:"Outarde de Ludwig", s:"Neotis ludwigii", c:O, r:"EN", f:"Beaucoup meurent en percutant les lignes électriques, qu'elles voient mal en vol."},
+{id:133, n:"Grue de paradis", s:"Grus paradisea", c:O, r:"VU", f:"L'oiseau national de l'Afrique du Sud, qui vit presque uniquement dans ce pays."},
+{id:134, n:"Grue caronculée", s:"Grus carunculata", c:O, r:"VU", f:"La plus grande grue d'Afrique, avec deux caroncules blanches qui pendent sous le bec."},
+{id:135, n:"Grue royale", s:"Balearica regulorum", c:O, r:"EN", f:"Sa couronne de plumes dorées la rend inimitable. C'est l'emblème de l'Ouganda."},
+{id:136, n:"Pintade de Numidie", s:"Numida meleagris", c:O, r:"LC", f:"Elle vit en groupes bruyants qui caquettent en chœur au moindre danger."},
+{id:137, n:"Francolin de Swainson", s:"Pternistis swainsonii", c:O, r:"LC", f:"On l'entend crier depuis un perchoir à l'aube et au crépuscule."},
+{id:138, n:"Calao à bec jaune", s:"Tockus leucomelas", c:O, r:"LC", f:"La femelle s'emmure dans un trou d'arbre pour couver ; le mâle la nourrit par une fente."},
+{id:139, n:"Calao à bec rouge", s:"Tockus rufirostris", c:O, r:"LC", f:"Très commun dans le parc Kruger, il se nourrit au sol d'insectes et de graines."},
+{id:140, n:"Calao trompette", s:"Bycanistes bucinator", c:O, r:"LC", f:"Son cri ressemble aux pleurs d'un bébé. Il vit dans les forêts, où il mange des fruits."},
+{id:141, n:"Calao à bec noir", s:"Lophoceros nasutus", c:O, r:"LC", f:"Il vole en ondulant et vit dans les savanes sèches."},
+{id:142, n:"Vanneau armé", s:"Vanellus armatus", c:O, r:"LC", f:"Son cri métallique rappelle un forgeron qui frappe sur une enclume. Il pique sur les intrus qui approchent de son nid."},
+{id:143, n:"Œdicnème tachard", s:"Burhinus capensis", c:O, r:"LC", f:"Ses grands yeux jaunes trahissent ses mœurs nocturnes. Le jour, il se fige au sol pour passer inaperçu."},
+
+/* ---------- Oiseaux : couleurs de la savane ---------- */
+{id:144, n:"Guêpier carmin", s:"Merops nubicoides", c:O, r:"LC", f:"Il niche en grandes colonies dans les berges sablonneuses des rivières."},
+{id:145, n:"Guêpier à front blanc", s:"Merops bullockoides", c:O, r:"LC", f:"Il frappe les abeilles contre une branche pour retirer leur dard avant de les avaler."},
+{id:146, n:"Martin-pêcheur pie", s:"Ceryle rudis", c:O, r:"LC", f:"Il fait du surplace au-dessus de l'eau avant de plonger à pic sur un poisson."},
+{id:147, n:"Martin-pêcheur huppé", s:"Corythornis cristatus", c:O, r:"LC", f:"Minuscule et éclatant, il guette les petits poissons depuis les roseaux."},
+{id:148, n:"Martin-chasseur à tête brune", s:"Halcyon albiventris", c:O, r:"LC", f:"Malgré son allure de martin-pêcheur, il chasse surtout des insectes loin de l'eau."},
+{id:149, n:"Martin-pêcheur géant", s:"Megaceryle maxima", c:O, r:"LC", f:"Le plus grand martin-pêcheur d'Afrique, capable d'attraper des crabes et de gros poissons."},
+{id:150, n:"Touraco à huppe splendide", s:"Gallirex porphyreolophus", c:O, r:"LC", f:"Ses ailes cachent un rouge éclatant qui ne se dévoile qu'en vol."},
+{id:151, n:"Touraco louri", s:"Tauraco corythaix", c:O, r:"LC", f:"Vert éclatant, il cache sous ses ailes un rouge vif dû à un pigment qu'on ne trouve que chez les touracos."},
+{id:152, n:"Touraco concolore", s:"Corythaixoides concolor", c:O, r:"LC", f:"Son cri, qui ressemble à « go-away », lui vaut son surnom anglais d'oiseau « va-t'en »."},
+{id:153, n:"Huppe d'Afrique", s:"Upupa africana", c:O, r:"LC", f:"Elle déploie sa huppe orange en éventail quand elle est surprise."},
+{id:154, n:"Irrisor moqueur", s:"Phoeniculus purpureus", c:O, r:"LC", f:"Ces oiseaux vivent en petits groupes qui ricanent ensemble bruyamment."},
+{id:155, n:"Barbican promépic", s:"Trachyphonus vaillantii", c:O, r:"LC", f:"Son chant ressemble à un réveil qui sonne sans arrêt."},
+{id:156, n:"Barbican à collier", s:"Lybius torquatus", c:O, r:"LC", f:"Le couple chante en duo parfaitement synchronisé."},
+{id:157, n:"Grand indicateur", s:"Indicator indicator", c:O, r:"LC", f:"Il guide les humains jusqu'aux nids d'abeilles sauvages pour profiter ensuite de la cire."},
+
+/* ---------- Oiseaux : oiseaux d'eau ---------- */
+{id:158, n:"Flamant rose", s:"Phoenicopterus roseus", c:O, r:"LC", f:"Sa couleur rose vient des pigments des petits crustacés et des algues qu'il mange."},
+{id:159, n:"Flamant nain", s:"Phoeniconaias minor", c:O, r:"NT", f:"Le plus petit des flamants, mais le plus nombreux. Il filtre les algues dans les lacs salés."},
+{id:160, n:"Ombrette africaine", s:"Scopus umbretta", c:O, r:"LC", f:"Elle construit un nid énorme, pouvant dépasser 1 m de haut, avec une entrée en tunnel."},
+{id:161, n:"Jabiru d'Afrique", s:"Ephippiorhynchus senegalensis", c:O, r:"LC", f:"Ce grand échassier a un bec rouge et noir orné d'une « selle » jaune."},
+{id:162, n:"Marabout d'Afrique", s:"Leptoptilos crumenifer", c:O, r:"LC", f:"Avec jusqu'à 3 m d'envergure, il a l'une des plus grandes ailes de tous les oiseaux terrestres."},
+{id:163, n:"Tantale ibis", s:"Mycteria ibis", c:O, r:"LC", f:"Il pêche le bec ouvert dans l'eau et le referme instantanément au contact d'un poisson."},
+{id:164, n:"Bec-ouvert africain", s:"Anastomus lamelligerus", c:O, r:"LC", f:"Son bec ne se ferme pas complètement : cet espace l'aide à tenir les escargots dont il se nourrit."},
+{id:165, n:"Ibis hagedash", s:"Bostrychia hagedash", c:O, r:"LC", f:"Son cri « ha-ha-ha-de-dah » sert de réveil matinal dans de nombreuses villes sud-africaines."},
+{id:166, n:"Ibis chauve", s:"Geronticus calvus", c:O, r:"NT", f:"Il a la tête nue et rouge. Il niche sur les falaises des hauts plateaux de l'est."},
+{id:167, n:"Spatule d'Afrique", s:"Platalea alba", c:O, r:"LC", f:"Elle balaie l'eau de son bec en forme de cuillère pour attraper les petites proies."},
+{id:168, n:"Héron goliath", s:"Ardea goliath", c:O, r:"LC", f:"Le plus grand héron du monde. Il peut rester immobile longtemps avant de harponner un poisson."},
+{id:169, n:"Héron mélanocéphale", s:"Ardea melanocephala", c:O, r:"LC", f:"Contrairement aux autres hérons, il chasse souvent dans les prairies sèches."},
+{id:170, n:"Héron garde-bœufs", s:"Bubulcus ibis", c:O, r:"LC", f:"Il suit les buffles et les éléphants pour attraper les insectes qu'ils dérangent."},
+{id:171, n:"Ouette d'Égypte", s:"Alopochen aegyptiaca", c:O, r:"LC", f:"Elle était sacrée chez les anciens Égyptiens. Elle niche parfois dans les arbres."},
+{id:172, n:"Dendrocygne veuf", s:"Dendrocygna viduata", c:O, r:"LC", f:"Ce canard siffle en vol, et ses groupes s'entendent de loin."},
+{id:173, n:"Oie-armée de Gambie", s:"Plectropterus gambensis", c:O, r:"LC", f:"La plus grande oie d'Afrique, avec un éperon pointu au pli de chaque aile."},
+{id:174, n:"Jacana à poitrine dorée", s:"Actophilornis africanus", c:O, r:"LC", f:"Ses doigts très longs lui permettent de marcher sur les nénuphars. C'est le mâle qui couve les œufs."},
+{id:175, n:"Pélican blanc", s:"Pelecanus onocrotalus", c:O, r:"LC", f:"Il pêche en groupe en rabattant les poissons vers la rive."},
+{id:176, n:"Anhinga d'Afrique", s:"Anhinga rufa", c:O, r:"LC", f:"Il nage le corps immergé : seul son cou fin dépasse, comme un serpent."},
+{id:177, n:"Bergeronnette pie", s:"Motacilla aguimp", c:O, r:"LC", f:"Elle hoche sans cesse la queue en marchant au bord de l'eau."},
+{id:178, n:"Cigogne blanche", s:"Ciconia ciconia", c:O, r:"LC", f:"Elle vient d'Europe passer l'été austral en Afrique du Sud, après un voyage de plus de 10 000 km."},
+
+/* ---------- Oiseaux : côtes et océan ---------- */
+{id:179, n:"Huîtrier de Moquin", s:"Haematopus moquini", c:O, r:"LC", f:"Il ouvre les moules d'un coup de bec. Ses populations ont remonté grâce à la protection des plages."},
+{id:180, n:"Fou du Cap", s:"Morus capensis", c:O, r:"EN", f:"Il plonge à pic dans l'océan depuis 30 m de haut pour attraper les sardines."},
+{id:181, n:"Cormoran du Cap", s:"Phalacrocorax capensis", c:O, r:"EN", f:"Il forme des colonies de plusieurs milliers d'oiseaux et dépend des bancs de sardines et d'anchois."},
+{id:182, n:"Goéland dominicain", s:"Larus dominicanus", c:O, r:"LC", f:"Il lâche les coquillages sur les rochers pour les ouvrir."},
+{id:183, n:"Albatros à sourcils noirs", s:"Thalassarche melanophris", c:O, r:"LC", f:"Il parcourt des milliers de kilomètres en planant au-dessus des océans du Sud."},
+{id:184, n:"Sterne huppée", s:"Thalasseus bergii", c:O, r:"LC", f:"Elle plonge pour pêcher les petits poissons près des côtes."},
+
+/* ---------- Oiseaux : passereaux et autres ---------- */
+{id:185, n:"Souimanga malachite", s:"Nectarinia famosa", c:O, r:"LC", f:"Le mâle, vert métallique, porte deux longues plumes au centre de la queue. Il se nourrit de nectar."},
+{id:186, n:"Souimanga à double collier", s:"Cinnyris chalybeus", c:O, r:"LC", f:"Il pollinise de nombreuses fleurs du fynbos en buvant leur nectar."},
+{id:187, n:"Promerops du Cap", s:"Promerops cafer", c:O, r:"LC", f:"On ne le trouve que dans le fynbos. Il est étroitement lié aux protéas, dont il boit le nectar."},
+{id:188, n:"Tisserin gendarme", s:"Ploceus cucullatus", c:O, r:"LC", f:"Le mâle tisse un nid en herbe ; si la femelle ne l'aime pas, il le défait et recommence."},
+{id:189, n:"Tisserin masqué", s:"Ploceus velatus", c:O, r:"LC", f:"Ses nids en forme de boule pendent au bout des branches, souvent au-dessus de l'eau."},
+{id:190, n:"Républicain social", s:"Philetairus socius", c:O, r:"LC", f:"Il construit des nids collectifs géants qui abritent des centaines d'oiseaux et peuvent durer un siècle."},
+{id:191, n:"Euplecte ignicolore", s:"Euplectes orix", c:O, r:"LC", f:"Le mâle, rouge et noir, gonfle ses plumes pour séduire dans les roseaux."},
+{id:192, n:"Veuve dominicaine", s:"Vidua macroura", c:O, r:"LC", f:"Elle pond ses œufs dans les nids d'autres oiseaux. Le mâle porte une très longue queue."},
+{id:193, n:"Choucador à épaulettes rouges", s:"Lamprotornis nitens", c:O, r:"LC", f:"Son plumage bleu-vert métallique brille au soleil."},
+{id:194, n:"Choucador de Burchell", s:"Lamprotornis australis", c:O, r:"LC", f:"Le plus grand des choucadors, souvent vu au sol dans le parc Kruger."},
+{id:195, n:"Pique-bœuf à bec rouge", s:"Buphagus erythrorynchus", c:O, r:"LC", f:"Il débarrasse les grands mammifères de leurs tiques, mais boit aussi leur sang sur les plaies."},
+{id:196, n:"Pique-bœuf à bec jaune", s:"Buphagus africanus", c:O, r:"LC", f:"Plus rare que son cousin à bec rouge, il préfère les buffles et les girafes."},
+{id:197, n:"Drongo brillant", s:"Dicrurus adsimilis", c:O, r:"LC", f:"Il imite les cris d'alarme d'autres espèces pour leur faire lâcher leur nourriture."},
+{id:198, n:"Bulbul tricolore", s:"Pycnonotus tricolor", c:O, r:"LC", f:"Un des oiseaux les plus communs, reconnaissable au jaune sous sa queue."},
+{id:199, n:"Pie-grièche fiscale", s:"Lanius collaris", c:O, r:"LC", f:"Elle empale ses proies sur des épines pour les stocker, d'où son surnom de « boucher »."},
+{id:200, n:"Gonolek rouge et noir", s:"Laniarius atrococcineus", c:O, r:"LC", f:"Sa poitrine rouge vif contraste avec son dos noir. Le couple chante en duo."},
+{id:201, n:"Inséparable rosegorge", s:"Agapornis roseicollis", c:O, r:"LC", f:"Ce petit perroquet niche souvent dans les nids des républicains sociaux."},
+{id:202, n:"Perroquet de Meyer", s:"Poicephalus meyeri", c:O, r:"LC", f:"Petit perroquet gris-brun avec des touches jaunes, qui vit dans les savanes boisées du nord."},
+{id:203, n:"Coliou rayé", s:"Colius striatus", c:O, r:"LC", f:"Il grimpe dans les buissons comme une souris, d'où son nom anglais de « mousebird »."},
+{id:204, n:"Tourterelle du Cap", s:"Streptopelia capicola", c:O, r:"LC", f:"Son roucoulement est l'un des sons les plus familiers du bush."},
+{id:205, n:"Pigeon roussard", s:"Columba guinea", c:O, r:"LC", f:"Il s'est bien adapté aux villes et niche sur les bâtiments."},
+{id:206, n:"Ganga namaqua", s:"Pterocles namaqua", c:O, r:"LC", f:"Le mâle trempe les plumes de son ventre dans l'eau pour rapporter à boire à ses petits."},
+{id:207, n:"Cossyphe du Cap", s:"Dessonornis caffer", c:O, r:"LC", f:"Il imite parfois le chant d'autres oiseaux et visite volontiers les jardins."},
+{id:208, n:"Corbeau pie", s:"Corvus albus", c:O, r:"LC", f:"Très intelligent, il fréquente les bords de route à la recherche de nourriture."},
+{id:209, n:"Tchitrec d'Afrique", s:"Terpsiphone viridis", c:O, r:"LC", f:"Le mâle porte une queue orange qui peut être deux fois plus longue que son corps."},
+{id:210, n:"Moineau du Cap", s:"Passer melanurus", c:O, r:"LC", f:"Le moineau le plus commun d'Afrique australe, très présent autour des maisons."},
+{id:211, n:"Cratérope bicolore", s:"Turdoides bicolor", c:O, r:"LC", f:"Il vit en groupes où des sentinelles montent la garde, comme chez les suricates."},
+{id:212, n:"Martinet des palmes", s:"Cypsiurus parvus", c:O, r:"LC", f:"Il colle ses œufs avec sa salive sur la face intérieure des feuilles de palmier."},
+
+/* ---------- Reptiles ---------- */
+{id:213, n:"Tortue léopard", s:"Stigmochelys pardalis", c:R, r:"LC", f:"La plus grande tortue terrestre d'Afrique australe. Les motifs de sa carapace rappellent un léopard."},
+{id:214, n:"Tortue géométrique", s:"Psammobates geometricus", c:R, r:"CR", f:"L'une des tortues les plus rares du monde. Elle ne vit que dans quelques petites zones de l'ouest du Cap."},
+{id:215, n:"Tortue luth", s:"Dermochelys coriacea", c:R, r:"VU", f:"La plus grande tortue du monde. Elle vient pondre sur les plages du nord du KwaZulu-Natal."},
+{id:216, n:"Caouanne", s:"Caretta caretta", c:R, r:"VU", f:"Elle pond sur les plages du KwaZulu-Natal. Les femelles reviennent pondre sur la plage où elles sont nées."},
+{id:217, n:"Tortue verte", s:"Chelonia mydas", c:R, r:"EN", f:"Adulte, elle est herbivore et broute les herbiers marins."},
+{id:218, n:"Varan du Nil", s:"Varanus niloticus", c:R, r:"LC", f:"Le plus grand lézard d'Afrique. Excellent nageur, il pille volontiers les nids de crocodiles."},
+{id:219, n:"Varan des rochers", s:"Varanus albigularis", c:R, r:"LC", f:"Il se réfugie dans les crevasses et gonfle sa gorge en sifflant quand on le dérange."},
+{id:220, n:"Mamba noir", s:"Dendroaspis polylepis", c:R, r:"LC", f:"Son nom vient de l'intérieur noir de sa bouche, qu'il ouvre pour menacer. Sa peau est en réalité grise."},
+{id:221, n:"Mamba vert de l'Est", s:"Dendroaspis angusticeps", c:R, r:"LC", f:"Discret et arboricole, il vit dans les forêts côtières du KwaZulu-Natal."},
+{id:222, n:"Cobra du Cap", s:"Naja nivea", c:R, r:"LC", f:"Sa couleur varie du jaune vif au brun. On le trouve dans les zones arides de l'ouest."},
+{id:223, n:"Vipère heurtante", s:"Bitis arietans", c:R, r:"LC", f:"Elle reste immobile au lieu de fuir, d'où de nombreuses morsures. Elle souffle bruyamment pour avertir."},
+{id:224, n:"Python de Seba du Sud", s:"Python natalensis", c:R, r:"LC", f:"Le plus grand serpent d'Afrique australe. Il étouffe ses proies, parfois de petites antilopes."},
+{id:225, n:"Boomslang", s:"Dispholidus typus", c:R, r:"LC", f:"Son nom signifie « serpent d'arbre » en afrikaans. Très venimeux, il est pourtant extrêmement timide."},
+{id:226, n:"Rinkhals", s:"Hemachatus haemachatus", c:R, r:"LC", f:"Il peut cracher son venin, ou faire le mort pour échapper à un prédateur."},
+{id:227, n:"Caméléon à cou plat", s:"Chamaeleo dilepis", c:R, r:"LC", f:"Ses yeux bougent indépendamment l'un de l'autre pour regarder dans deux directions à la fois."},
+{id:228, n:"Agame des rochers", s:"Agama atra", c:R, r:"LC", f:"À la saison des amours, le mâle prend une tête bleu vif et hoche la tête pour impressionner."},
+{id:229, n:"Lézard-tatou", s:"Ouroborus cataphractus", c:R, r:"NT", f:"Il se roule en boule en se mordant la queue pour protéger son ventre, comme un tatou."},
+{id:230, n:"Cordyle géant", s:"Smaug giganteus", c:R, r:"VU", f:"Surnommé « regarde-soleil », il passe des heures face au soleil à l'entrée de son terrier."},
+
+/* ---------- Amphibiens ---------- */
+{id:231, n:"Grenouille-taureau africaine", s:"Pyxicephalus adspersus", c:A, r:"LC", f:"Le mâle défend farouchement ses têtards et creuse des canaux pour les sauver quand la mare s'assèche."},
+{id:232, n:"Crapaud léopard de l'Ouest", s:"Sclerophrys pantherina", c:A, r:"EN", f:"Il ne vit qu'autour du Cap. Chaque année, des bénévoles l'aident à traverser les routes."},
+{id:233, n:"Grenouille fantôme de la Table", s:"Heleophryne rosei", c:A, r:"CR", f:"Elle ne vit que dans quelques ruisseaux de la montagne de la Table, au Cap."},
+{id:234, n:"Grenouille de pluie du désert", s:"Breviceps macrops", c:A, r:"VU", f:"Ronde comme une balle, elle pousse un petit cri aigu de jouet qui grince quand on l'embête."},
+{id:235, n:"Grenouille à nid d'écume", s:"Chiromantis xerampelina", c:A, r:"LC", f:"Elle fabrique un nid de mousse accroché aux branches au-dessus de l'eau : à l'éclosion, les têtards tombent dans la mare."},
+{id:236, n:"Xénope lisse", s:"Xenopus laevis", c:A, r:"LC", f:"Une grenouille sans langue qui passe toute sa vie dans l'eau. Elle a longtemps servi aux tests de grossesse."},
+{id:237, n:"Grenouille-roseau peinte", s:"Hyperolius marmoratus", c:A, r:"LC", f:"Ses couleurs varient énormément d'un individu à l'autre."},
+{id:238, n:"Crapaud guttural", s:"Sclerophrys gutturalis", c:A, r:"LC", f:"Son chant ressemble à un ronflement qui résonne dans les nuits d'été."},
+{id:239, n:"Micro-grenouille", s:"Microbatrachella capensis", c:A, r:"CR", f:"L'une des plus petites grenouilles d'Afrique, moins de 2 cm. Elle vit dans les zones humides des plaines du Cap."},
+
+/* ---------- Poissons ---------- */
+{id:240, n:"Requin-baleine", s:"Rhincodon typus", c:P, r:"EN", f:"Le plus grand poisson du monde, mais il se nourrit de plancton. Il visite les côtes du KwaZulu-Natal en été."},
+{id:241, n:"Requin bouledogue", s:"Carcharhinus leucas", c:P, r:"VU", f:"Il peut remonter les fleuves en eau douce sur de longues distances."},
+{id:242, n:"Requin-tigre", s:"Galeocerdo cuvier", c:P, r:"NT", f:"Il doit son nom aux rayures des jeunes. Il mange presque tout, y compris des tortues marines."},
+{id:243, n:"Requin-taureau", s:"Carcharias taurus", c:P, r:"CR", f:"Malgré ses dents impressionnantes, il est plutôt calme. On l'observe en plongée à Aliwal Shoal."},
+{id:244, n:"Requin à sept branchies", s:"Notorynchus cepedianus", c:P, r:"VU", f:"Il possède sept fentes branchiales au lieu de cinq, comme certains requins préhistoriques."},
+{id:245, n:"Requin-pyjama", s:"Poroderma africanum", c:P, r:"LC", f:"On ne le trouve qu'en Afrique du Sud. Ses rayures sombres rappellent un pyjama."},
+{id:246, n:"Raie manta océanique", s:"Mobula birostris", c:P, r:"EN", f:"Elle peut dépasser 6 m d'envergure et possède l'un des plus gros cerveaux de tous les poissons."},
+{id:247, n:"Grand requin-marteau", s:"Sphyrna mokarran", c:P, r:"CR", f:"Sa tête en marteau l'aide à repérer les raies cachées dans le sable."},
+{id:248, n:"Cœlacanthe", s:"Latimeria chalumnae", c:P, r:"CR", f:"Un « fossile vivant » qu'on croyait disparu depuis 66 millions d'années, redécouvert en Afrique du Sud en 1938."},
+{id:249, n:"Hippocampe de Knysna", s:"Hippocampus capensis", c:P, r:"EN", f:"Il ne vit que dans quelques estuaires de la côte sud. C'est le mâle qui porte les petits."},
+{id:250, n:"Mérou géant", s:"Epinephelus lanceolatus", c:P, r:"VU", f:"Le plus grand des mérous, il peut dépasser 2 m de long."}
+
+  ]
+};
+})();

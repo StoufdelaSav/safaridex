@@ -82,6 +82,9 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:6px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.searchrow{display:flex;align-items:center;gap:12px}
+.searchrow input{flex:1;min-width:0;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:16px}
+.searchrow span{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:12px}
@@ -232,6 +235,7 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
   <div class="wrap">
     <section id="view-dex">
       <div class="filters">
+        <div class="searchrow"><input type="search" id="searchIn" placeholder="Rechercher un animal…" aria-label="Rechercher un animal" autocomplete="off"><span id="countN"></span></div>
         <div class="chiprow" id="classChips"></div>
         <div class="chiprow" id="rarChips"></div>
       </div>
@@ -283,17 +287,15 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 <input type="file" id="importIn" accept=".json,application/json" hidden>
 <div id="sheetHost"></div>
 
+<script src="especes.js"></script>
+<script src="dedicace.js"></script>
 <script>
-/* =========================================================
-   À PERSONNALISER : ton message, affiché sur son profil
-   ========================================================= */
-const DEDICACE = {
-  texte: "Joyeux anniversaire Chatoune ! Que cette collection grandisse à chacun de nos voyages.",
-  signature: "Ton explorateur préféré de la savane"
-};
+/* Ta dédicace se trouve dans le fichier dedicace.js */
+const DEDICACE = window.SAFARIDEX_DEDICACE || { texte: "Joyeux anniversaire !", signature: "" };
 
 /* ---------- Données espèces ----------
-   Rareté = statut UICN (liste rouge mondiale), à vérifier sur iucnredlist.org. */
+   Les espèces sont dans des fichiers séparés (especes.js pour l'Afrique du Sud).
+   Rareté = statut UICN (liste rouge mondiale). */
 const RARITY = {
   LC:{label:"Commun",    uicn:"Préoccupation mineure", v:"--r-common", xp:10},
   NT:{label:"Peu commun",uicn:"Quasi menacé",          v:"--r-uncommon", xp:20},
@@ -302,33 +304,10 @@ const RARITY = {
   CR:{label:"Légendaire",uicn:"En danger critique",    v:"--r-legend", xp:150}
 };
 const RORDER = ["LC","NT","VU","EN","CR"];
-const CLASSES = ["Mammifères","Oiseaux","Reptiles","Poissons"];
-const REGIONS = { ZA:["Limpopo","Mpumalanga","KwaZulu-Natal","Cap-Occidental","Cap-Oriental","Cap-du-Nord","Nord-Ouest","État-Libre","Gauteng","En mer"] };
-
-const SPECIES = [
- {id:1, n:"Lion", s:"Panthera leo", c:"Mammifères", r:"VU", big5:1, f:"Le rugissement d'un lion porte jusqu'à 8 km. Les femelles assurent l'essentiel de la chasse, souvent en équipe."},
- {id:2, n:"Léopard", s:"Panthera pardus", c:"Mammifères", r:"VU", big5:1, f:"Il hisse ses proies dans les arbres, parfois plus lourdes que lui, pour les mettre à l'abri des hyènes."},
- {id:3, n:"Éléphant de savane", s:"Loxodonta africana", c:"Mammifères", r:"EN", big5:1, f:"Le plus grand animal terrestre. Sa trompe compte environ 40 000 muscles."},
- {id:4, n:"Buffle d'Afrique", s:"Syncerus caffer", c:"Mammifères", r:"NT", big5:1, f:"Un troupeau peut contre-attaquer en groupe pour défendre un membre attaqué par des lions."},
- {id:5, n:"Rhinocéros noir", s:"Diceros bicornis", c:"Mammifères", r:"CR", big5:1, f:"Sa lèvre supérieure pointue lui sert à attraper les feuilles des buissons. Il est plus solitaire et nerveux que le rhinocéros blanc."},
- {id:6, n:"Rhinocéros blanc", s:"Ceratotherium simum", c:"Mammifères", r:"NT", big5:1, f:"Sa lèvre large et carrée est faite pour brouter l'herbe. L'Afrique du Sud abrite la majorité de la population mondiale."},
- {id:7, n:"Girafe", s:"Giraffa camelopardalis", c:"Mammifères", r:"VU", f:"Son cou compte seulement 7 vertèbres, comme le nôtre, mais chacune peut mesurer plus de 25 cm."},
- {id:8, n:"Zèbre des plaines", s:"Equus quagga", c:"Mammifères", r:"NT", f:"Chaque zèbre a un motif de rayures unique, comme une empreinte digitale."},
- {id:9, n:"Lycaon", s:"Lycaon pictus", c:"Mammifères", r:"EN", f:"Aussi appelé chien sauvage d'Afrique. Ses chasses en meute réussissent bien plus souvent que celles des lions."},
- {id:10,n:"Guépard", s:"Acinonyx jubatus", c:"Mammifères", r:"VU", f:"Le plus rapide des animaux terrestres, il peut dépasser 100 km/h sur de courtes distances."},
- {id:11,n:"Hippopotame", s:"Hippopotamus amphibius", c:"Mammifères", r:"VU", f:"Il passe ses journées dans l'eau et sort la nuit pour brouter, parfois plusieurs kilomètres plus loin."},
- {id:12,n:"Pangolin de Temminck", s:"Smutsia temminckii", c:"Mammifères", r:"VU", f:"Couvert d'écailles de kératine, il se roule en boule pour se protéger. C'est l'un des mammifères les plus braconnés au monde."},
- {id:13,n:"Impala", s:"Aepyceros melampus", c:"Mammifères", r:"LC", f:"Capable de bonds de 3 m de haut et de 10 m de long pour semer ses prédateurs."},
- {id:14,n:"Hyène tachetée", s:"Crocuta crocuta", c:"Mammifères", r:"LC", f:"Contrairement à sa réputation, elle chasse elle-même la majorité de ses proies."},
- {id:15,n:"Suricate", s:"Suricata suricatta", c:"Mammifères", r:"LC", f:"Pendant que le groupe cherche à manger, une sentinelle monte la garde et donne l'alerte."},
- {id:16,n:"Phacochère", s:"Phacochoerus africanus", c:"Mammifères", r:"LC", f:"Il s'agenouille sur ses pattes avant pour brouter l'herbe rase."},
- {id:17,n:"Calao terrestre du Sud", s:"Bucorvus leadbeateri", c:"Oiseaux", r:"VU", f:"Son appel grave, qui ressemble à celui d'un lion lointain, s'entend à plusieurs kilomètres."},
- {id:18,n:"Rollier à longs brins", s:"Coracias caudatus", c:"Oiseaux", r:"LC", f:"Un des oiseaux les plus photographiés en safari, avec sa poitrine lilas et ses ailes turquoise."},
- {id:19,n:"Aigle bateleur", s:"Terathopius ecaudatus", c:"Oiseaux", r:"EN", f:"Il peut parcourir plusieurs centaines de kilomètres par jour en vol plané."},
- {id:20,n:"Manchot du Cap", s:"Spheniscus demersus", c:"Oiseaux", r:"CR", f:"Le seul manchot d'Afrique. On peut l'observer à Boulders Beach, près du Cap."},
- {id:21,n:"Crocodile du Nil", s:"Crocodylus niloticus", c:"Reptiles", r:"LC", f:"Il peut rester immobile des heures et rester sous l'eau plus d'une heure en cas de besoin."},
- {id:22,n:"Grand requin blanc", s:"Carcharodon carcharias", c:"Poissons", r:"VU", f:"La baie False Bay est célèbre pour ses requins qui bondissent hors de l'eau en chassant les phoques."}
-].map(s => ({...s, country:"ZA"}));
+const CLASSES = ["Mammifères","Oiseaux","Reptiles","Amphibiens","Poissons"];
+const PAYS = window.SAFARIDEX_PAYS || {};
+const REGIONS = Object.fromEntries(Object.entries(PAYS).map(([cc,p]) => [cc, p.regions]));
+const SPECIES = Object.entries(PAYS).flatMap(([cc,p]) => p.especes.map(s => ({...s, country:cc})));
 const BIG5 = [1,2,3,4,[5,6]];
 
 /* ---------- Pays : code, nom, continent, positions (lat,lon) ----------
@@ -513,6 +492,7 @@ const ICON = {
  "Mammifères":'<svg viewBox="0 0 64 64" fill="currentColor"><ellipse cx="32" cy="42" rx="13" ry="11"/><ellipse cx="14" cy="26" rx="6" ry="8"/><ellipse cx="25" cy="15" rx="6" ry="8"/><ellipse cx="39" cy="15" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/></svg>',
  "Oiseaux":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M8 56C20 30 38 10 58 6 50 22 40 40 14 56Z"/><path d="M20 46 34 36 26 50Z" opacity=".5"/></svg>',
  "Reptiles":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M32 6 52 18v28L32 58 12 46V18Z"/></svg>',
+ "Amphibiens":'<svg viewBox="0 0 64 64" fill="currentColor"><ellipse cx="32" cy="40" rx="20" ry="14"/><circle cx="20" cy="22" r="8"/><circle cx="44" cy="22" r="8"/><path d="M6 56c4-8 10-10 14-8M58 56c-4-8-10-10-14-8" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/></svg>',
  "Poissons":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M6 32c10-14 30-16 42-4l10-8v24l-10-8C36 48 16 46 6 32Z"/></svg>'
 };
 const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
@@ -552,7 +532,7 @@ const dbSaveProfile = () => idb("kv","readwrite",s=>s.put(profile,"profile")).ca
 let OBS = [];          // {id, sp, country, region, date, blob, url}
 let profile = { name:"", avatar:null, favSp:null, bestObs:null, visited:[] };
 let avatarURL = null;
-let fClass="Toutes", fRar="Toutes", tab="dex", sheet=null, confirmId=null;
+let fQuery="", fClass="Toutes", fRar="Toutes", tab="dex", sheet=null, confirmId=null;
 let pendingRegion = REGIONS.ZA[0];
 
 const $ = s => document.querySelector(s);
@@ -591,6 +571,8 @@ function chips(){
   $("#rarChips").innerHTML = ["Toutes",...RORDER].map(r =>
     `<button class="chip" aria-pressed="${fRar===r}" data-r="${r}">${r==="Toutes"?"Toutes les raretés":`<span class="dot" style="background:${rcol(r)}"></span>${RARITY[r].label}`}</button>`).join("");
 }
+const norm = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+$("#searchIn").addEventListener("input", e => { fQuery = norm(e.target.value.trim()); render(); });
 $("#classChips").addEventListener("click", e => { const b=e.target.closest("[data-c]"); if(b){ fClass=b.dataset.c; render(); } });
 $("#rarChips").addEventListener("click", e => { const b=e.target.closest("[data-r]"); if(b){ fRar=b.dataset.r; render(); } });
 
@@ -598,7 +580,7 @@ function cardHTML(sp){
   const n = obsOf(sp.id).length, s = n>0, ph = lastPhoto(sp.id);
   return `<button class="card ${s?"seen":""}" data-id="${sp.id}">
     <span class="stripe" style="background:${rcol(sp.r)}"></span>
-    <div class="plate">${ph?`<img src="${ph}" alt="${esc(sp.n)}">`:ICON[sp.c]}<span class="no">${num(sp.id)}</span>${n>1?`<span class="count">×${n}</span>`:""}</div>
+    <div class="plate">${ph?`<img src="${ph}" alt="${esc(sp.n)}" loading="lazy">`:ICON[sp.c]}<span class="no">${num(sp.id)}</span>${n>1?`<span class="count">×${n}</span>`:""}</div>
     <div class="cbody"><span class="cname">${esc(sp.n)}</span>
     <span class="rar" style="color:${rcol(sp.r)}"><span class="dot" style="background:${rcol(sp.r)}"></span>${RARITY[sp.r].label}</span></div>
   </button>`;
@@ -686,14 +668,18 @@ function progRow(label, have, total, color){
 function badgeList(){
   const nSeen = SPECIES.filter(s=>seen(s.id)).length;
   const big5 = BIG5.filter(x => Array.isArray(x) ? x.some(seen) : seen(x)).length;
-  const birds = SPECIES.filter(s=>s.c==="Oiseaux"&&seen(s.id)).length;
+  const nOf = c => SPECIES.filter(s=>s.c===c&&seen(s.id)).length;
+  const birds = nOf("Oiseaux"), herps = nOf("Reptiles")+nOf("Amphibiens"), fish = nOf("Poissons");
+  const marine = SPECIES.filter(s=>s.id>=94&&s.id<=101&&seen(s.id)).length + fish;
   const legend = SPECIES.some(s=>s.r==="CR"&&seen(s.id));
   const regions = new Set(OBS.map(o=>o.region)).size;
   const countries = visitedSet().size;
   return [
     {t:"Première rencontre", d:"Observer une première espèce", ok:nSeen>=1, m:"1"},
     {t:"Big Five", d:`Lion, léopard, éléphant, buffle, rhinocéros · ${big5}/5`, ok:big5===5, m:"5"},
-    {t:"Ornithologue", d:`Observer 3 oiseaux · ${Math.min(birds,3)}/3`, ok:birds>=3, m:"O"},
+    {t:"Ornithologue", d:`Observer 10 oiseaux · ${Math.min(birds,10)}/10`, ok:birds>=10, m:"O"},
+    {t:"Herpétologue", d:`Observer 5 reptiles ou amphibiens · ${Math.min(herps,5)}/5`, ok:herps>=5, m:"H"},
+    {t:"Grand bleu", d:`Observer 3 espèces marines · ${Math.min(marine,3)}/3`, ok:marine>=3, m:"~"},
     {t:"Légende vivante", d:"Observer une espèce légendaire", ok:legend, m:"★"},
     {t:"Grande voyageuse", d:`Observer dans 3 régions · ${Math.min(regions,3)}/3`, ok:regions>=3, m:"R"},
     {t:"Globe-trotteuse", d:`Visiter 5 pays · ${Math.min(countries,5)}/5`, ok:countries>=5, m:"G"},
@@ -779,9 +765,12 @@ document.querySelector("nav.tabbar").addEventListener("click", e => { const b=e.
 
 function render(){
   chips();
-  const list = SPECIES.filter(s => (fClass==="Toutes"||s.c===fClass) && (fRar==="Toutes"||s.r===fRar));
+  const list = SPECIES.filter(s => (fClass==="Toutes"||s.c===fClass) && (fRar==="Toutes"||s.r===fRar)
+    && (!fQuery || norm(s.n+" "+s.s).includes(fQuery)));
   $("#grid").innerHTML = list.map(cardHTML).join("");
   $("#empty").hidden = list.length>0;
+  $("#empty").textContent = SPECIES.length ? "Aucune espèce ne correspond à ta recherche." : "Le fichier des espèces (especes.js) n'a pas pu être chargé.";
+  $("#countN").textContent = `${list.length} espèce${list.length>1?"s":""}`;
   const n = SPECIES.filter(s=>seen(s.id)).length;
   $("#seenN").textContent = n; $("#totalN").textContent = SPECIES.length;
   $("#seenBar").style.width = (n/SPECIES.length*100)+"%";
