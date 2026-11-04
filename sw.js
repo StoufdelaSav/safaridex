@@ -1,7 +1,7 @@
 /* Service worker : garde une copie de l'app sur le téléphone
    pour qu'elle s'ouvre même sans réseau (en pleine savane !).
    Change le numéro de VERSION à chaque mise à jour de l'app. */
-const VERSION = "safaridex-v3";
+const VERSION = "safaridex-v4";
 const FILES = ["./", "index.html", "especes.js", "dedicace.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 

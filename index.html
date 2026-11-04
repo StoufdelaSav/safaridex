@@ -284,7 +284,7 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 
 <input type="file" id="fileIn" accept="image/*" hidden>
 <input type="file" id="avatarIn" accept="image/*" hidden>
-<input type="file" id="importIn" accept=".json,application/json" hidden>
+<input type="file" id="importIn" hidden>
 <div id="sheetHost"></div>
 
 <script src="especes.js"></script>
@@ -731,18 +731,23 @@ async function renderProfile(){
     <h2 class="sec">Sauvegarde</h2>
     <div class="backup">
       <p class="note" id="storeInfo" style="font-size:14px">Tes photos sont enregistrées sur ce téléphone.</p>
-      <div class="acts"><button class="btn alt" id="exportBtn">Exporter ma collection</button><button class="btn ghost" id="importBtn">Importer une sauvegarde</button></div>
-      <p class="note">L'export crée un fichier avec toutes tes photos et observations. Range-le dans iCloud Drive pour pouvoir tout récupérer sur un autre téléphone.</p>
+      <div class="acts">${readyExport
+        ? `<button class="btn" id="saveBtn">Enregistrer le fichier (${(readyExport.size/1048576).toFixed(1).replace(".",",")} Mo)</button>`
+        : `<button class="btn alt" id="exportBtn">Exporter ma collection</button>`}
+        <button class="btn ghost" id="importBtn">Importer une sauvegarde</button></div>
+      <p class="note">${readyExport
+        ? "Ta sauvegarde est prête. Appuie sur « Enregistrer le fichier », puis choisis « Enregistrer dans Fichiers » et un dossier iCloud Drive."
+        : "L'export crée un fichier avec toutes tes photos et observations. Range-le dans iCloud Drive pour pouvoir tout récupérer sur un autre téléphone."}</p>
     </div>`;
   $("#avatarBtn").onclick = () => { $("#avatarIn").value=""; $("#avatarIn").click(); };
   $("#nameIn").onchange = e => { profile.name = e.target.value.trim(); dbSaveProfile(); toast("Prénom enregistré"); };
   $("#favBtn").onclick = () => openPicker("fav");
   $("#bestBtn").onclick = () => openPicker("best");
-  $("#exportBtn").onclick = exportAll;
+  if(readyExport) $("#saveBtn").onclick = saveExport; else $("#exportBtn").onclick = exportAll;
   $("#importBtn").onclick = () => { $("#importIn").value=""; $("#importIn").click(); };
   try{
     if(navigator.storage?.estimate){ const e = await navigator.storage.estimate(); const p = navigator.storage.persisted ? await navigator.storage.persisted() : false;
-      $("#storeInfo").textContent = `${OBS.length} photo${OBS.length>1?"s":""} · ${(e.usage/1048576).toFixed(1)} Mo utilisés sur ce téléphone${p?" · stockage protégé":""}.`; }
+      $("#storeInfo").textContent = `${OBS.length} photo${OBS.length>1?"s":""} · ${(e.usage/1048576).toFixed(1).replace(".",",")} Mo utilisés sur ce téléphone${p?" · stockage protégé":""}.`; }
   }catch(e){}
 }
 $("#avatarIn").addEventListener("change", async e => {
@@ -893,27 +898,43 @@ $("#fileIn").addEventListener("change", async e => {
 /* ---------- Export / import ---------- */
 const blobToDataURL = b => new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(b); });
 function dataURLToBlob(u){ const [h,d]=u.split(","); const bin=atob(d); const a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return new Blob([a],{type:h.match(/:(.*?);/)[1]}); }
+/* Export en deux temps : 1) on prépare le fichier, 2) un appui sur « Enregistrer »
+   ouvre le menu de partage de l'iPhone (le partage doit suivre directement un appui). */
+let readyExport = null;
 async function exportAll(){
   try{
     toast("Préparation de la sauvegarde…");
     const out = {app:"safaridex", version:2, exported:Date.now(),
       profile:{...profile, avatar: profile.avatar ? await blobToDataURL(profile.avatar) : null},
       obs: await Promise.all(OBS.map(async o=>({sp:o.sp,country:o.country,region:o.region,date:o.date,img:await blobToDataURL(o.blob),best:profile.bestObs===o.id})))};
-    const blob = new Blob([JSON.stringify(out)],{type:"application/json"});
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = `safaridex-${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
+    readyExport = new File([JSON.stringify(out)], `safaridex-${new Date().toISOString().slice(0,10)}.json`, {type:"application/json"});
+    renderProfile(); toast("Sauvegarde prête");
   }catch(e){ toast("L'export a échoué. Réessaie."); }
+}
+async function saveExport(){
+  const f = readyExport; if(!f) return;
+  try{
+    if(navigator.canShare && navigator.canShare({files:[f]})){
+      await navigator.share({files:[f], title:"Sauvegarde Safaridex"});
+    }else{
+      const a = document.createElement("a"); a.href = URL.createObjectURL(f); a.download = f.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
+    }
+    readyExport = null; renderProfile();
+  }catch(e){
+    if(e && e.name==="AbortError") return toast("Enregistrement annulé. Tu peux réessayer.");
+    toast("L'enregistrement a échoué. Réessaie.");
+  }
 }
 $("#importIn").addEventListener("change", async e => {
   const f = e.target.files[0]; if(!f) return;
   try{
     const data = JSON.parse(await f.text());
     if(data.app!=="safaridex") throw new Error("format");
-    const known = new Set(OBS.map(o=>o.sp+"|"+o.date)); let added=0, bestNew=null;
+    const known = new Set(OBS.map(o=>o.sp+"|"+o.date)); let added=0, skipped=0, bestNew=null;
     for(const o of data.obs||[]){
-      if(!spById(o.sp) || known.has(o.sp+"|"+o.date)) continue;
+      if(!spById(o.sp) || known.has(o.sp+"|"+o.date)){ skipped++; continue; }
       const n = await addObservation(o.sp, dataURLToBlob(o.img), o.region, o.date); added++;
       if(o.best) bestNew = n.id;
     }
@@ -924,7 +945,8 @@ $("#importIn").addEventListener("change", async e => {
     profile.visited = [...new Set([...profile.visited, ...(p.visited||[])])];
     if(!profile.avatar && p.avatar){ profile.avatar = dataURLToBlob(p.avatar); avatarURL = URL.createObjectURL(profile.avatar); }
     await dbSaveProfile(); render(); renderProfile();
-    toast(`${added} observation${added>1?"s":""} importée${added>1?"s":""}`);
+    toast(added ? `${added} observation${added>1?"s":""} importée${added>1?"s":""}` + (skipped?` · ${skipped} déjà présente${skipped>1?"s":""}`:"")
+                : `Rien de nouveau : les ${skipped} observation${skipped>1?"s":""} de ce fichier sont déjà dans ta collection.`);
   }catch(err){ toast("Ce fichier n'est pas une sauvegarde Safaridex."); }
 });
 
