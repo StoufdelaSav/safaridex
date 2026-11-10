@@ -1,7 +1,7 @@
 /* Service worker : garde une copie de l'app sur le téléphone
    pour qu'elle s'ouvre même sans réseau (en pleine savane !).
    Change le numéro de VERSION à chaque mise à jour de l'app. */
-const VERSION = "safaridex-v13";
+const VERSION = "safaridex-v14";
 const FILES = ["./", "index.html", "especes.js", "dedicace.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
   "icones/aigle.png",
@@ -69,14 +69,18 @@ self.addEventListener("activate", e => {
   self.clients.claim();
 });
 
-/* Réseau d'abord (pour avoir la dernière version), copie locale si pas de réseau */
+/* Réseau d'abord (pour avoir la dernière version), copie locale si pas de réseau.
+   « no-cache » oblige à redemander au serveur s'il y a du nouveau, au lieu de
+   réutiliser pendant 10 minutes la copie gardée par GitHub Pages. */
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  const sameSite = new URL(e.request.url).origin === self.location.origin;
+  const req = sameSite ? new Request(e.request.url, { cache: "no-cache", credentials: "same-origin" }) : e.request;
   e.respondWith(
-    fetch(e.request).then(res => {
+    fetch(req).then(res => {
       const copy = res.clone();
       caches.open(VERSION).then(c => c.put(e.request, copy));
       return res;
-    }).catch(() => caches.match(e.request))
+    }).catch(() => caches.match(e.request, { ignoreSearch: true }))
   );
 });
