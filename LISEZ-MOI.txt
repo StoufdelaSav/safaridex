@@ -8,7 +8,8 @@ dedicace.js           Ton message d'anniversaire, affiché sur le profil.
 manifest.webmanifest  La "carte d'identité" de l'app : son nom, ses
                       couleurs et son icône sur l'écran d'accueil.
 sw.js                 Permet à l'app de s'ouvrir sans réseau.
-icons/                Les icônes de l'app.
+icons/                Les icônes de l'app (écran d'accueil).
+icones/               Les icônes des animaux (Freepik – Flaticon).
 
 Pour tester : ouvre ce dossier dans VS Code, puis clic droit sur
 index.html > "Open with Live Server".

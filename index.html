@@ -28,7 +28,7 @@ img{max-width:100%}
 :root{
   --bg:#f3eee4; --surface:#fffaf1; --ink:#2a2419; --muted:#7a6d58; --line:#e2d7c3;
   --ochre:#c7741f; --acacia:#4f6b3a; --plate:#ebe1cf;
-  --sea:#e4ddcd; --land:#cfc2a8; --dotsea:#d3c9b4;
+  --sea:#e4ddcd; --land:#cfc2a8; --dotsea:#d3c9b4; --sil:#2f2a20; --silf:none; --silo:.85;
   --r-common:#8d8578; --r-uncommon:#4f8a3c; --r-rare:#2f6fb3; --r-epic:#8a4cb8; --r-legend:#c99312;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
@@ -38,13 +38,13 @@ img{max-width:100%}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
   --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
-  --sea:#1d1914; --land:#3b3328; --dotsea:#2e281f;
+  --sea:#1d1914; --land:#3b3328; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5;
   --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
   --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
   --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
-  --sea:#1d1914; --land:#3b3328; --dotsea:#2e281f;
+  --sea:#1d1914; --land:#3b3328; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5;
   --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
   --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}
 
@@ -96,6 +96,10 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .ph-fg{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:contain}
 .plate .no,.plate .count{z-index:2}
 .plate svg{width:44%;height:auto;opacity:.28;color:var(--ink)}
+.plate img.sil{width:66%;height:66%;object-fit:contain;opacity:var(--silo);filter:var(--silf)}
+.hero img.sil{width:52%;height:62%;object-fit:contain;opacity:var(--silo);filter:var(--silf)}
+.credits{max-width:620px;margin-top:28px;font-size:12px;color:var(--muted)}
+.credits a{color:inherit}
 .plate .no{position:absolute;top:8px;left:10px;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted);background:var(--surface);padding:1px 6px;border-radius:6px}
 .card.seen .plate .no{color:var(--ink)}
 .plate .count{position:absolute;bottom:8px;right:8px;font-family:var(--mono);font-size:11px;background:var(--acacia);color:var(--bg);padding:2px 7px;border-radius:99px;font-weight:700}
@@ -533,6 +537,27 @@ const ICON = {
  "Amphibiens":'<svg viewBox="0 0 64 64" fill="currentColor"><ellipse cx="32" cy="40" rx="20" ry="14"/><circle cx="20" cy="22" r="8"/><circle cx="44" cy="22" r="8"/><path d="M6 56c4-8 10-10 14-8M58 56c-4-8-10-10-14-8" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/></svg>',
  "Poissons":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M6 32c10-14 30-16 42-4l10-8v24l-10-8C36 48 16 46 6 32Z"/></svg>'
 };
+/* Silhouette de la famille de l'espèce (voir silhouettes.js), sinon icône de la classe */
+/* Icône de chaque famille d'animaux (dossier icones/, icônes Freepik – Flaticon).
+   La famille de chaque espèce est indiquée par « g » dans especes.js. */
+const ICONES = {
+  lion:"lion", felin:"leopard", guepard:"guepard", petitfelin:"chat-sauvage", canide:"chacal", hyene:"hyene",
+  suricate:"suricate", petitcarnivore:"suricate", zorille:"suricate", elephant:"elephant", rhino:"rhinoceros",
+  hippo:"hippopotame", girafe:"girafe", equide:"zebre", bovide:"buffle", gnou:"gnou", antilope:"antilope", suide:"phacochere",
+  primate:"singe", babouin:"babouin", pangolin:"pangolin", orycterope:"phacochere", rongeur:"lievre",
+  porcepic:"porc-epic", ecureuil:"ecureuil", sauteur:"lievre", lievre:"lievre", herisson:"herisson",
+  chauvesouris:"chauve-souris", otarie:"otarie", baleine:"baleine", dauphin:"dauphin",
+  rapace:"aigle", vautour:"vautour", hibou:"hibou", autruche:"autruche", gallinace:"oiseau", grue:"heron",
+  calao:"calao", echassier:"heron", ibis:"heron", flamant:"flamant", canard:"canard", pelican:"pelican",
+  manchot:"manchot", oiseaumarin:"mouette", goeland:"goeland", passereau:"oiseau", hirondelle:"oiseau",
+  souimanga:"oiseau", perroquet:"perroquet", perruche:"perruche", pigeon:"oiseau", corvide:"oiseau",
+  crocodile:"crocodile", tortue:"tortue", tortuemarine:"tortue-de-mer", varan:"lezard", serpent:"serpent",
+  cobra:"serpent", cameleon:"cameleon", lezard:"lezard", grenouille:"grenouille",
+  requin:"requin", raie:"raie", hippocampe:"hippocampe", poisson:"poisson"
+};
+const SIL = {};
+const silOf = sp => { const f = ICONES[sp.g];
+  return f ? `<img class="sil" src="icones/${f}.png" alt="" loading="lazy">` : (ICON[sp.c] || ICON["Mammifères"]); };
 const LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
 /* =========================================================
@@ -626,7 +651,7 @@ function cardHTML(sp){
   const n = obsOf(sp.id).length, s = n>0, ph = lastPhoto(sp.id);
   return `<button class="card ${s?"seen":""}" data-id="${sp.id}">
     <span class="stripe" style="background:${rcol(sp.r)}"></span>
-    <div class="plate">${ph?photo(ph, sp.n, true):ICON[sp.c]}<span class="no">${num(sp.id)}</span>${n>1?`<span class="count">×${n}</span>`:""}</div>
+    <div class="plate">${ph?photo(ph, sp.n, true):silOf(sp)}<span class="no">${num(sp.id)}</span>${n>1?`<span class="count">×${n}</span>`:""}</div>
     <div class="cbody"><span class="cname">${esc(sp.n)}</span>
     <span class="rar" style="color:${rcol(sp.r)}"><span class="dot" style="background:${rcol(sp.r)}"></span>${RARITY[sp.r].label}</span></div>
   </button>`;
@@ -768,9 +793,9 @@ async function renderProfile(){
       </div>
     </div>
     <div class="faves">
-      <button class="fave" id="favBtn"><div class="plate">${fav?(lastPhoto(fav.id)?photo(lastPhoto(fav.id)):ICON[fav.c]):ICON["Mammifères"]}</div>
+      <button class="fave" id="favBtn"><div class="plate">${fav?(lastPhoto(fav.id)?photo(lastPhoto(fav.id)):silOf(fav)):silOf(spById(3)||{c:"Mammifères"})}</div>
         <div class="t"><small>Animal préféré</small><b>${fav?esc(fav.n):"À choisir"}</b></div></button>
-      <button class="fave" id="bestBtn"><div class="plate">${best?photo(best.url):ICON["Oiseaux"]}</div>
+      <button class="fave" id="bestBtn"><div class="plate">${best?photo(best.url):silOf(spById(18)||{c:"Oiseaux"})}</div>
         <div class="t"><small>Plus belle photo</small><b>${best?esc(spById(best.sp).n):"À choisir"}</b></div></button>
     </div>
     <div class="dedic"><p>${esc(DEDICACE.texte)}</p><p class="sig">${esc(DEDICACE.signature)}</p></div>
@@ -784,7 +809,8 @@ async function renderProfile(){
       <p class="note">${readyExport
         ? "Ta sauvegarde est prête. Appuie sur « Enregistrer le fichier », puis choisis « Enregistrer dans Fichiers » et un dossier iCloud Drive."
         : "L'export crée un fichier avec toutes tes photos et observations. Range-le dans iCloud Drive pour pouvoir tout récupérer sur un autre téléphone."}</p>
-    </div>`;
+    </div>
+    <p class="credits">Icônes des animaux : Freepik – <a href="https://www.flaticon.com" target="_blank" rel="noopener">Flaticon</a>. Statuts de conservation : Liste rouge de l'UICN.</p>`;
   $("#avatarBtn").onclick = () => { $("#avatarIn").value=""; $("#avatarIn").click(); };
   $("#nameIn").onchange = e => { profile.name = e.target.value.trim(); dbSaveProfile(); toast("Prénom enregistré"); };
   $("#favBtn").onclick = () => openPicker("fav");
@@ -850,10 +876,10 @@ function openSpecies(id){ sheet={type:"sp",id}; drawSpecies(); }
 function drawSpecies(){
   const sp = spById(sheet.id), list = obsOf(sp.id), R = RARITY[sp.r], last = list[list.length-1];
   const isFav = profile.favSp===sp.id;
-  shell(last?photo(last.url, sp.n):ICON[sp.c], `
+  shell(last?photo(last.url, sp.n):silOf(sp), `
     <div><span class="rar" style="color:${rcol(sp.r)}">${num(sp.id)} · ${R.label} · ${R.xp} XP</span>
       <h2>${esc(sp.n)}</h2><p class="sci">${esc(sp.s)}</p></div>
-    <div class="tags"><span class="tag">${sp.c}</span>${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${R.uicn}</span></div>
+    <div class="tags"><span class="tag">${sp.c}</span>${SIL[sp.g]&&SIL[sp.g].l!==sp.n?`<span class="tag">${SIL[sp.g].l}</span>`:""}${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${R.uicn}</span></div>
     <div class="fact"><b>Le savais-tu ?</b>${esc(sp.f)}</div>
     ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${esc(obsMeta(list[0]))}</dd></dl>
       <div class="obs" id="thumbs">${list.map((o,i)=>`<div class="thumb"><button class="tview" data-view="${i}">${profile.bestObs===o.id?"<i>★</i>":""}<img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><span><b>${fmtDate(o.date)}</b><br>${esc(placeLabel(o))}</span></button><button class="tdel" data-del="${o.id}" aria-label="Supprimer cette photo">×</button></div>`).join("")}</div>
