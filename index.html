@@ -1051,7 +1051,7 @@ function stats(){
     birds: nOf("Oiseaux"), herps: nOf("Reptiles")+nOf("Amphibiens"), mammals: nOf("Mammifères"),
     legends: SPECIES.filter(s => s.r==="CR" && has(s.id)).length,
     noel: profile.noel ? 1 : 0,
-    safari: OBS.some(o => o.date>=SAFARI[0] && o.date<SAFARI[1]) ? 1 : 0,
+    safari: OBS.filter(o => o.date>=SAFARI[0] && o.date<SAFARI[1]).length,
     early: OBS.some(o => o.timeOk && hourOf(o)>=3 && hourOf(o)<6) ? 1 : 0
   };
 }
@@ -1084,7 +1084,7 @@ const BADGES = [
   {id:"legende", cat:"nat",   n:"Légende vivante",      k:"legends",   steps:[1,3,6],         u:"légendaires",g:n=>`Observer ${n} espèce${n>1?"s":""} légendaire${n>1?"s":""}`},
   {id:"encyclo", cat:"nat",   n:"Encyclopédiste",       k:"species",   steps:[Math.ceil(NS/4),Math.ceil(NS/2),NS], u:"espèces", g:n=>`Observer ${Math.round(n/NS*100)} % des espèces`},
   {id:"noel",    cat:"secret",n:"Joyeux Noël",          k:"noel",      steps:[1], secret:1, u:"", g:()=>"Ouvrir Safaridex pour la première fois"},
-  {id:"safari",  cat:"secret",n:"Notre safari",         k:"safari",    steps:[1], secret:1, u:"", g:()=>"Une photo de notre voyage en Afrique du Sud (15–29 septembre 2024)"},
+  {id:"safari",  cat:"secret",n:"Notre safari",         k:"safari",    steps:[20], secret:1, u:"photos", g:()=>"20 photos de notre voyage en Afrique du Sud (15–29 septembre 2024)"},
   {id:"early",   cat:"secret",n:"Lève-tôt",             k:"early",     steps:[1], secret:1, u:"", g:()=>"Une photo prise avant 6 h du matin"}
 ];
 const tierInfo = (b,t) => b.steps.length===4 ? TIER4[t-1] : b.steps.length===3 ? TIER3[t-1] : ["Débloqué", b.secret ? "--t4" : "--t3"];
