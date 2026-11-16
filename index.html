@@ -28,7 +28,7 @@ img{max-width:100%}
 :root{
   --bg:#f3eee4; --surface:#fffaf1; --ink:#2a2419; --muted:#7a6d58; --line:#e2d7c3;
   --ochre:#c7741f; --acacia:#4f6b3a; --plate:#ebe1cf;
-  --sea:#e4ddcd; --land:#cfc2a8; --land2:#c6b89c; --land3:#d6cab3; --visit:#e0a35c; --acacia2:#3f5a2c; --dotsea:#d3c9b4; --sil:#2f2a20; --silf:none; --silo:.85; --i-t:#2c6e9e; --i-p:#5a56a0; --i-h:#3f7a35; --i-m:#b06a12; --i-r:#ad3f2f;
+  --sea:#e4ddcd; --land:#cfc2a8; --land2:#c6b89c; --land3:#d6cab3; --visit:#e0a35c; --acacia2:#3f5a2c; --dotsea:#d3c9b4; --sil:#2f2a20; --silf:none; --silo:.85; --t1:#a8692f; --t2:#7f8a96; --t3:#c08a0e; --t4:#2b7f86; --i-t:#2c6e9e; --i-p:#5a56a0; --i-h:#3f7a35; --i-m:#b06a12; --i-r:#ad3f2f;
   --r-common:#8d8578; --r-uncommon:#4f8a3c; --r-rare:#2f6fb3; --r-epic:#8a4cb8; --r-legend:#c99312;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
@@ -38,13 +38,13 @@ img{max-width:100%}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
   --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
-  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5; --i-t:#7db6e0; --i-p:#a9a5e8; --i-h:#8fc77f; --i-m:#e8a650; --i-r:#ec8c7c;
+  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5; --t1:#d39a64; --t2:#b8c2cc; --t3:#f0c04a; --t4:#62c3c9; --i-t:#7db6e0; --i-p:#a9a5e8; --i-h:#8fc77f; --i-m:#e8a650; --i-r:#ec8c7c;
   --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
   --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
   --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
-  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5; --i-t:#7db6e0; --i-p:#a9a5e8; --i-h:#8fc77f; --i-m:#e8a650; --i-r:#ec8c7c;
+  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5; --t1:#d39a64; --t2:#b8c2cc; --t3:#f0c04a; --t4:#62c3c9; --i-t:#7db6e0; --i-p:#a9a5e8; --i-h:#8fc77f; --i-m:#e8a650; --i-r:#ec8c7c;
   --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
   --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}
 
@@ -155,11 +155,41 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;font-size:14px;margin-bottom:10px}
 .row .bar{grid-column:1/-1;width:100%}
 .row span:last-child{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:28px}
-.badge{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;border:1px dashed var(--line);color:var(--muted)}
-.badge.on{border-style:solid;border-color:var(--ochre);color:var(--ink);background:var(--surface)}
-.medal{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;background:var(--plate);color:var(--muted)}
-.badge.on .medal{background:var(--ochre);color:var(--surface)}
+.bcats{display:flex;flex-direction:column;gap:22px;margin-bottom:28px}
+.bcat h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-family:var(--display);font-size:17px}
+.bcat h3 svg{width:20px;height:20px;color:var(--ochre)}
+.bcat h3 small{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:500}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.badge{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;border:1px dashed var(--line);color:var(--muted);min-width:0}
+.badge.on{border-style:solid;border-color:var(--line);color:var(--ink);background:var(--surface)}
+.badge > div{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.badge b{font-family:var(--display);font-size:15px;line-height:1.2}
+.badge small{font-size:12px;color:var(--muted)}
+.tierlbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mc,var(--muted))}
+.pips{display:flex;gap:4px}
+.pips i{width:16px;height:5px;border-radius:3px;background:var(--plate)}
+.pips i.on{background:var(--mc,var(--ochre))}
+.badge .bar{width:100%;height:5px}
+.badge .bar i{background:var(--mc,var(--ochre))}
+.medal{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--plate);color:var(--muted);font-family:var(--display);font-weight:800}
+.medal svg{width:22px;height:22px}
+.badge.on .medal{background:var(--mc,var(--ochre));color:#fff;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}
+nav.tabbar button{position:relative}
+nav.tabbar .newdot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:#d6452f;box-shadow:0 0 0 2px var(--surface)}
+/* Annonce d'un badge débloqué */
+.award{position:fixed;inset:0;z-index:50;background:rgba(15,10,4,.62);display:grid;place-items:center;padding:24px max(24px,env(safe-area-inset-left,0px))}
+.award .card2{background:var(--bg);border-radius:22px;padding:28px 24px 22px;max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:10px;animation:pop .35s ease-out}
+.award .eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.award .big{width:96px;height:96px;border-radius:50%;display:grid;place-items:center;background:var(--mc);color:#fff;box-shadow:inset 0 0 0 5px rgba(255,255,255,.35),0 8px 24px rgba(0,0,0,.18);animation:medal .6s ease-out}
+.award .big svg{width:46px;height:46px}
+.award h2{font-family:var(--display);font-weight:800;font-size:26px;margin:4px 0 0;line-height:1.1}
+.award .tierlbl{font-size:13px}
+.award p{margin:0;color:var(--muted);font-size:15px}
+.award .xp{font-family:var(--mono);font-weight:700;color:var(--ochre)}
+.award .btn{margin-top:8px;width:100%}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+@keyframes medal{from{transform:rotate(-25deg) scale(.6);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.award .card2,.award .big{animation:none}}
 .badge b{display:block;font-family:var(--display);font-size:15px}
 .badge small{font-size:12px}
 .journal{display:flex;flex-direction:column;gap:8px}
@@ -326,7 +356,7 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
         <div class="panel"><h3>Par rareté</h3><div id="byRar"></div></div>
       </div>
       <h2 class="sec">Badges</h2>
-      <div class="badges" id="badges"></div>
+      <div class="bcats" id="badges"></div>
       <h2 class="sec">Journal</h2>
       <div class="journal" id="journal"></div>
     </section>
@@ -671,7 +701,7 @@ function xp(){
   [...OBS].sort((a,b)=>a.date-b.date).forEach(o => {
     if(!got.has(o.sp)){ got.add(o.sp); total += RARITY[spById(o.sp).r].xp; } else total += 5;
   });
-  return total;
+  return total + badgeXP();
 }
 const need = L => 25*L*(L-1);            // XP nécessaire pour atteindre le niveau L
 function levelOf(x){ let L=1; while(x>=need(L+1)) L++; return L; }
@@ -971,31 +1001,153 @@ function progRow(label, have, total, color){
   return `<div class="row"><span>${label}</span><span>${have}/${total}</span>
   <div class="bar"><i style="width:${total?have/total*100:0}%;${color?`background:${color}`:""}"></i></div></div>`;
 }
-function badgeList(){
-  const nSeen = SPECIES.filter(s=>seen(s.id)).length;
-  const big5 = BIG5.filter(x => Array.isArray(x) ? x.some(seen) : seen(x)).length;
-  const nOf = c => SPECIES.filter(s=>s.c===c&&seen(s.id)).length;
-  const birds = nOf("Oiseaux"), herps = nOf("Reptiles")+nOf("Amphibiens"), fish = nOf("Poissons");
-  const marine = SPECIES.filter(s=>s.id>=94&&s.id<=101&&seen(s.id)).length + fish;
-  const legend = SPECIES.some(s=>s.r==="CR"&&seen(s.id));
-  const regions = new Set(OBS.map(o=>o.region).filter(r=>r && r!=="Inconnue")).size;
-  const countries = visitedSet().size;
-  return [
-    {t:"Première rencontre", d:"Observer une première espèce", ok:nSeen>=1, m:"1"},
-    {t:"Big Five", d:`Lion, léopard, éléphant, buffle, rhinocéros · ${big5}/5`, ok:big5===5, m:"5"},
-    {t:"Ornithologue", d:`Observer 10 oiseaux · ${Math.min(birds,10)}/10`, ok:birds>=10, m:"O"},
-    {t:"Herpétologue", d:`Observer 5 reptiles ou amphibiens · ${Math.min(herps,5)}/5`, ok:herps>=5, m:"H"},
-    {t:"Grand bleu", d:`Observer 3 espèces marines · ${Math.min(marine,3)}/3`, ok:marine>=3, m:"~"},
-    {t:"Légende vivante", d:"Observer une espèce légendaire", ok:legend, m:"★"},
-    {t:"Grande voyageuse", d:`Observer dans 3 régions · ${Math.min(regions,3)}/3`, ok:regions>=3, m:"R"},
-    {t:"Globe-trotteuse", d:`Visiter 5 pays · ${Math.min(countries,5)}/5`, ok:countries>=5, m:"G"},
-    {t:"Encyclopédiste", d:`Toutes les espèces · ${nSeen}/${SPECIES.length}`, ok:nSeen===SPECIES.length, m:"∞"}
-  ];
+/* =========================================================
+   Badges
+   Un badge a une liste de seuils (steps) : chaque seuil atteint = un niveau.
+   4 niveaux : Novice → Experte ; 3 niveaux : bronze → or ; 1 seuil : badge « défi ».
+   ========================================================= */
+const TIER4 = [["Novice","--t1"],["Amateur","--t2"],["Confirmée","--t3"],["Experte","--t4"]];
+const TIER3 = [["Bronze","--t1"],["Argent","--t2"],["Or","--t3"]];
+const TIER_XP = [25,50,100,200];
+const RANGE = (a,b) => Array.from({length:b-a+1},(_,i)=>a+i);
+const MARINE = [...RANGE(94,101), 215,216,217, 22, ...RANGE(240,250)];
+const SHARKS = [22,240,241,242,243,244,245,247];
+const ISLAND_C = new Set(["MG","MU","SC","KM","YT","RE","CV","MV","LK","CY","MT","IS","IE","GB","JP","PH","ID","TW","NZ","FJ","VU","NC","PF","WF","CU","JM","HT","DO","BS","GP","MQ","MF","DM","LC","PM","COR","SG","BH"]);
+const OUTREMER = new Set(["GP","MQ","GF","RE","YT","PF","NC","WF","PM","MF"]);
+const SAFARI = [new Date(2024,8,15).getTime(), new Date(2024,8,30).getTime()];   // 15 au 29 septembre 2024
+const CAT_ICON = {
+  photo:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/>',
+  mer:'<path d="M3 15c2 0 2-2 4.5-2s2.5 2 4.5 2 2-2 4.5-2 2.5 2 4.5 2M3 19c2 0 2-2 4.5-2s2.5 2 4.5 2 2-2 4.5-2 2.5 2 4.5 2"/><circle cx="12" cy="7" r="3"/>',
+  marin:'<circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 13a7 7 0 0 0 14 0M8 10h8"/>',
+  voyage:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  nat:'<circle cx="6.5" cy="10" r="2"/><circle cx="10" cy="5.5" r="2"/><circle cx="14" cy="5.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8 17c0-3 2-5.5 4-5.5s4 2.5 4 5.5c0 2-1.5 3-4 3s-4-1-4-3z"/>',
+  secret:'<rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M3 13h18M12 9v12M12 9C10 5 6 5 6 7.5S12 9 12 9zm0 0c2-4 6-4 6-1.5S12 9 12 9z"/>'
+};
+const CATS = [["photo","Photographe"],["mer","Plongée"],["marin","Marin"],["voyage","Exploratrice et voyageuse"],["nat","Naturaliste"],["secret","Badges secrets"]];
+const svgI = (k,extra="") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${CAT_ICON[k]}</svg>`;
+const hourOf = o => new Date(o.date).getHours();
+function isNocturnal(id){ const m = (INFOS[id]||{}).m; if(!m) return false; const f = m.split("·")[0].trim(); return /nuit/i.test(f) && !/^jour/i.test(f); }
+function stats(){
+  const seenIds = new Set(OBS.map(o=>o.sp)), has = id => seenIds.has(id), cnt = ids => ids.filter(has).length;
+  const nOf = c => SPECIES.filter(s=>s.c===c && has(s.id)).length;
+  const per = {}; OBS.forEach(o => per[o.sp] = (per[o.sp]||0)+1);
+  const vis = visitedSet();
+  const provinces = new Set(OBS.flatMap(o => (o.region||"").split(" / ")).filter(r => (REGIONS.ZA||[]).includes(r) && r!=="En mer"));
+  return {
+    photos: OBS.length,
+    golden: OBS.filter(o => o.timeOk && ((hourOf(o)>=5 && hourOf(o)<8) || (hourOf(o)>=17 && hourOf(o)<20))).length,
+    nocturnal: SPECIES.filter(s => has(s.id) && isNocturnal(s.id)).length,
+    maxSame: Math.max(0, ...Object.values(per)),
+    marine: cnt(MARINE), sharks: cnt(SHARKS), turtles: cnt([215,216,217]),
+    seaObs: OBS.filter(o => o.region==="En mer").length, whales: cnt([95,96,97]), seabirds: cnt([180,181,183]),
+    provinces: provinces.size, countries: vis.size,
+    continents: new Set([...vis].map(c => CBY[c] && CBY[c].ct).filter(Boolean)).size,
+    islands: [...vis].filter(c => ISLAND_C.has(c)).length, outremer: [...vis].filter(c => OUTREMER.has(c)).length,
+    species: seenIds.size,
+    big5: BIG5.filter(x => Array.isArray(x) ? x.some(has) : has(x)).length,
+    big7: BIG5.filter(x => Array.isArray(x) ? x.some(has) : has(x)).length + cnt([22,95]),
+    ugly5: [14, [112,113,114,115,116], 162, [48,49], 16].filter(x => Array.isArray(x) ? x.some(has) : has(x)).length,
+    shy5: cnt([80,24,27,81,15]),
+    birds: nOf("Oiseaux"), herps: nOf("Reptiles")+nOf("Amphibiens"), mammals: nOf("Mammifères"),
+    legends: SPECIES.filter(s => s.r==="CR" && has(s.id)).length,
+    noel: profile.noel ? 1 : 0,
+    safari: OBS.some(o => o.date>=SAFARI[0] && o.date<SAFARI[1]) ? 1 : 0,
+    early: OBS.some(o => o.timeOk && hourOf(o)>=3 && hourOf(o)<6) ? 1 : 0
+  };
 }
+const NS = SPECIES.length;
+const BADGES = [
+  {id:"photo",   cat:"photo", n:"Photographe",          k:"photos",    steps:[10,50,150,300], u:"photos",     g:n=>`Ajouter ${n} photos`},
+  {id:"golden",  cat:"photo", n:"Heure dorée",          k:"golden",    steps:[3,10,25],       u:"photos",     g:n=>`${n} photos prises à l'aube ou au crépuscule`},
+  {id:"nuit",    cat:"photo", n:"Oiseau de nuit",       k:"nocturnal", steps:[3,6,10],        u:"espèces",    g:n=>`Photographier ${n} espèces nocturnes`},
+  {id:"fan",     cat:"photo", n:"Fan absolue",          k:"maxSame",   steps:[10],            u:"photos",     g:n=>`${n} photos d'une même espèce`},
+  {id:"bapteme", cat:"mer",   n:"Baptême du grand bleu",k:"marine",    steps:[1],             u:"espèce",     g:()=>"Observer une première espèce marine"},
+  {id:"plongee", cat:"mer",   n:"Plongeuse",            k:"marine",    steps:[3,7,12,18],     u:"espèces marines", g:n=>`Observer ${n} espèces marines`},
+  {id:"dents",   cat:"mer",   n:"Les Dents de la mer",  k:"sharks",    steps:[1,3,6],         u:"requins",    g:n=>`Observer ${n} espèce${n>1?"s":""} de requin`},
+  {id:"tortues", cat:"mer",   n:"Les trois tortues",    k:"turtles",   steps:[3],             u:"tortues",    g:()=>"Tortue luth, caouanne et tortue verte"},
+  {id:"marin",   cat:"marin", n:"Marin",                k:"seaObs",    steps:[3,10,25],       u:"observations", g:n=>`${n} observations « En mer »`},
+  {id:"baleines",cat:"marin", n:"Chant des baleines",   k:"whales",    steps:[3],             u:"baleines",   g:()=>"Baleine franche, baleine à bosse et baleine de Bryde"},
+  {id:"large",   cat:"marin", n:"Oiseaux du large",     k:"seabirds",  steps:[3],             u:"oiseaux",    g:()=>"Fou du Cap, cormoran du Cap et albatros"},
+  {id:"explo",   cat:"voyage",n:"Exploratrice",         k:"provinces", steps:[3,6,9],         u:"provinces",  g:n=>`Observer dans ${n} provinces sud-africaines`},
+  {id:"globe",   cat:"voyage",n:"Globe-trotteuse",      k:"countries", steps:[5,15,30],       u:"pays",       g:n=>`Visiter ${n} pays`},
+  {id:"conti",   cat:"voyage",n:"Continents",           k:"continents",steps:[3,5,6],         u:"continents", g:n=>`Visiter ${n} continents`},
+  {id:"iles",    cat:"voyage",n:"Âme insulaire",        k:"islands",   steps:[3],             u:"îles",       g:()=>"Visiter 3 îles"},
+  {id:"outremer",cat:"voyage",n:"Outre-mer",            k:"outremer",  steps:[3],             u:"territoires",g:()=>"Visiter 3 territoires français d'outre-mer"},
+  {id:"first",   cat:"nat",   n:"Première rencontre",   k:"species",   steps:[1],             u:"espèce",     g:()=>"Observer une première espèce"},
+  {id:"big5",    cat:"nat",   n:"Big Five",             k:"big5",      steps:[5],             u:"",           g:()=>"Lion, léopard, éléphant, buffle, rhinocéros"},
+  {id:"big7",    cat:"nat",   n:"Big Seven",            k:"big7",      steps:[7],             u:"",           g:()=>"Le Big Five + grand requin blanc et baleine franche"},
+  {id:"ugly5",   cat:"nat",   n:"Ugly Five",            k:"ugly5",     steps:[5],             u:"",           g:()=>"Hyène, vautour, marabout, gnou, phacochère"},
+  {id:"shy5",    cat:"nat",   n:"Shy Five",             k:"shy5",      steps:[5],             u:"",           g:()=>"Oryctérope, protèle, otocyon, porc-épic, suricate"},
+  {id:"orni",    cat:"nat",   n:"Ornithologue",         k:"birds",     steps:[10,30,60],      u:"oiseaux",    g:n=>`Observer ${n} oiseaux`},
+  {id:"herpe",   cat:"nat",   n:"Herpétologue",         k:"herps",     steps:[5,15,25],       u:"espèces",    g:n=>`Observer ${n} reptiles ou amphibiens`},
+  {id:"mamma",   cat:"nat",   n:"Mammalogiste",         k:"mammals",   steps:[10,30,60],      u:"mammifères", g:n=>`Observer ${n} mammifères`},
+  {id:"legende", cat:"nat",   n:"Légende vivante",      k:"legends",   steps:[1,3,6],         u:"légendaires",g:n=>`Observer ${n} espèce${n>1?"s":""} légendaire${n>1?"s":""}`},
+  {id:"encyclo", cat:"nat",   n:"Encyclopédiste",       k:"species",   steps:[Math.ceil(NS/4),Math.ceil(NS/2),NS], u:"espèces", g:n=>`Observer ${Math.round(n/NS*100)} % des espèces`},
+  {id:"noel",    cat:"secret",n:"Joyeux Noël",          k:"noel",      steps:[1], secret:1, u:"", g:()=>"Ouvrir Safaridex pour la première fois"},
+  {id:"safari",  cat:"secret",n:"Notre safari",         k:"safari",    steps:[1], secret:1, u:"", g:()=>"Une photo de notre voyage en Afrique du Sud (15–29 septembre 2024)"},
+  {id:"early",   cat:"secret",n:"Lève-tôt",             k:"early",     steps:[1], secret:1, u:"", g:()=>"Une photo prise avant 6 h du matin"}
+];
+const tierInfo = (b,t) => b.steps.length===4 ? TIER4[t-1] : b.steps.length===3 ? TIER3[t-1] : ["Débloqué", b.secret ? "--t4" : "--t3"];
+function currentTiers(){ const S = stats(), out = {};
+  BADGES.forEach(b => out[b.id] = b.steps.filter(x => S[b.k] >= x).length); return out; }
+/* Un badge gagné reste gagné, même si une photo est supprimée ensuite */
+function earnedTiers(){ const cur = currentTiers(), saved = profile.badges || {}, out = {};
+  BADGES.forEach(b => out[b.id] = Math.max(cur[b.id]||0, saved[b.id]||0)); return out; }
+function badgeXP(){ const e = earnedTiers(); let x = 0;
+  BADGES.forEach(b => { for(let t=1;t<=e[b.id];t++) x += b.steps.length===1 ? 50 : TIER_XP[t-1]; }); return x; }
+const xpOfTier = (b,t) => b.steps.length===1 ? 50 : TIER_XP[t-1];
+
+/* Vérifie les nouveaux badges ; silent = mémoriser sans annoncer */
+let awardQueue = [];
+function checkBadges(silent){
+  const cur = currentTiers(), saved = profile.badges || {}; let changed = false;
+  BADGES.forEach(b => { const was = saved[b.id]||0, now = cur[b.id]||0;
+    if(now > was){ changed = true; if(!silent) awardQueue.push({b, t:now}); } });
+  if(!changed) return;
+  profile.badges = earnedTiers();
+  if(!silent){ profile.badgesNew = true; updateDot(); showAward(); }
+  dbSaveProfile();
+}
+function updateDot(){ const btn = document.querySelector('nav.tabbar [data-tab="col"]'); if(!btn) return;
+  let d = btn.querySelector(".newdot"); if(profile.badgesNew && !d){ d = document.createElement("i"); d.className="newdot"; btn.appendChild(d); }
+  if(!profile.badgesNew && d) d.remove(); }
+function showAward(){
+  if(document.querySelector(".award") || !awardQueue.length) return;
+  const {b,t} = awardQueue.shift(), [lbl,col] = tierInfo(b,t), S = stats();
+  const el = document.createElement("div"); el.className = "award"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true");
+  el.innerHTML = `<div class="card2" style="--mc:var(${col})"><span class="eyebrow">Nouveau badge</span>
+    <span class="big">${svgI(b.cat)}</span><h2>${esc(b.n)}</h2>
+    ${b.steps.length>1?`<span class="tierlbl" style="color:var(${col})">${lbl}</span>`:""}
+    <p>${esc(b.g(b.steps[t-1]))}</p><span class="xp">+${xpOfTier(b,t)} XP</span>
+    <button class="btn" id="awardOk">${awardQueue.length?"Suivant":"Continuer"}</button></div>`;
+  document.body.appendChild(el);
+  const ok = el.querySelector("#awardOk"); ok.focus();
+  ok.onclick = () => { el.remove(); if(awardQueue.length) showAward(); else render(); };
+}
+
+function badgeTile(b, e, S){
+  const t = e[b.id]||0, hidden = b.secret && !t;
+  const next = b.steps[t], [lbl,col] = t ? tierInfo(b,t) : ["", "--ochre"];
+  const nextTxt = next!=null ? `${b.g(next)} · ${Math.min(S[b.k],next)}/${next}` : "Niveau maximum atteint";
+  return `<div class="badge ${t?"on":""}" style="--mc:var(${col})">
+    <span class="medal">${hidden?"?":svgI(b.cat)}</span>
+    <div><b>${hidden?"???":esc(b.n)}</b>
+      ${hidden ? `<small>Badge secret</small>` : `
+      ${b.steps.length>1?`<span class="pips">${b.steps.map((_,i)=>`<i class="${i<t?"on":""}"></i>`).join("")}</span>`:""}
+      ${t?`<span class="tierlbl">${lbl}</span>`:""}
+      <small>${esc(t && next==null ? b.g(b.steps[t-1]) : nextTxt)}</small>
+      ${next!=null && b.steps.length>1?`<div class="bar"><i style="width:${Math.min(100,S[b.k]/next*100)}%"></i></div>`:""}`}
+    </div></div>`;
+}
+function badgeList(){ const e = earnedTiers(); return BADGES.map(b => ({ok: e[b.id]>0})); }
 function renderCollection(){
   $("#byClass").innerHTML = CLASSES.map(c => { const a=SPECIES.filter(s=>s.c===c); return progRow(c, a.filter(s=>seen(s.id)).length, a.length); }).join("");
   $("#byRar").innerHTML = RORDER.map(r => { const a=SPECIES.filter(s=>s.r===r); return progRow(RARITY[r].label, a.filter(s=>seen(s.id)).length, a.length, rcol(r)); }).join("");
-  $("#badges").innerHTML = badgeList().map(b=>`<div class="badge ${b.ok?"on":""}"><span class="medal">${b.m}</span><div><b>${b.t}</b><small>${b.d}</small></div></div>`).join("");
+  const e = earnedTiers(), S = stats();
+  $("#badges").innerHTML = CATS.map(([k,l]) => { const list = BADGES.filter(b=>b.cat===k);
+    const got = list.filter(b=>e[b.id]>0).length;
+    return `<section class="bcat"><h3>${svgI(k)}${l}<small>${got}/${list.length}</small></h3>
+      <div class="badges">${list.map(b=>badgeTile(b,e,S)).join("")}</div></section>`; }).join("");
   const all = [...OBS].sort((a,b)=>b.date-a.date);
   $("#journal").innerHTML = all.length ? all.slice(0,40).map(o => `<button class="jitem" data-id="${o.sp}"><img src="${o.url}" alt=""><div><b>${esc(spById(o.sp).n)}</b><small>${esc(obsMeta(o))}</small></div></button>`).join("")
     : `<p class="empty">Aucune observation pour l'instant. Ouvre une fiche dans l'Encyclopédie et ajoute ta première photo.</p>`;
@@ -1071,6 +1223,7 @@ function setTab(t){
   ["dex","map","col","pro"].forEach(v => $("#view-"+v).hidden = v!==t);
   if(t==="map") renderMap();
   if(t==="pro") renderProfile();
+  if(t==="col" && profile.badgesNew){ profile.badgesNew = false; updateDot(); dbSaveProfile(); }
   window.scrollTo(0,0);
 }
 document.querySelector("nav.tabbar").addEventListener("click", e => { const b=e.target.closest("[data-tab]"); if(b) setTab(b.dataset.tab); });
@@ -1176,7 +1329,7 @@ function drawObsForm(){
       </div>
     </div>`);
   $("#obsDate").onchange = e => { if(!e.target.value) return; const [y,m,dd]=e.target.value.split("-").map(Number);
-    if(toDay(d.date)!==e.target.value){ d.date = new Date(y,m-1,dd,12).getTime(); d.fromPhoto=false; } };
+    if(toDay(d.date)!==e.target.value){ d.date = new Date(y,m-1,dd,12).getTime(); d.fromPhoto=false; d.dateChanged=true; } };
   $("#wildSeg").onclick = e => { const b=e.target.closest("[data-w]"); if(!b) return; d.wild = b.dataset.w==="" ? null : b.dataset.w==="1"; drawObsForm(); };
   $("#obsPlace").onchange = e => { d.place = e.target.value;
     if(d.place==="__autre" && !regions.includes(d.region)) d.region = regions[0]; drawObsForm(); };
@@ -1201,16 +1354,17 @@ async function saveObsForm(){
   try{ localStorage.setItem("safaridex.last", JSON.stringify(lastChoice)); }catch(e){}
   try{
     if(d.id){
-      const o = OBS.find(x=>x.id===d.id); Object.assign(o, fields); await dbPutObs(o);
-      render(); toast("Observation modifiée");
+      const o = OBS.find(x=>x.id===d.id); Object.assign(o, fields, {timeOk: d.dateChanged ? false : !!o.timeOk}); await dbPutObs(o);
+      render(); toast("Observation modifiée"); checkBadges();
       openViewer(o.sp, obsOf(o.sp).indexOf(o));
     }else{
       const first = !seen(d.sp);
-      await addObservation({sp:d.sp, blob:d.blob, ...fields});
+      await addObservation({sp:d.sp, blob:d.blob, ...fields, timeOk: !!d.fromPhoto && !d.dateChanged});
       URL.revokeObjectURL(d.url);
       try{ navigator.storage?.persist?.(); }catch(err){}
       render(); openSpecies(d.sp);
       toast(first ? `${sp.n} ajouté à ta collection ! +${RARITY[sp.r].xp} XP` : "Observation ajoutée · +5 XP");
+      checkBadges();
     }
   }catch(err){ toast("Impossible d'enregistrer. Vérifie l'espace libre du téléphone."); }
 }
@@ -1284,7 +1438,7 @@ function drawCountry(){
   const g=$("#goDex"); if(g) g.onclick = () => { closeSheet(); setTab("dex"); };
   const v=$("#visitBtn"); if(v) v.onclick = () => {
     profile.visited = vis ? profile.visited.filter(x=>x!==c.code) : [...profile.visited, c.code];
-    dbSaveProfile(); renderMap(); drawCountry(); toast(vis?"Pays retiré":`${c.name} ajouté à tes voyages`); };
+    dbSaveProfile(); renderMap(); drawCountry(); toast(vis?"Pays retiré":`${c.name} ajouté à tes voyages`); checkBadges(); };
 }
 
 function openPicker(kind){
@@ -1342,7 +1496,7 @@ async function photoDate(file){
 }
 async function addObservation(o){
   const rec = {sp:o.sp, country:spById(o.sp).country, region:o.region||"Inconnue", place:o.place||null,
-    wild:o.wild??null, date:o.date, uid:o.uid||newUid(), blob:o.blob};
+    wild:o.wild??null, date:o.date, uid:o.uid||newUid(), timeOk:!!o.timeOk, blob:o.blob};
   rec.id = await dbAddObs(rec); rec.url = URL.createObjectURL(o.blob); OBS.push(rec); return rec;
 }
 $("#fileIn").addEventListener("change", async e => {
@@ -1366,7 +1520,7 @@ async function exportAll(){
     toast("Préparation de la sauvegarde…");
     const out = {app:"safaridex", version:3, exported:Date.now(),
       profile:{...profile, avatar: profile.avatar ? await blobToDataURL(profile.avatar) : null},
-      obs: await Promise.all(OBS.map(async o=>({sp:o.sp,country:o.country,region:o.region,place:o.place,wild:o.wild,date:o.date,uid:o.uid,img:await blobToDataURL(o.blob),best:profile.bestObs===o.id})))};
+      obs: await Promise.all(OBS.map(async o=>({sp:o.sp,country:o.country,region:o.region,place:o.place,wild:o.wild,date:o.date,uid:o.uid,timeOk:!!o.timeOk,img:await blobToDataURL(o.blob),best:profile.bestObs===o.id})))};
     readyExport = new File([JSON.stringify(out)], `safaridex-${new Date().toISOString().slice(0,10)}.json`, {type:"application/json"});
     renderProfile(); toast("Sauvegarde prête");
   }catch(e){ toast("L'export a échoué. Réessaie."); }
@@ -1404,7 +1558,7 @@ $("#importIn").addEventListener("change", async e => {
     if(!profile.bestObs && bestNew) profile.bestObs = bestNew;
     profile.visited = [...new Set([...profile.visited, ...(p.visited||[])])];
     if(!profile.avatar && p.avatar){ profile.avatar = dataURLToBlob(p.avatar); avatarURL = URL.createObjectURL(profile.avatar); }
-    await dbSaveProfile(); render(); renderProfile();
+    await dbSaveProfile(); render(); renderProfile(); checkBadges();
     toast(added ? `${added} observation${added>1?"s":""} importée${added>1?"s":""}` + (skipped?` · ${skipped} déjà présente${skipped>1?"s":""}`:"")
                 : `Rien de nouveau : les ${skipped} observation${skipped>1?"s":""} de ce fichier sont déjà dans ta collection.`);
   }catch(err){ toast("Ce fichier n'est pas une sauvegarde Safaridex."); }
@@ -1438,7 +1592,11 @@ async function boot(){
       try{ localStorage.removeItem("safaridex.v1"); }catch(e){}
     }
   }catch(e){ toast("Tes données n'ont pas pu être chargées."); }
-  render();
+  // Badges : la première fois, on mémorise sans annoncer ce qui est déjà acquis
+  if(!profile.badges){ profile.badges = currentTiers(); dbSaveProfile(); }
+  if(!profile.noel){ profile.noel = Date.now(); }
+  render(); updateDot();
+  checkBadges();
 }
 boot();
 </script>
