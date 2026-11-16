@@ -82,6 +82,15 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:6px}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.bbanner{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 14px;margin-bottom:14px;border-radius:14px;background:var(--surface);border:1px solid var(--ochre);font-size:14px}
+.bbanner span{flex:1 1 180px}
+.bbanner .btn{padding:9px 14px;font-size:14px}
+.trashlist{display:flex;flex-direction:column;gap:8px}
+.titem{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px}
+.titem img{width:56px;height:56px;object-fit:cover;border-radius:8px;flex:none}
+.titem div{flex:1;min-width:0}
+.titem small{display:block;color:var(--muted)}
+.titem .btn{padding:8px 12px;font-size:13px}
 .searchrow{display:flex;align-items:center;gap:12px}
 .searchrow input{flex:1;min-width:0;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:16px}
 .searchrow span{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
@@ -327,6 +336,7 @@ nav.tabbar .newdot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;heig
 <main>
   <div class="wrap">
     <section id="view-dex">
+      <div class="bbanner" id="backupBanner" hidden></div>
       <div class="filters">
         <div class="searchrow"><input type="search" id="searchIn" placeholder="Rechercher un animal…" aria-label="Rechercher un animal" autocomplete="off"><span id="countN"></span></div>
         <div class="chiprow" id="classChips"></div>
@@ -671,6 +681,8 @@ const dbSaveProfile = () => idb("kv","readwrite",s=>s.put(profile,"profile")).ca
 
 /* ---------- État ---------- */
 let OBS = [];          // {id, sp, country, region, date, blob, url}
+let TRASH = [];        // corbeille : photos supprimées, gardées 30 jours
+const TRASH_DAYS = 30;
 let profile = { name:"", avatar:null, favSp:null, bestObs:null, visited:[] };
 let avatarURL = null;
 let fQuery="", fClass="Toutes", fRar="Toutes", tab="dex", sheet=null;
@@ -1186,8 +1198,11 @@ async function renderProfile(){
         <div class="t"><small>Plus belle photo</small><b>${best?esc(spById(best.sp).n):"À choisir"}</b></div></button>
     </div>
     <div class="dedic"><p>${esc(DEDICACE.texte)}</p><p class="sig">${esc(DEDICACE.signature)}</p></div>
-    <h2 class="sec">Sauvegarde</h2>
+    <h2 class="sec" id="backupSec">Sauvegarde</h2>
     <div class="backup">
+      <p class="note" style="font-size:14px;color:var(--ink)">${profile.lastBackup
+        ? `Dernière sauvegarde : ${fmtDate(profile.lastBackup)} · ${unsavedCount()?`<b>${unsavedCount()} photo${unsavedCount()>1?"s":""} non sauvegardée${unsavedCount()>1?"s":""}</b>`:"tout est sauvegardé"}`
+        : `<b>Aucune sauvegarde pour l'instant.</b>`}</p>
       <p class="note" id="storeInfo" style="font-size:14px">Tes photos sont enregistrées sur ce téléphone.</p>
       <div class="acts">${readyExport
         ? `<button class="btn" id="saveBtn">Enregistrer le fichier (${(readyExport.size/1048576).toFixed(1).replace(".",",")} Mo)</button>`
@@ -1195,7 +1210,8 @@ async function renderProfile(){
         <button class="btn ghost" id="importBtn">Importer une sauvegarde</button></div>
       <p class="note">${readyExport
         ? "Ta sauvegarde est prête. Appuie sur « Enregistrer le fichier », puis choisis « Enregistrer dans Fichiers » et un dossier iCloud Drive."
-        : "L'export crée un fichier avec toutes tes photos et observations. Range-le dans iCloud Drive pour pouvoir tout récupérer sur un autre téléphone."}</p>
+        : "L'export crée un fichier avec toutes tes photos et observations. Range-le dans iCloud Drive pour pouvoir tout récupérer sur un autre téléphone. L'import ajoute les photos manquantes sans rien effacer."}</p>
+      <button class="btn ghost" id="trashBtn">Corbeille${TRASH.length?` (${TRASH.length})`:" (vide)"}</button>
     </div>
     <p class="credits">Icônes des animaux : Freepik – <a href="https://www.flaticon.com" target="_blank" rel="noopener">Flaticon</a>. Statuts de conservation : Liste rouge de l'UICN.</p>`;
   $("#avatarBtn").onclick = () => { $("#avatarIn").value=""; $("#avatarIn").click(); };
@@ -1204,6 +1220,7 @@ async function renderProfile(){
   $("#bestBtn").onclick = () => openPicker("best");
   if(readyExport) $("#saveBtn").onclick = saveExport; else $("#exportBtn").onclick = exportAll;
   $("#importBtn").onclick = () => { $("#importIn").value=""; $("#importIn").click(); };
+  $("#trashBtn").onclick = openTrash;
   try{
     if(navigator.storage?.estimate){ const e = await navigator.storage.estimate(); const p = navigator.storage.persisted ? await navigator.storage.persisted() : false;
       $("#storeInfo").textContent = `${OBS.length} photo${OBS.length>1?"s":""} · ${(e.usage/1048576).toFixed(1).replace(".",",")} Mo utilisés sur ce téléphone${p?" · stockage protégé":""}.`; }
@@ -1240,6 +1257,7 @@ function render(){
   $("#seenN").textContent = n; $("#totalN").textContent = SPECIES.length;
   $("#seenBar").style.width = (n/SPECIES.length*100)+"%";
   renderCollection();
+  renderBackupBanner();
   if(tab==="map") renderMap();
   if(tab==="pro") renderProfile();
 }
@@ -1247,7 +1265,7 @@ function render(){
 /* =========================================================
    Feuilles : espèce, pays, sélecteur
    ========================================================= */
-function closeSheet(){ sheet=null; $("#sheetHost").innerHTML=""; }
+function closeSheet(){ const wasTrash = sheet?.type==="trash"; sheet=null; $("#sheetHost").innerHTML=""; if(wasTrash) renderProfile(); }
 function shell(heroHTML, body, small){
   const prev = document.querySelector("#sheetHost .sheet"), keep = prev ? prev.scrollTop : 0;
   $("#sheetHost").innerHTML = `<div class="scrim" id="scrim"><div class="sheet${prev?" still":""}" role="dialog" aria-modal="true">
@@ -1272,7 +1290,7 @@ function drawSpecies(){
     ${infoHTML(sp.id)}
     ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${esc(obsMeta(list[0]))}</dd></dl>
       <div class="obs" id="thumbs">${list.map((o,i)=>`<div class="thumb"><button class="tview" data-view="${i}">${profile.bestObs===o.id?"<i>★</i>":""}<img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><span><b>${fmtDate(o.date)}</b><br>${esc(placeLabel(o))}</span></button><button class="tdel" data-del="${o.id}" aria-label="Supprimer cette photo">×</button></div>`).join("")}</div>
-      ${sheet.del?`<div class="confirm" id="confirmBox">Supprimer cette photo ? <button class="btn ghost" id="yesDel">Supprimer</button><button class="btn ghost" id="noDel">Annuler</button></div>`:""}
+      ${sheet.del?`<div class="confirm" id="confirmBox">Mettre cette photo à la corbeille ? <button class="btn ghost" id="yesDel">Mettre à la corbeille</button><button class="btn ghost" id="noDel">Annuler</button></div>`:""}
       <button class="btn ghost" id="favSp">${isFav?"♥ Ton animal préféré":"♡ Choisir comme animal préféré"}</button>`:""}
     <div class="capture">
       <h3>${list.length?"Nouvelle observation":"Capturer cette espèce"}</h3>
@@ -1321,7 +1339,7 @@ function drawObsForm(){
       ${mode==="autre"?`<label class="field" for="obsRegion">Province
         <select id="obsRegion">${regions.map(r=>`<option ${d.region===r?"selected":""}>${esc(r)}</option>`).join("")}</select></label>`:""}
       ${d.id ? (d.confirmDel
-        ? `<div class="confirm">Supprimer cette photo ? <button class="btn ghost" id="formYes">Supprimer</button><button class="btn ghost" id="formNo">Annuler</button></div>`
+        ? `<div class="confirm">Mettre cette photo à la corbeille ? <button class="btn ghost" id="formYes">Mettre à la corbeille</button><button class="btn ghost" id="formNo">Annuler</button></div>`
         : `<button class="formdel" id="formDel">Supprimer cette photo</button>`) : ""}
       <div class="formacts">
         <button class="btn ghost" id="cancelObs">Annuler</button>
@@ -1369,12 +1387,47 @@ async function saveObsForm(){
   }catch(err){ toast("Impossible d'enregistrer. Vérifie l'espace libre du téléphone."); }
 }
 
+/* Supprimer = mettre à la corbeille (récupérable pendant 30 jours) */
 async function deleteObs(id){
   const o = OBS.find(x=>x.id===id); if(!o) return;
-  try{ await dbDelObs(id); }catch(e){}
-  OBS = OBS.filter(x=>x.id!==id); URL.revokeObjectURL(o.url);
+  o.deleted = Date.now();
+  try{ await dbPutObs(o); }catch(e){}
+  OBS = OBS.filter(x=>x.id!==id); TRASH.push(o);
   if(profile.bestObs===id){ profile.bestObs=null; dbSaveProfile(); }
-  render(); toast("Photo supprimée");
+  render(); toast("Photo mise à la corbeille (récupérable 30 jours)");
+}
+async function restoreObs(id){
+  const o = TRASH.find(x=>x.id===id); if(!o) return;
+  delete o.deleted;
+  try{ await dbPutObs(o); }catch(e){}
+  TRASH = TRASH.filter(x=>x.id!==id); OBS.push(o);
+  render(); checkBadges();
+}
+async function purgeObs(id){
+  const o = TRASH.find(x=>x.id===id); if(!o) return;
+  try{ await dbDelObs(id); }catch(e){}
+  TRASH = TRASH.filter(x=>x.id!==id); URL.revokeObjectURL(o.url);
+}
+
+/* ---------- Corbeille ---------- */
+let trashConfirm = false;
+function openTrash(){ sheet = {type:"trash"}; trashConfirm = false; drawTrash(); }
+function drawTrash(){
+  const list = [...TRASH].sort((a,b)=>b.deleted-a.deleted);
+  const left = o => Math.max(0, TRASH_DAYS - Math.floor((Date.now()-o.deleted)/86400000));
+  shell(`<span style="font-family:var(--display);font-weight:800;font-size:24px">Corbeille</span>`, list.length ? `
+    <p class="note" style="font-size:14px">Les photos supprimées restent ici ${TRASH_DAYS} jours, puis disparaissent définitivement.</p>
+    <div class="trashlist">${list.map(o=>`<div class="titem"><img src="${o.url}" alt="">
+      <div><b>${esc(spById(o.sp)?.n||"")}</b><small>${esc(obsMeta(o))}</small><small>Encore ${left(o)} jour${left(o)>1?"s":""}</small></div>
+      <button class="btn alt" data-restore="${o.id}">Restaurer</button></div>`).join("")}</div>
+    ${trashConfirm
+      ? `<div class="confirm">Supprimer définitivement ${list.length} photo${list.length>1?"s":""} ? <button class="btn ghost" id="emptyYes">Supprimer</button><button class="btn ghost" id="emptyNo">Annuler</button></div>`
+      : `<button class="btn ghost" id="emptyBtn">Vider la corbeille</button>`}`
+    : `<p class="empty">La corbeille est vide.</p>`, true);
+  document.querySelectorAll("[data-restore]").forEach(b => b.onclick = async () => { await restoreObs(+b.dataset.restore); toast("Photo restaurée"); drawTrash(); });
+  const eb=$("#emptyBtn"); if(eb) eb.onclick = () => { trashConfirm = true; drawTrash(); };
+  const en=$("#emptyNo"); if(en) en.onclick = () => { trashConfirm = false; drawTrash(); };
+  const ey=$("#emptyYes"); if(ey) ey.onclick = async () => { for(const o of [...TRASH]) await purgeObs(o.id); trashConfirm=false; toast("Corbeille vidée"); drawTrash(); };
 }
 
 /* ---------- Visionneuse plein écran ---------- */
@@ -1395,7 +1448,7 @@ function drawViewer(){
     <div class="vbar">
       <div><b>${esc(sp.n)}</b><p>${esc(obsMeta(o))}</p></div>
       ${viewerConfirm
-        ? `<div class="acts"><span style="align-self:center">Supprimer cette photo ?</span><button class="danger" id="vYes">Supprimer</button><button id="vNo">Annuler</button></div>`
+        ? `<div class="acts"><span style="align-self:center">Mettre à la corbeille ?</span><button class="danger" id="vYes">Mettre à la corbeille</button><button id="vNo">Annuler</button></div>`
         : `<div class="acts"><button id="vBest" aria-pressed="${isBest}">★ ${isBest?"Plus belle photo":"Choisir comme plus belle"}</button><button id="vEdit">Modifier</button><button class="danger" id="vDel">Supprimer</button></div>`}
     </div></div>`;
   const go = k => { sheet.idx = (sheet.idx + k + list.length) % list.length; viewerConfirm=false; drawViewer(); };
@@ -1496,7 +1549,7 @@ async function photoDate(file){
 }
 async function addObservation(o){
   const rec = {sp:o.sp, country:spById(o.sp).country, region:o.region||"Inconnue", place:o.place||null,
-    wild:o.wild??null, date:o.date, uid:o.uid||newUid(), timeOk:!!o.timeOk, blob:o.blob};
+    wild:o.wild??null, date:o.date, uid:o.uid||newUid(), timeOk:!!o.timeOk, added:Date.now(), blob:o.blob};
   rec.id = await dbAddObs(rec); rec.url = URL.createObjectURL(o.blob); OBS.push(rec); return rec;
 }
 $("#fileIn").addEventListener("change", async e => {
@@ -1512,6 +1565,25 @@ $("#fileIn").addEventListener("change", async e => {
 /* ---------- Export / import ---------- */
 const blobToDataURL = b => new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(b); });
 function dataURLToBlob(u){ const [h,d]=u.split(","); const bin=atob(d); const a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return new Blob([a],{type:h.match(/:(.*?);/)[1]}); }
+/* ---------- Rappel de sauvegarde ---------- */
+const unsavedCount = () => OBS.filter(o => !profile.lastBackup || (o.added||0) > profile.lastBackup).length;
+function backupDue(){
+  const n = unsavedCount(); if(!n) return false;
+  if(profile.backupSnooze && Date.now() < profile.backupSnooze) return false;
+  const since = profile.lastBackup || Math.min(...OBS.map(o=>o.added||Date.now()));
+  return n >= 20 || Date.now() - since > 14*86400000;
+}
+function renderBackupBanner(){
+  const el = $("#backupBanner"); if(!el) return;
+  if(!backupDue()){ el.hidden = true; return; }
+  const n = unsavedCount();
+  el.hidden = false;
+  el.innerHTML = `<span><b>${n} photo${n>1?"s":""}</b> pas encore sauvegardée${n>1?"s":""}.</span>
+    <button class="btn alt" id="bbGo">Sauvegarder</button><button class="btn ghost" id="bbLater">Plus tard</button>`;
+  $("#bbGo").onclick = () => { setTab("pro"); setTimeout(()=>$("#backupSec")?.scrollIntoView({behavior:"smooth"}), 50); };
+  $("#bbLater").onclick = () => { profile.backupSnooze = Date.now() + 3*86400000; dbSaveProfile(); renderBackupBanner(); };
+}
+
 /* Export en deux temps : 1) on prépare le fichier, 2) un appui sur « Enregistrer »
    ouvre le menu de partage de l'iPhone (le partage doit suivre directement un appui). */
 let readyExport = null;
@@ -1522,6 +1594,7 @@ async function exportAll(){
       profile:{...profile, avatar: profile.avatar ? await blobToDataURL(profile.avatar) : null},
       obs: await Promise.all(OBS.map(async o=>({sp:o.sp,country:o.country,region:o.region,place:o.place,wild:o.wild,date:o.date,uid:o.uid,timeOk:!!o.timeOk,img:await blobToDataURL(o.blob),best:profile.bestObs===o.id})))};
     readyExport = new File([JSON.stringify(out)], `safaridex-${new Date().toISOString().slice(0,10)}.json`, {type:"application/json"});
+    readyExport.preparedAt = out.exported;
     renderProfile(); toast("Sauvegarde prête");
   }catch(e){ toast("L'export a échoué. Réessaie."); }
 }
@@ -1535,7 +1608,8 @@ async function saveExport(){
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
     }
-    readyExport = null; renderProfile();
+    profile.lastBackup = f.preparedAt || Date.now(); dbSaveProfile();
+    readyExport = null; renderProfile(); renderBackupBanner(); toast("Sauvegarde enregistrée");
   }catch(e){
     if(e && e.name==="AbortError") return toast("Enregistrement annulé. Tu peux réessayer.");
     toast("L'enregistrement a échoué. Réessaie.");
@@ -1546,10 +1620,19 @@ $("#importIn").addEventListener("change", async e => {
   try{
     const data = JSON.parse(await f.text());
     if(data.app!=="safaridex") throw new Error("format");
-    const known = new Set([...OBS.map(o=>o.uid), ...OBS.map(o=>o.sp+"|"+o.date)]); let added=0, skipped=0, bestNew=null;
+    /* Doublons : on compare l'identifiant unique de chaque photo.
+       Les anciennes sauvegardes sans identifiant sont comparées par espèce + date + poids de l'image. */
+    const uids = new Set(OBS.map(o=>o.uid)), sig = o => o.sp+"|"+o.date+"|"+o.size;
+    const sigs = new Set(OBS.map(o=>sig({sp:o.sp, date:o.date, size:o.blob.size})));
+    let added=0, restored=0, skipped=0, bestNew=null;
     for(const o of data.obs||[]){
-      if(!spById(o.sp) || known.has(o.uid) || known.has(o.sp+"|"+o.date)){ skipped++; continue; }
-      const n = await addObservation({...o, blob:dataURLToBlob(o.img)}); added++;
+      if(!spById(o.sp)){ skipped++; continue; }
+      if(o.uid && uids.has(o.uid)){ skipped++; continue; }
+      const inTrash = o.uid && TRASH.find(t=>t.uid===o.uid);
+      if(inTrash){ await restoreObs(inTrash.id); restored++; continue; }
+      const blob = dataURLToBlob(o.img);
+      if(!o.uid && sigs.has(sig({sp:o.sp, date:o.date, size:blob.size}))){ skipped++; continue; }
+      const n = await addObservation({...o, blob}); added++;
       if(o.best) bestNew = n.id;
     }
     const p = data.profile||{};
@@ -1559,8 +1642,9 @@ $("#importIn").addEventListener("change", async e => {
     profile.visited = [...new Set([...profile.visited, ...(p.visited||[])])];
     if(!profile.avatar && p.avatar){ profile.avatar = dataURLToBlob(p.avatar); avatarURL = URL.createObjectURL(profile.avatar); }
     await dbSaveProfile(); render(); renderProfile(); checkBadges();
-    toast(added ? `${added} observation${added>1?"s":""} importée${added>1?"s":""}` + (skipped?` · ${skipped} déjà présente${skipped>1?"s":""}`:"")
-                : `Rien de nouveau : les ${skipped} observation${skipped>1?"s":""} de ce fichier sont déjà dans ta collection.`);
+    const pl = n => n>1?"s":"";
+    toast((added||restored) ? [added?`${added} photo${pl(added)} ajoutée${pl(added)}`:"", restored?`${restored} restaurée${pl(restored)}`:"", skipped?`${skipped} déjà présente${pl(skipped)}`:""].filter(Boolean).join(" · ")
+                : `Rien de nouveau : les ${skipped} photo${pl(skipped)} de ce fichier ${skipped>1?"sont":"est"} déjà dans ta collection.`);
   }catch(err){ toast("Ce fichier n'est pas une sauvegarde Safaridex."); }
 });
 
@@ -1578,7 +1662,12 @@ async function boot(){
   try{
     if(db){
       const recs = await idb("obs","readonly",s=>s.getAll()) || [];
-      OBS = recs.map(r=>({...r, url:URL.createObjectURL(r.blob)}));
+      const limit = Date.now() - TRASH_DAYS*86400000;
+      for(const r of recs){
+        if(r.deleted && r.deleted < limit){ try{ await dbDelObs(r.id); }catch(e){} continue; }   // corbeille de plus de 30 jours
+        const o = {...r, url:URL.createObjectURL(r.blob)};
+        (r.deleted ? TRASH : OBS).push(o);
+      }
       const p = await idb("kv","readonly",s=>s.get("profile"));
       if(p) profile = {...profile, ...p};
       if(profile.avatar) avatarURL = URL.createObjectURL(profile.avatar);
