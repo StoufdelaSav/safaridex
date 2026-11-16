@@ -210,10 +210,20 @@ nav.tabbar .newdot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;heig
 /* Profil : permis de pisteuse */
 .permit{background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;max-width:620px;margin-bottom:22px}
 .permit .band{background:var(--acacia);color:var(--surface);padding:10px 18px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
-.permit .id{display:flex;gap:16px;padding:18px;align-items:center}
+.permit .id{display:flex;gap:14px;align-items:center}
+.permit .idwrap{display:grid;grid-template-columns:128px 1fr;gap:14px;padding:14px 18px 0 10px;align-items:center}
+.permit .main{display:flex;flex-direction:column;gap:12px;padding-bottom:16px;min-width:0}
+.hero-av{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px}
+.hero-av>img{height:236px;width:auto;max-width:100%;object-fit:contain;display:block;filter:drop-shadow(0 4px 6px rgba(60,40,10,.18))}
+.avsw{display:flex;gap:8px;padding-bottom:10px}
+.avsw button{width:36px;height:36px;border-radius:50%;padding:0;border:2px solid var(--line);background:var(--plate);overflow:hidden;cursor:pointer}
+.avsw button[aria-pressed="true"]{border-color:var(--ochre);box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ochre)}
+.avsw img{width:100%;height:100%;object-fit:cover}
+.permit .id .avatar{width:68px;height:68px}
 .avatar{width:92px;height:92px;border-radius:50%;flex:none;border:3px solid var(--ochre);background:var(--plate);overflow:hidden;padding:0;display:grid;place-items:center;color:var(--muted);font-size:11px;text-align:center}
 .avatar img{width:100%;height:100%;object-fit:cover}
-.id .who{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.permit .who{min-width:0;display:flex;flex-direction:column;gap:6px}
+.permit .id .nameIn{flex:1;min-width:0}
 .nameIn{font-family:var(--display);font-weight:800;font-size:26px;border:0;border-bottom:1px dashed var(--line);background:transparent;padding:0;width:100%;line-height:1.2}
 .title{color:var(--ochre);font-weight:700}
 .lvl{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--muted)}
@@ -235,7 +245,7 @@ nav.tabbar .newdot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;heig
 .dedic .sig{font-family:var(--display);font-weight:700;color:var(--ochre);margin:0}
 .backup{max-width:620px;display:flex;flex-direction:column;gap:10px}
 .backup .acts{display:flex;gap:8px;flex-wrap:wrap}
-@media (max-width:420px){.kpis b{font-size:19px}.nameIn{font-size:22px}.avatar{width:76px;height:76px}}
+@media (max-width:420px){.kpis b{font-size:19px}.nameIn{font-size:22px}.avatar{width:76px;height:76px}.permit .idwrap{grid-template-columns:112px 1fr;gap:10px}.hero-av>img{height:210px}.permit .id .avatar{width:58px;height:58px}}
 
 /* Feuilles */
 .scrim{position:fixed;inset:0;background:rgba(20,14,5,.55);z-index:20;display:flex;align-items:flex-end;justify-content:center}
@@ -1167,6 +1177,9 @@ function renderCollection(){
 $("#journal").addEventListener("click", e => { const b=e.target.closest(".jitem"); if(b) openSpecies(+b.dataset.id); });
 
 /* ---------- Profil ---------- */
+/* Avatars dessinés (Comfy Cloud) : affichés en pied à côté du permis */
+const AVATARS = [{id:"elle", label:"Avatar de l'exploratrice"}, {id:"lui", label:"Avatar de l'explorateur"}];
+const avChar = () => AVATARS.some(a=>a.id===profile.avatarChar) ? profile.avatarChar : "elle";
 async function renderProfile(){
   const X = xp(), L = levelOf(X), lo = need(L), hi = need(L+1);
   const nSeen = SPECIES.filter(s=>seen(s.id)).length;
@@ -1176,12 +1189,20 @@ async function renderProfile(){
   $("#profile").innerHTML = `
     <div class="permit">
       <div class="band"><span>Permis de pisteuse</span><span>Nº ${String(L).padStart(2,"0")}-${String(X).padStart(4,"0")}</span></div>
-      <div class="id">
-        <button class="avatar" id="avatarBtn" aria-label="Changer la photo de profil">${avatarURL?`<img src="${avatarURL}" alt="">`:"Ajouter<br>une photo"}</button>
-        <div class="who">
-          <input class="nameIn" id="nameIn" value="${esc(profile.name)}" placeholder="Ton prénom" maxlength="30" aria-label="Prénom">
-          <span class="title">${titleOf(L)} · niveau ${L}</span>
-          <div class="lvl"><div class="bar"><i style="width:${(X-lo)/(hi-lo)*100}%"></i></div><span>${X}/${hi} XP</span></div>
+      <div class="idwrap">
+        <div class="hero-av">
+          <img src="avatars/${avChar()}.webp" alt="Avatar" id="heroAv">
+          <div class="avsw" role="group" aria-label="Choisir l'avatar">${AVATARS.map(a=>`<button data-av="${a.id}" aria-pressed="${avChar()===a.id}" aria-label="${a.label}"><img src="avatars/${a.id}-tete.webp" alt=""></button>`).join("")}</div>
+        </div>
+        <div class="main">
+          <div class="id">
+            <button class="avatar" id="avatarBtn" aria-label="Changer la photo de profil">${avatarURL?`<img src="${avatarURL}" alt="">`:`<img src="avatars/${avChar()}-tete.webp" alt="">`}</button>
+            <input class="nameIn" id="nameIn" value="${esc(profile.name)}" placeholder="Ton prénom" maxlength="30" aria-label="Prénom">
+          </div>
+          <div class="who">
+            <span class="title">${titleOf(L)} · niveau ${L}</span>
+            <div class="lvl"><div class="bar"><i style="width:${(X-lo)/(hi-lo)*100}%"></i></div><span>${X}/${hi} XP</span></div>
+          </div>
         </div>
       </div>
       <div class="kpis">
@@ -1215,6 +1236,7 @@ async function renderProfile(){
     </div>
     <p class="credits">Icônes des animaux : Freepik – <a href="https://www.flaticon.com" target="_blank" rel="noopener">Flaticon</a>. Statuts de conservation : Liste rouge de l'UICN.</p>`;
   $("#avatarBtn").onclick = () => { $("#avatarIn").value=""; $("#avatarIn").click(); };
+  document.querySelectorAll("[data-av]").forEach(b => b.onclick = () => { profile.avatarChar = b.dataset.av; dbSaveProfile(); renderProfile(); });
   $("#nameIn").onchange = e => { profile.name = e.target.value.trim(); dbSaveProfile(); toast("Prénom enregistré"); };
   $("#favBtn").onclick = () => openPicker("fav");
   $("#bestBtn").onclick = () => openPicker("best");
@@ -1640,6 +1662,7 @@ $("#importIn").addEventListener("change", async e => {
     if(!profile.favSp && p.favSp) profile.favSp = p.favSp;
     if(!profile.bestObs && bestNew) profile.bestObs = bestNew;
     profile.visited = [...new Set([...profile.visited, ...(p.visited||[])])];
+    if(!profile.avatarChar && p.avatarChar) profile.avatarChar = p.avatarChar;
     if(!profile.avatar && p.avatar){ profile.avatar = dataURLToBlob(p.avatar); avatarURL = URL.createObjectURL(profile.avatar); }
     await dbSaveProfile(); render(); renderProfile(); checkBadges();
     const pl = n => n>1?"s":"";
