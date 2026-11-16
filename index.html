@@ -28,7 +28,7 @@ img{max-width:100%}
 :root{
   --bg:#f3eee4; --surface:#fffaf1; --ink:#2a2419; --muted:#7a6d58; --line:#e2d7c3;
   --ochre:#c7741f; --acacia:#4f6b3a; --plate:#ebe1cf;
-  --sea:#e4ddcd; --land:#cfc2a8; --land2:#c6b89c; --land3:#d6cab3; --visit:#e0a35c; --acacia2:#3f5a2c; --dotsea:#d3c9b4; --sil:#2f2a20; --silf:none; --silo:.85;
+  --sea:#e4ddcd; --land:#cfc2a8; --land2:#c6b89c; --land3:#d6cab3; --visit:#e0a35c; --acacia2:#3f5a2c; --dotsea:#d3c9b4; --sil:#2f2a20; --silf:none; --silo:.85; --i-t:#2c6e9e; --i-p:#5a56a0; --i-h:#3f7a35; --i-m:#b06a12; --i-r:#ad3f2f;
   --r-common:#8d8578; --r-uncommon:#4f8a3c; --r-rare:#2f6fb3; --r-epic:#8a4cb8; --r-legend:#c99312;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
@@ -38,13 +38,13 @@ img{max-width:100%}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
   --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
-  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5;
+  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5; --i-t:#7db6e0; --i-p:#a9a5e8; --i-h:#8fc77f; --i-m:#e8a650; --i-r:#ec8c7c;
   --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
   --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#17140f; --surface:#221e17; --ink:#f1e8d6; --muted:#a8997e; --line:#3a3226;
   --ochre:#e8964a; --acacia:#7fa462; --plate:#2c261d;
-  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5;
+  --sea:#1d1914; --land:#3b3328; --land2:#433a2e; --land3:#352e24; --visit:#9a6532; --acacia2:#5f8a45; --dotsea:#2e281f; --sil:#0c0a07; --silf:invert(1); --silo:.5; --i-t:#7db6e0; --i-p:#a9a5e8; --i-h:#8fc77f; --i-m:#e8a650; --i-r:#ec8c7c;
   --r-common:#a39b8d; --r-uncommon:#7cc164; --r-rare:#6aa6e8; --r-epic:#bf8ae6; --r-legend:#f0c04a;
   --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}
 
@@ -217,6 +217,12 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .sci{font-style:italic;color:var(--muted);margin:2px 0 0}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--plate);font-weight:700}
+.infos{display:grid;gap:8px}
+.inf{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:start;padding:10px 12px;border-radius:12px;border-left:4px solid var(--c);background:var(--surface);background:color-mix(in srgb, var(--c) 9%, var(--surface))}
+.ik{display:flex;gap:6px;align-items:center;color:var(--c);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.07em;padding-top:2px}
+.ik svg{width:16px;height:16px;flex:none}
+.iv{font-size:14px;line-height:1.45;min-width:0}
+@media (max-width:360px){.inf{grid-template-columns:1fr;gap:4px}}
 .fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
 .fact b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ochre);margin-bottom:4px}
 .dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
@@ -365,6 +371,17 @@ const RORDER = ["LC","NT","VU","EN","CR"];
 const CLASSES = ["Mammifères","Oiseaux","Reptiles","Amphibiens","Poissons"];
 const PAYS = window.SAFARIDEX_PAYS || {};
 const REGIONS = Object.fromEntries(Object.entries(PAYS).map(([cc,p]) => [cc, p.regions]));
+const INFOS = Object.assign({}, ...Object.values(PAYS).map(p => p.infos || {}));
+/* Les 5 types d'infos d'une fiche, chacun avec sa couleur (--i-…) et son icône */
+const INFO_FIELDS = [
+  {k:"t", l:"Taille",  v:"--i-t", i:'<path d="M12 3v18M8 7l4-4 4 4M8 17l4 4 4-4"/>'},
+  {k:"p", l:"Poids",   v:"--i-p", i:'<circle cx="12" cy="6" r="3"/><path d="M5 10h14l2 11H3z"/>'},
+  {k:"h", l:"Habitat", v:"--i-h", i:'<path d="M12 2l7 10h-4l4 6H5l4-6H5z"/><path d="M12 18v4"/>'},
+  {k:"m", l:"Quand",   v:"--i-m", i:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'},
+  {k:"r", l:"Régime",  v:"--i-r", i:'<path d="M7 3v7a2 2 0 0 0 4 0V3M9 12v9M17 3c-2 2-2 7 0 9v9"/>'}
+];
+const infoHTML = id => { const d = INFOS[id]; if(!d) return "";
+  return `<div class="infos">${INFO_FIELDS.filter(f=>d[f.k]).map(f=>`<div class="inf" style="--c:var(${f.v})"><span class="ik"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${f.i}</svg>${f.l}</span><span class="iv">${esc(d[f.k])}</span></div>`).join("")}</div>`; };
 const SPECIES = Object.entries(PAYS).flatMap(([cc,p]) => p.especes.map(s => ({...s, country:cc})));
 const BIG5 = [1,2,3,4,[5,6]];
 
@@ -1099,6 +1116,7 @@ function drawSpecies(){
       <h2>${esc(sp.n)}</h2><p class="sci">${esc(sp.s)}</p></div>
     <div class="tags"><span class="tag">${sp.c}</span>${SIL[sp.g]&&SIL[sp.g].l!==sp.n?`<span class="tag">${SIL[sp.g].l}</span>`:""}${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${R.uicn}</span></div>
     <div class="fact"><b>Le savais-tu ?</b>${esc(sp.f)}</div>
+    ${infoHTML(sp.id)}
     ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${esc(obsMeta(list[0]))}</dd></dl>
       <div class="obs" id="thumbs">${list.map((o,i)=>`<div class="thumb"><button class="tview" data-view="${i}">${profile.bestObs===o.id?"<i>★</i>":""}<img src="${o.url}" alt="Observation du ${fmtDate(o.date)}"><span><b>${fmtDate(o.date)}</b><br>${esc(placeLabel(o))}</span></button><button class="tdel" data-del="${o.id}" aria-label="Supprimer cette photo">×</button></div>`).join("")}</div>
       ${sheet.del?`<div class="confirm" id="confirmBox">Supprimer cette photo ? <button class="btn ghost" id="yesDel">Supprimer</button><button class="btn ghost" id="noDel">Annuler</button></div>`:""}
