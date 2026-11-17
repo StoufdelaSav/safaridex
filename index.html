@@ -1797,7 +1797,7 @@ async function boot(){
   if(!profile.badges){ profile.badges = currentTiers(); dbSaveProfile(); }
   if(!profile.noel){ profile.noel = Date.now(); }
   render(); updateDot();
-  if(!profile.introSeen){ profile.introSeen = Date.now(); dbSaveProfile(); await playIntro(); }
+  await playIntro();   // l'intro se joue à chaque ouverture de l'app, comme un vrai jeu
   checkBadges();
 }
 boot();
