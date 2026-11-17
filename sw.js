@@ -1,10 +1,10 @@
 /* Service worker : garde une copie de l'app sur le téléphone
    pour qu'elle s'ouvre même sans réseau (en pleine savane !).
    Change le numéro de VERSION à chaque mise à jour de l'app. */
-const VERSION = "safaridex-v24";
+const VERSION = "safaridex-v26";
 const FILES = ["./", "index.html", "especes.js", "dedicace.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
-  "avatars/elle.webp", "avatars/lui.webp", "avatars/elle-tete.webp", "avatars/lui-tete.webp",
+  "avatars/elle.webp", "avatars/lui.webp", "avatars/elle-tete.webp", "avatars/lui-tete.webp", "intro/friandasie.webp", "intro/friandasie-debut.jpg", "intro/cinzel.woff",
   "icones/aigle.png",
   "icones/antilope.png",
   "icones/autruche.png",
@@ -75,6 +75,8 @@ self.addEventListener("activate", e => {
    réutiliser pendant 10 minutes la copie gardée par GitHub Pages. */
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  // Les vidéos sont lues par morceaux (Range) : on laisse le navigateur s'en charger.
+  if (e.request.headers.has("range") || e.request.url.endsWith(".mp4")) return;
   const sameSite = new URL(e.request.url).origin === self.location.origin;
   const req = sameSite ? new Request(e.request.url, { cache: "no-cache", credentials: "same-origin" }) : e.request;
   e.respondWith(

@@ -91,6 +91,42 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .titem div{flex:1;min-width:0}
 .titem small{display:block;color:var(--muted)}
 .titem .btn{padding:8px 12px;font-size:13px}
+
+/* ---------- Intro « Friandasie Corp présente » ---------- */
+@font-face{font-family:"Cinzel";src:url("intro/cinzel.woff") format("woff");font-weight:400 900;font-display:block}
+.introv{position:fixed;inset:0;z-index:9999;background:linear-gradient(#88b8d6 0%,#3d8fc4 30%,#2f7fb4 62%,#7b9097 100%);overflow:hidden;transition:opacity .8s ease}
+.introv.out{opacity:0}
+.introv .bgblur{position:absolute;inset:-40px;background:url("intro/friandasie-debut.jpg") center/cover;filter:blur(22px) saturate(1.1)}
+.introv .stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,calc(100vh * 720 / 1276));aspect-ratio:720/1276}
+.introv video{-webkit-mask:linear-gradient(transparent,#000 7%,#000 93%,transparent);mask:linear-gradient(transparent,#000 7%,#000 93%,transparent)}
+.introv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.introv .pres{position:absolute;left:0;right:0;top:84.5%;text-align:center;font-family:"Cinzel",serif;font-weight:600;color:#000;
+  font-size:min(6.6vw,3.7vh,40px);letter-spacing:.42em;padding-left:.42em;opacity:0;transition:opacity 1.4s ease,transform 1.4s ease;transform:translateY(6px);
+  text-shadow:0 0 18px rgba(255,255,255,.55)}
+.introv .pres.on{opacity:1;transform:none}
+.introv .tap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.45);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:14px 22px;font-size:16px;font-family:inherit;display:none}
+.introv.blocked .tap{display:block}
+.introv .skip{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));background:rgba(0,0,0,.28);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:8px 14px;font-size:13px;font-family:inherit;backdrop-filter:blur(4px)}
+.intro{position:fixed;inset:0;z-index:9999;overflow:hidden;cursor:pointer;
+  background:radial-gradient(120% 70% at 50% -10%,#2f78a8 0%,#14476f 38%,#0a2741 75%,#061827 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .7s ease}
+.intro.out{opacity:0}
+.intro .rays{position:absolute;inset:-20% -40% auto;height:80%;pointer-events:none;opacity:.22;
+  background:repeating-linear-gradient(100deg,transparent 0 46px,rgba(255,255,255,.55) 46px 58px,transparent 58px 120px);
+  -webkit-mask:linear-gradient(#000,transparent);mask:linear-gradient(#000,transparent);animation:rays 7s ease-in-out infinite alternate}
+@keyframes rays{to{transform:translateX(6%) skewX(-4deg)}}
+.intro .fish{width:min(70vw,360px);height:auto;filter:drop-shadow(0 18px 24px rgba(0,0,0,.45));
+  animation:swimIn 1.9s cubic-bezier(.2,.75,.25,1) both, bob 2.6s ease-in-out 1.9s infinite}
+@keyframes swimIn{0%{transform:translateX(-120vw) rotate(-6deg)}55%{transform:translateX(4vw) rotate(4deg)}75%{transform:translateX(-1vw) rotate(-2deg)}100%{transform:none}}
+@keyframes bob{50%{transform:translateY(-8px) rotate(1.5deg)}}
+.intro .studio{font-family:var(--display);color:#fff;text-align:center;line-height:1.1;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+.intro .studio b{display:block;font-size:clamp(28px,8vw,46px);font-weight:800;letter-spacing:.01em;opacity:0;animation:rise .9s ease 1.7s forwards}
+.intro .studio span{display:block;margin-top:10px;font-family:var(--mono);font-size:clamp(12px,3.4vw,15px);letter-spacing:.42em;text-transform:uppercase;color:#cfe6f5;opacity:0;animation:rise .9s ease 2.4s forwards}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.intro .bub{position:absolute;bottom:-30px;border-radius:50%;border:1.5px solid rgba(255,255,255,.55);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.5),rgba(255,255,255,.05) 60%);animation:bub linear infinite;pointer-events:none}
+@keyframes bub{to{transform:translate(var(--dx),-115vh)}}
+.intro .skip{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 14px;font-size:13px;font-family:inherit;backdrop-filter:blur(4px)}
+@media (prefers-reduced-motion:reduce){.intro .fish{animation:rise 1s ease both}.intro .rays,.intro .bub{animation:none;display:none}}
 .searchrow{display:flex;align-items:center;gap:12px}
 .searchrow input{flex:1;min-width:0;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:16px}
 .searchrow span{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
@@ -1234,6 +1270,7 @@ async function renderProfile(){
         : "L'export crée un fichier avec toutes tes photos et observations. Range-le dans iCloud Drive pour pouvoir tout récupérer sur un autre téléphone. L'import ajoute les photos manquantes sans rien effacer."}</p>
       <button class="btn ghost" id="trashBtn">Corbeille${TRASH.length?` (${TRASH.length})`:" (vide)"}</button>
     </div>
+    <button class="btn ghost" id="introBtn" style="margin-top:6px">Revoir l'intro</button>
     <p class="credits">Icônes des animaux : Freepik – <a href="https://www.flaticon.com" target="_blank" rel="noopener">Flaticon</a>. Statuts de conservation : Liste rouge de l'UICN.</p>`;
   $("#avatarBtn").onclick = () => { $("#avatarIn").value=""; $("#avatarIn").click(); };
   document.querySelectorAll("[data-av]").forEach(b => b.onclick = () => { profile.avatarChar = b.dataset.av; dbSaveProfile(); renderProfile(); });
@@ -1243,6 +1280,7 @@ async function renderProfile(){
   if(readyExport) $("#saveBtn").onclick = saveExport; else $("#exportBtn").onclick = exportAll;
   $("#importBtn").onclick = () => { $("#importIn").value=""; $("#importIn").click(); };
   $("#trashBtn").onclick = openTrash;
+  $("#introBtn").onclick = () => playIntro();
   try{
     if(navigator.storage?.estimate){ const e = await navigator.storage.estimate(); const p = navigator.storage.persisted ? await navigator.storage.persisted() : false;
       $("#storeInfo").textContent = `${OBS.length} photo${OBS.length>1?"s":""} · ${(e.usage/1048576).toFixed(1).replace(".",",")} Mo utilisés sur ce téléphone${p?" · stockage protégé":""}.`; }
@@ -1679,6 +1717,57 @@ function toast(msg){
 }
 
 /* ---------- Démarrage ---------- */
+/* ---------- Intro : carton « Friandasie Corp présente » ----------
+   Joué à la première ouverture, puis rejouable depuis le Profil.
+   La vidéo de la savane (Comfy Cloud) viendra s'enchaîner ici. */
+/* Version vidéo (Kling 3.0) : le baliste arrive du fond, « PRÉSENTE » apparaît à mi-parcours.
+   Si la vidéo ne peut pas se lire (hors ligne, mode économie d'énergie…), on joue le carton animé. */
+const INTRO_VIDEO = "intro/friandasie.mp4";
+function playIntro(){
+  return new Promise(resolve => {
+    const el = document.createElement("div"); el.className = "introv"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Friandasie Corp présente");
+    el.innerHTML = `<div class="bgblur"></div><div class="stage">
+        <video src="${INTRO_VIDEO}" poster="intro/friandasie-debut.jpg" muted playsinline preload="auto"></video>
+        <div class="pres" aria-hidden="true">PRÉSENTE</div>
+      </div>
+      <button class="tap" type="button">▶ Lancer l'intro</button>
+      <button class="skip" type="button">Passer ›</button>`;
+    document.body.appendChild(el);
+    const v = el.querySelector("video"), pres = el.querySelector(".pres");
+    let done = false, holdT = null, safetyT = null;
+    const finish = () => { if(done) return; done = true; clearTimeout(holdT); clearTimeout(safetyT); v.pause();
+      el.classList.add("out"); setTimeout(()=>{ el.remove(); resolve(); }, 800); };
+    const fallback = () => { if(done) return; done = true; clearTimeout(safetyT); el.remove(); playIntroCss().then(resolve); };
+    v.addEventListener("timeupdate", () => { if(v.duration && v.currentTime >= v.duration/2) pres.classList.add("on"); });
+    v.addEventListener("ended", () => { pres.classList.add("on"); holdT = setTimeout(finish, 1800); });   // on reste sur le poisson un instant
+    v.addEventListener("error", fallback);
+    el.querySelector(".skip").addEventListener("click", e => { e.stopPropagation(); finish(); });
+    const start = () => v.play().then(() => el.classList.remove("blocked")).catch(() => el.classList.add("blocked"));
+    el.querySelector(".tap").addEventListener("click", e => { e.stopPropagation(); start(); });
+    el.addEventListener("click", () => { if(!el.classList.contains("blocked")) finish(); });
+    safetyT = setTimeout(() => { if(v.readyState < 2 && !el.classList.contains("blocked")) fallback(); }, 6000);  // vidéo introuvable
+    start();
+  });
+}
+
+/* Carton animé (secours) */
+function playIntroCss(){
+  return new Promise(resolve => {
+    const el = document.createElement("div"); el.className = "intro"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Friandasie Corp présente");
+    const bubbles = Array.from({length:16}, () => { const z = 6 + Math.random()*16;
+      return `<i class="bub" style="left:${Math.random()*100}%;width:${z}px;height:${z}px;--dx:${(Math.random()*60-30).toFixed(0)}px;animation-duration:${(5+Math.random()*5).toFixed(1)}s;animation-delay:${(-Math.random()*8).toFixed(1)}s"></i>`; }).join("");
+    el.innerHTML = `<div class="rays"></div>${bubbles}
+      <img class="fish" src="intro/friandasie.webp" alt="Logo Friandasie : un poisson baliste peint">
+      <div class="studio"><b>Friandasie Corp</b><span>présente</span></div>
+      <button class="skip" type="button">Passer ›</button>`;
+    document.body.appendChild(el);
+    let done = false;
+    const end = () => { if(done) return; done = true; el.classList.add("out"); setTimeout(()=>{ el.remove(); resolve(); }, 700); };
+    el.addEventListener("click", end);
+    setTimeout(end, 5200);
+  });
+}
+
 async function boot(){
   render();
   try{ db = await idbOpen(); }catch(e){ db = null; }
@@ -1708,6 +1797,7 @@ async function boot(){
   if(!profile.badges){ profile.badges = currentTiers(); dbSaveProfile(); }
   if(!profile.noel){ profile.noel = Date.now(); }
   render(); updateDot();
+  if(!profile.introSeen){ profile.introSeen = Date.now(); dbSaveProfile(); await playIntro(); }
   checkBadges();
 }
 boot();
