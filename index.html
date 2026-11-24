@@ -139,6 +139,8 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 @keyframes bub{to{transform:translate(var(--dx),-115vh)}}
 .intro .skip{position:absolute;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 14px;font-size:13px;font-family:inherit;backdrop-filter:blur(4px)}
 @media (prefers-reduced-motion:reduce){.intro .fish{animation:rise 1s ease both}.intro .rays,.intro .bub{animation:none;display:none}}
+.sheet .alt,.alt{margin:2px 0 0;font-weight:600;color:var(--ink);opacity:.8}
+.chiprow[hidden]{display:none}
 .searchrow{display:flex;align-items:center;gap:12px}
 .searchrow input{flex:1;min-width:0;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-size:16px}
 .searchrow span{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
@@ -397,6 +399,7 @@ nav.tabbar .newdot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;heig
       <div class="bbanner" id="backupBanner" hidden></div>
       <div class="filters">
         <div class="searchrow"><input type="search" id="searchIn" placeholder="Rechercher un animal…" aria-label="Rechercher un animal" autocomplete="off"><span id="countN"></span></div>
+        <div class="chiprow" id="paysChips"></div>
         <div class="chiprow" id="classChips"></div>
         <div class="chiprow" id="rarChips"></div>
       </div>
@@ -450,6 +453,7 @@ nav.tabbar .newdot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;heig
 <div id="sheetHost"></div>
 
 <script src="especes.js"></script>
+<script src="especes-reunion.js"></script>
 <script src="dedicace.js"></script>
 <script>
 /* Ta dédicace se trouve dans le fichier dedicace.js */
@@ -466,7 +470,7 @@ const RARITY = {
   CR:{label:"Légendaire",uicn:"En danger critique",    v:"--r-legend", xp:150}
 };
 const RORDER = ["LC","NT","VU","EN","CR"];
-const CLASSES = ["Mammifères","Oiseaux","Reptiles","Amphibiens","Poissons"];
+const CLASSES = ["Mammifères","Oiseaux","Reptiles","Amphibiens","Poissons","Invertébrés"];
 const PAYS = window.SAFARIDEX_PAYS || {};
 const REGIONS = Object.fromEntries(Object.entries(PAYS).map(([cc,p]) => [cc, p.regions]));
 const INFOS = Object.assign({}, ...Object.values(PAYS).map(p => p.infos || {}));
@@ -681,7 +685,8 @@ const ICON = {
  "Oiseaux":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M8 56C20 30 38 10 58 6 50 22 40 40 14 56Z"/><path d="M20 46 34 36 26 50Z" opacity=".5"/></svg>',
  "Reptiles":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M32 6 52 18v28L32 58 12 46V18Z"/></svg>',
  "Amphibiens":'<svg viewBox="0 0 64 64" fill="currentColor"><ellipse cx="32" cy="40" rx="20" ry="14"/><circle cx="20" cy="22" r="8"/><circle cx="44" cy="22" r="8"/><path d="M6 56c4-8 10-10 14-8M58 56c-4-8-10-10-14-8" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/></svg>',
- "Poissons":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M6 32c10-14 30-16 42-4l10-8v24l-10-8C36 48 16 46 6 32Z"/></svg>'
+ "Poissons":'<svg viewBox="0 0 64 64" fill="currentColor"><path d="M6 32c10-14 30-16 42-4l10-8v24l-10-8C36 48 16 46 6 32Z"/></svg>',
+ "Invertébrés":'<svg viewBox="0 0 64 64" fill="currentColor"><ellipse cx="32" cy="38" rx="13" ry="17"/><circle cx="32" cy="16" r="7"/><path d="M26 10 18 3M38 10l8-7M19 30 6 24M19 40 6 42M19 48 8 56M45 30l13-6M45 40l13 2M45 48l11 8" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/></svg>'
 };
 /* Silhouette de la famille de l'espèce (voir silhouettes.js), sinon icône de la classe */
 /* Icône de chaque famille d'animaux (dossier icones/, icônes Freepik – Flaticon).
@@ -699,7 +704,11 @@ const ICONES = {
   souimanga:"oiseau", perroquet:"perroquet", perruche:"perruche", pigeon:"oiseau", corvide:"oiseau",
   crocodile:"crocodile", tortue:"tortue", tortuemarine:"tortue-de-mer", varan:"lezard", serpent:"serpent",
   cobra:"serpent", cameleon:"cameleon", lezard:"lezard", grenouille:"grenouille",
-  requin:"requin", raie:"raie", hippocampe:"hippocampe", poisson:"poisson"
+  requin:"requin", raie:"raie", hippocampe:"hippocampe", poisson:"poisson",
+  /* La Réunion */
+  cerf:"antilope"
+  /* À ajouter quand les icônes seront là : insecte, guepe, moustique, mante, araignee, crabe, meduse,
+     poulpe, coquillage, oursin, langouste, papillon (sinon l'icône de la classe s'affiche) */
 };
 const SIL = {};
 const silOf = sp => { const f = ICONES[sp.g];
@@ -743,7 +752,7 @@ let TRASH = [];        // corbeille : photos supprimées, gardées 30 jours
 const TRASH_DAYS = 30;
 let profile = { name:"", avatar:null, favSp:null, bestObs:null, visited:[] };
 let avatarURL = null;
-let fQuery="", fClass="Toutes", fRar="Toutes", tab="dex", sheet=null;
+let fQuery="", fPays="Tous", fClass="Toutes", fRar="Toutes", tab="dex", sheet=null;
 const LIEUX = Object.fromEntries(Object.entries(PAYS).map(([cc,p]) => [cc, p.lieux || []]));
 let lastChoice = { place:"", region:"", wild:true };   // dernier lieu et conditions utilisés
 try{ lastChoice = {...lastChoice, ...JSON.parse(localStorage.getItem("safaridex.last")||"{}")}; }catch(e){}
@@ -785,6 +794,10 @@ function titleOf(L){
 
 /* ---------- Encyclopédie ---------- */
 function chips(){
+  const pays = Object.keys(PAYS);
+  $("#paysChips").hidden = pays.length < 2;
+  $("#paysChips").innerHTML = ["Tous",...pays].map(cc =>
+    `<button class="chip" aria-pressed="${fPays===cc}" data-p="${cc}">${cc==="Tous"?"Toutes les destinations":esc(PAYS[cc].nom)}</button>`).join("");
   $("#classChips").innerHTML = ["Toutes",...CLASSES].map(c =>
     `<button class="chip" aria-pressed="${fClass===c}" data-c="${c}">${c==="Toutes"?"Toutes les classes":c}</button>`).join("");
   $("#rarChips").innerHTML = ["Toutes",...RORDER].map(r =>
@@ -792,6 +805,7 @@ function chips(){
 }
 const norm = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 $("#searchIn").addEventListener("input", e => { fQuery = norm(e.target.value.trim()); render(); });
+$("#paysChips").addEventListener("click", e => { const b=e.target.closest("[data-p]"); if(b){ fPays=b.dataset.p; render(); } });
 $("#classChips").addEventListener("click", e => { const b=e.target.closest("[data-c]"); if(b){ fClass=b.dataset.c; render(); } });
 $("#rarChips").addEventListener("click", e => { const b=e.target.closest("[data-r]"); if(b){ fRar=b.dataset.r; render(); } });
 
@@ -1080,8 +1094,9 @@ const TIER4 = [["Novice","--t1"],["Amateur","--t2"],["Confirmée","--t3"],["Expe
 const TIER3 = [["Bronze","--t1"],["Argent","--t2"],["Or","--t3"]];
 const TIER_XP = [25,50,100,200];
 const RANGE = (a,b) => Array.from({length:b-a+1},(_,i)=>a+i);
-const MARINE = [...RANGE(94,101), 215,216,217, 22, ...RANGE(240,250)];
-const SHARKS = [22,240,241,242,243,244,245,247];
+const MARINE = [...RANGE(94,101), 215,216,217, 22, ...RANGE(240,250),
+  ...RANGE(1007,1010), ...RANGE(1040,1042), ...RANGE(1045,1059), ...RANGE(1061,1073)];   // + La Réunion
+const SHARKS = [22,240,241,242,243,244,245,247, 1061,1062,1063,1064];
 const ISLAND_C = new Set(["MG","MU","SC","KM","YT","RE","CV","MV","LK","CY","MT","IS","IE","GB","JP","PH","ID","TW","NZ","FJ","VU","NC","PF","WF","CU","JM","HT","DO","BS","GP","MQ","MF","DM","LC","PM","COR","SG","BH"]);
 const OUTREMER = new Set(["GP","MQ","GF","RE","YT","PF","NC","WF","PM","MF"]);
 const SAFARI = [new Date(2024,8,15).getTime(), new Date(2024,8,30).getTime()];   // 15 au 29 septembre 2024
@@ -1108,8 +1123,8 @@ function stats(){
     golden: OBS.filter(o => o.timeOk && ((hourOf(o)>=5 && hourOf(o)<8) || (hourOf(o)>=17 && hourOf(o)<20))).length,
     nocturnal: SPECIES.filter(s => has(s.id) && isNocturnal(s.id)).length,
     maxSame: Math.max(0, ...Object.values(per)),
-    marine: cnt(MARINE), sharks: cnt(SHARKS), turtles: cnt([215,216,217]),
-    seaObs: OBS.filter(o => o.region==="En mer").length, whales: cnt([95,96,97]), seabirds: cnt([180,181,183]),
+    marine: cnt(MARINE), sharks: cnt(SHARKS), turtles: new Set(SPECIES.filter(s => s.g==="tortuemarine" && has(s.id)).map(s => s.s)).size,
+    seaObs: OBS.filter(o => /^En mer/.test(o.region||"")).length, whales: cnt([95,96,97]), seabirds: cnt([180,181,183]),
     provinces: provinces.size, countries: vis.size,
     continents: new Set([...vis].map(c => CBY[c] && CBY[c].ct).filter(Boolean)).size,
     islands: [...vis].filter(c => ISLAND_C.has(c)).length, outremer: [...vis].filter(c => OUTREMER.has(c)).length,
@@ -1134,7 +1149,7 @@ const BADGES = [
   {id:"bapteme", cat:"mer",   n:"Baptême du grand bleu",k:"marine",    steps:[1],             u:"espèce",     g:()=>"Observer une première espèce marine"},
   {id:"plongee", cat:"mer",   n:"Plongeuse",            k:"marine",    steps:[3,7,12,18],     u:"espèces marines", g:n=>`Observer ${n} espèces marines`},
   {id:"dents",   cat:"mer",   n:"Les Dents de la mer",  k:"sharks",    steps:[1,3,6],         u:"requins",    g:n=>`Observer ${n} espèce${n>1?"s":""} de requin`},
-  {id:"tortues", cat:"mer",   n:"Les trois tortues",    k:"turtles",   steps:[3],             u:"tortues",    g:()=>"Tortue luth, caouanne et tortue verte"},
+  {id:"tortues", cat:"mer",   n:"Les trois tortues",    k:"turtles",   steps:[3],             u:"tortues",    g:()=>"Trois espèces de tortues marines (verte, caouanne, luth, imbriquée…)"},
   {id:"marin",   cat:"marin", n:"Marin",                k:"seaObs",    steps:[3,10,25],       u:"observations", g:n=>`${n} observations « En mer »`},
   {id:"baleines",cat:"marin", n:"Chant des baleines",   k:"whales",    steps:[3],             u:"baleines",   g:()=>"Baleine franche, baleine à bosse et baleine de Bryde"},
   {id:"large",   cat:"marin", n:"Oiseaux du large",     k:"seabirds",  steps:[3],             u:"oiseaux",    g:()=>"Fou du Cap, cormoran du Cap et albatros"},
@@ -1320,14 +1335,17 @@ document.querySelector("nav.tabbar").addEventListener("click", e => { const b=e.
 function render(){
   chips();
   const list = SPECIES.filter(s => (fClass==="Toutes"||s.c===fClass) && (fRar==="Toutes"||s.r===fRar)
-    && (!fQuery || norm(s.n+" "+s.s).includes(fQuery)));
+    && (fPays==="Tous"||s.country===fPays) && (!fQuery || norm(s.n+" "+(s.a||"")+" "+s.s).includes(fQuery)));
   $("#grid").innerHTML = list.map(cardHTML).join("");
   $("#empty").hidden = list.length>0;
   $("#empty").textContent = SPECIES.length ? "Aucune espèce ne correspond à ta recherche." : "Le fichier des espèces (especes.js) n'a pas pu être chargé.";
   $("#countN").textContent = `${list.length} espèce${list.length>1?"s":""}`;
-  const n = SPECIES.filter(s=>seen(s.id)).length;
-  $("#seenN").textContent = n; $("#totalN").textContent = SPECIES.length;
-  $("#seenBar").style.width = (n/SPECIES.length*100)+"%";
+  // Compteur et sous-titre : suivent la destination choisie
+  const pool = fPays==="Tous" ? SPECIES : SPECIES.filter(s=>s.country===fPays);
+  const n = pool.filter(s=>seen(s.id)).length;
+  $("#seenN").textContent = n; $("#totalN").textContent = pool.length;
+  $("#seenBar").style.width = (pool.length ? n/pool.length*100 : 0)+"%";
+  $("#subtitle").textContent = (fPays==="Tous" ? Object.values(PAYS).map(p=>p.nom).join(" · ") : PAYS[fPays].nom) + " · carnet d'observations";
   renderCollection();
   renderBackupBanner();
   if(tab==="map") renderMap();
@@ -1356,8 +1374,8 @@ function drawSpecies(){
   const isFav = profile.favSp===sp.id;
   shell(last?photo(last.url, sp.n):silOf(sp), `
     <div><span class="rar" style="color:${rcol(sp.r)}">${num(sp.id)} · ${R.label} · ${R.xp} XP</span>
-      <h2>${esc(sp.n)}</h2><p class="sci">${esc(sp.s)}</p></div>
-    <div class="tags"><span class="tag">${sp.c}</span>${SIL[sp.g]&&SIL[sp.g].l!==sp.n?`<span class="tag">${SIL[sp.g].l}</span>`:""}${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${R.uicn}</span></div>
+      <h2>${esc(sp.n)}</h2>${sp.a&&sp.a!==sp.n?`<p class="alt">${esc(sp.a)}</p>`:""}<p class="sci">${esc(sp.s)}</p></div>
+    <div class="tags"><span class="tag">${sp.c}</span>${SIL[sp.g]&&SIL[sp.g].l!==sp.n?`<span class="tag">${SIL[sp.g].l}</span>`:""}${sp.big5?'<span class="tag">Big Five</span>':""}<span class="tag" style="color:${rcol(sp.r)}">UICN : ${sp.ne?"non évaluée":R.uicn}</span></div>
     <div class="fact"><b>Le savais-tu ?</b>${esc(sp.f)}</div>
     ${infoHTML(sp.id)}
     ${list.length?`<dl class="dl"><dt>Observations</dt><dd>${list.length}</dd><dt>Première</dt><dd>${esc(obsMeta(list[0]))}</dd></dl>
@@ -1407,8 +1425,8 @@ function drawObsForm(){
           <option value="__autre" ${mode==="autre"?"selected":""}>Autre lieu (choisir la province)</option>
           <option value="__inconnu" ${mode==="inconnu"?"selected":""}>Je ne sais pas</option>
         </select>
-        <small>${mode==="lieu"&&lieu?`Province : ${esc(lieu.r)}`:mode==="inconnu"?"Aucun lieu ne sera enregistré.":""}</small></label>
-      ${mode==="autre"?`<label class="field" for="obsRegion">Province
+        <small>${mode==="lieu"&&lieu?`${sp.country==="ZA"?"Province":"Région"} : ${esc(lieu.r)}`:mode==="inconnu"?"Aucun lieu ne sera enregistré.":""}</small></label>
+      ${mode==="autre"?`<label class="field" for="obsRegion">${sp.country==="ZA"?"Province":"Région"}
         <select id="obsRegion">${regions.map(r=>`<option ${d.region===r?"selected":""}>${esc(r)}</option>`).join("")}</select></label>`:""}
       ${d.id ? (d.confirmDel
         ? `<div class="confirm">Mettre cette photo à la corbeille ? <button class="btn ghost" id="formYes">Mettre à la corbeille</button><button class="btn ghost" id="formNo">Annuler</button></div>`
