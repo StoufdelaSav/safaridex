@@ -232,6 +232,20 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 .badge .bar i{background:var(--mc,var(--ochre))}
 .medal{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--plate);color:var(--muted);font-family:var(--display);font-weight:800}
 .medal svg{width:22px;height:22px}
+button.badge{font:inherit;text-align:left;width:100%;cursor:pointer;background:none}
+button.badge.on{background:var(--surface)}
+button.badge:active{transform:scale(.98)}
+.badge .seeph{font-size:12px;font-weight:700;color:var(--ochre);margin-top:2px}
+.bgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:12px}
+.bgal button{position:relative;aspect-ratio:1;border:0;padding:0;border-radius:12px;overflow:hidden;background:var(--plate);cursor:pointer;font:inherit;color:var(--ink)}
+.bgal img.bph{width:100%;height:100%;object-fit:cover;display:block}
+.bgal .cap{position:absolute;left:0;right:0;bottom:0;padding:14px 6px 5px;font-size:11px;font-weight:700;line-height:1.15;color:#fff;text-align:left;background:linear-gradient(transparent,rgba(0,0,0,.65))}
+.bgal .todo{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;height:100%;padding:8px;opacity:.55;border:1.5px dashed var(--line);border-radius:12px}
+.bgal .todo .sil,.bgal .todo svg{width:46px;height:46px}
+.bgal .todo span{font-size:11px;font-weight:700;text-align:center;line-height:1.15}
+.bhero{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;padding:18px}
+.bhero .medal{width:64px;height:64px}
+.bhero .medal svg{width:32px;height:32px}
 .badge.on .medal{background:var(--mc,var(--ochre));color:#fff;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35)}
 nav.tabbar button{position:relative}
 nav.tabbar .newdot{position:absolute;top:6px;left:calc(50% + 8px);width:9px;height:9px;border-radius:50%;background:#d6452f;box-shadow:0 0 0 2px var(--surface)}
@@ -1214,16 +1228,83 @@ function badgeTile(b, e, S){
   const t = e[b.id]||0, hidden = b.secret && !t;
   const next = b.steps[t], [lbl,col] = t ? tierInfo(b,t) : ["", "--ochre"];
   const nextTxt = next!=null ? `${b.g(next)} · ${Math.min(S[b.k],next)}/${next}` : "Niveau maximum atteint";
-  return `<div class="badge ${t?"on":""}" style="--mc:var(${col})">
+  const pick = !hidden && BADGE_PICK[b.id];
+  const tag = pick ? `button type="button" data-badge="${b.id}"` : "div";
+  return `<${tag} class="badge ${t?"on":""}" style="--mc:var(${col})">
     <span class="medal">${hidden?"?":svgI(b.cat)}</span>
     <div><b>${hidden?"???":esc(b.n)}</b>
       ${hidden ? `<small>Badge secret</small>` : `
       ${b.steps.length>1?`<span class="pips">${b.steps.map((_,i)=>`<i class="${i<t?"on":""}"></i>`).join("")}</span>`:""}
       ${t?`<span class="tierlbl">${lbl}</span>`:""}
       <small>${esc(t && next==null ? b.g(b.steps[t-1]) : nextTxt)}</small>
-      ${next!=null && b.steps.length>1?`<div class="bar"><i style="width:${Math.min(100,S[b.k]/next*100)}%"></i></div>`:""}`}
-    </div></div>`;
+      ${next!=null && b.steps.length>1?`<div class="bar"><i style="width:${Math.min(100,S[b.k]/next*100)}%"></i></div>`:""}
+      ${pick?`<span class="seeph">Voir les photos ›</span>`:""}`}
+    </div></${pick?"button":"div"}>`;
 }
+
+/* ---------- Photos derrière chaque badge ----------
+   list    : liste à compléter (Big Five…) : photo si l'espèce est vue, silhouette grisée sinon
+   species : espèces observées qui comptent pour le badge (dernière photo de chacune)
+   photos  : toutes les photos qui comptent pour le badge */
+const seenSp = f => SPECIES.filter(s => seen(s.id) && f(s)).map(s => s.id);
+const BADGE_PICK = {
+  photo:   () => ({photos: OBS}),
+  golden:  () => ({photos: OBS.filter(o => o.timeOk && ((hourOf(o)>=5 && hourOf(o)<8) || (hourOf(o)>=17 && hourOf(o)<20)))}),
+  early:   () => ({photos: OBS.filter(o => o.timeOk && hourOf(o)>=3 && hourOf(o)<6)}),
+  safari:  () => ({photos: OBS.filter(o => o.date>=SAFARI[0] && o.date<SAFARI[1])}),
+  marin:   () => ({photos: OBS.filter(o => /^En mer/.test(o.region||""))}),
+  fan:     () => { const per={}; OBS.forEach(o=>per[o.sp]=(per[o.sp]||0)+1);
+                   const top = Object.entries(per).sort((a,b)=>b[1]-a[1])[0];
+                   return {photos: top ? obsOf(+top[0]) : [], note: top ? `Ton espèce la plus photographiée : ${spById(+top[0]).n}` : ""}; },
+  nuit:    () => ({species: seenSp(s => isNocturnal(s.id))}),
+  bapteme: () => ({species: seenSp(s => MARINE.includes(s.id))}),
+  plongee: () => ({species: seenSp(s => MARINE.includes(s.id))}),
+  dents:   () => ({species: seenSp(s => SHARKS.includes(s.id))}),
+  tortues: () => ({species: seenSp(s => s.g==="tortuemarine")}),
+  baleines:() => ({list: [95,96,97]}),
+  large:   () => ({list: [180,181,183]}),
+  first:   () => ({species: seenSp(() => true)}),
+  encyclo: () => ({species: seenSp(() => true)}),
+  big5:    () => ({list: BIG5}),
+  big7:    () => ({list: [...BIG5, 22, 95]}),
+  ugly5:   () => ({list: [14, [112,113,114,115,116], 162, [48,49], 16]}),
+  shy5:    () => ({list: [80,24,27,81,15]}),
+  orni:    () => ({species: seenSp(s => s.c==="Oiseaux")}),
+  herpe:   () => ({species: seenSp(s => s.c==="Reptiles" || s.c==="Amphibiens")}),
+  mamma:   () => ({species: seenSp(s => s.c==="Mammifères")}),
+  legende: () => ({species: seenSp(s => s.r==="CR")})
+};
+function openBadge(id){
+  const b = BADGES.find(x=>x.id===id), P = BADGE_PICK[id]; if(!b || !P) return;
+  const e = earnedTiers(), t = e[b.id]||0, [lbl,col] = t ? tierInfo(b,t) : ["", "--ochre"], d = P();
+  const capOf = sp => `<span class="cap">${esc(sp.n)}</span>`;
+  let tiles = "", count = 0;
+  if(d.photos){
+    const ph = [...d.photos].sort((a,b)=>b.date-a.date); count = ph.length;
+    tiles = ph.map(o => { const sp = spById(o.sp), idx = obsOf(o.sp).indexOf(o);
+      return `<button data-view="${o.sp}" data-idx="${idx}" aria-label="${esc(sp.n)}, ${fmtDate(o.date)}"><img class="bph" src="${o.url}" alt="" loading="lazy">${capOf(sp)}</button>`; }).join("");
+  } else if(d.species){
+    count = d.species.length;
+    tiles = d.species.map(id => { const sp = spById(id);
+      return `<button data-sp="${id}" aria-label="${esc(sp.n)}"><img class="bph" src="${lastPhoto(id)}" alt="" loading="lazy">${capOf(sp)}</button>`; }).join("");
+  } else if(d.list){
+    tiles = d.list.map(x => { const ids = Array.isArray(x) ? x : [x], got = ids.find(seen), sp = spById(got || ids[0]);
+      if(!sp) return "";
+      if(got){ count++; return `<button data-sp="${got}" aria-label="${esc(sp.n)}"><img class="bph" src="${lastPhoto(got)}" alt="" loading="lazy">${capOf(sp)}</button>`; }
+      return `<button data-sp="${sp.id}" aria-label="${esc(sp.n)}, pas encore observé"><span class="todo">${silOf(sp)}<span>${esc(sp.n)}</span></span></button>`; }).join("");
+  }
+  sheet = {type:"badge", id};
+  shell(`<div class="bhero" style="--mc:var(${col})"><span class="badge ${t?"on":""}" style="border:0;background:none;padding:0"><span class="medal">${svgI(b.cat)}</span></span>
+      <span style="font-family:var(--display);font-weight:800;font-size:24px;text-align:center">${esc(b.n)}</span>
+      ${t?`<span class="tierlbl" style="--mc:var(${col})">${lbl}</span>`:""}</div>`,
+    `<p class="note" style="margin:0">${esc(b.g(b.steps[Math.max(0,t-1)]))}</p>
+     ${d.note?`<p class="note" style="margin:6px 0 0">${esc(d.note)}</p>`:""}
+     ${d.list ? `<p class="note" style="margin:6px 0 0">${count} / ${d.list.length} trouvé${count>1?"s":""}</p>` : ""}
+     ${tiles ? `<div class="bgal">${tiles}</div>` : `<p class="empty">Pas encore de photo pour ce badge.</p>`}`, true);
+  document.querySelectorAll(".bgal [data-view]").forEach(x => x.onclick = () => openViewer(+x.dataset.view, +x.dataset.idx));
+  document.querySelectorAll(".bgal [data-sp]").forEach(x => x.onclick = () => openSpecies(+x.dataset.sp));
+}
+$("#badges").addEventListener("click", e => { const b = e.target.closest("[data-badge]"); if(b) openBadge(b.dataset.badge); });
 function badgeList(){ const e = earnedTiers(); return BADGES.map(b => ({ok: e[b.id]>0})); }
 function renderCollection(){
   $("#byClass").innerHTML = CLASSES.map(c => { const a=SPECIES.filter(s=>s.c===c); return progRow(c, a.filter(s=>seen(s.id)).length, a.length); }).join("");
