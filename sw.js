@@ -1,10 +1,10 @@
 /* Service worker : garde une copie de l'app sur le téléphone
    pour qu'elle s'ouvre même sans réseau (en pleine savane !).
    Change le numéro de VERSION à chaque mise à jour de l'app. */
-const VERSION = "safaridex-v27";
+const VERSION = "safaridex-v30";
 const FILES = ["./", "index.html", "especes.js", "dedicace.js", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
-  "avatars/elle.webp", "avatars/lui.webp", "avatars/elle-tete.webp", "avatars/lui-tete.webp", "intro/friandasie.webp", "intro/friandasie-debut.jpg", "intro/cinzel.woff",
+  "avatars/elle.webp", "avatars/lui.webp", "avatars/elle-tete.webp", "avatars/lui-tete.webp", "intro/friandasie.webp", "intro/friandasie-debut.jpg", "intro/savane-fond.jpg", "intro/cinzel.woff",
   "icones/aigle.png",
   "icones/antilope.png",
   "icones/autruche.png",

@@ -96,13 +96,25 @@ h2.sec{font-family:var(--display);font-size:20px;margin:0 0 12px}
 @font-face{font-family:"Cinzel";src:url("intro/cinzel.woff") format("woff");font-weight:400 900;font-display:block}
 .introv{position:fixed;inset:0;z-index:9999;background:linear-gradient(#88b8d6 0%,#3d8fc4 30%,#2f7fb4 62%,#7b9097 100%);overflow:hidden;transition:opacity .8s ease}
 .introv.out{opacity:0}
-.introv .bgblur{position:absolute;inset:-40px;background:url("intro/friandasie-debut.jpg") center/cover;filter:blur(22px) saturate(1.1)}
-.introv .stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,calc(100vh * 720 / 1276));aspect-ratio:720/1276}
+.introv .bgblur{position:absolute;inset:-40px;background:url("intro/friandasie-debut.jpg") center/cover;filter:blur(22px) saturate(1.1);transition:opacity .8s ease}
+.introv .bgblur.sav{background-image:url("intro/savane-fond.jpg");opacity:0;transition:none}
+.introv .bgblur.sav.on{opacity:1}
+.introv .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.introv .flash.go{animation:flash .9s ease-out}
+@keyframes flash{0%{opacity:0}8%{opacity:1}100%{opacity:0}}
+.introv .sdtitle{position:absolute;left:0;right:0;top:23.2%;text-align:center;font-family:var(--display);font-weight:800;color:#fff;
+  font-size:calc(min(100vw, 100vh * 720 / 1280) * .155);letter-spacing:-.02em;line-height:1;opacity:0;transform:scale(.94);transition:opacity 1s ease,transform 1.6s cubic-bezier(.2,.7,.2,1);
+  text-shadow:0 3px 14px rgba(70,35,10,.45),0 1px 2px rgba(70,35,10,.35)}
+.introv .sdtitle span{color:#e8964a}
+.introv .dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+.introv .sdtitle.on{opacity:1;transform:none}
+.introv .stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,calc(100vh * 720 / 1280));aspect-ratio:720/1280}
 .introv video{-webkit-mask:linear-gradient(transparent,#000 7%,#000 93%,transparent);mask:linear-gradient(transparent,#000 7%,#000 93%,transparent)}
 .introv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .introv .pres{position:absolute;left:0;right:0;top:84.5%;text-align:center;font-family:"Cinzel",serif;font-weight:600;color:#000;
   font-size:min(6.6vw,3.7vh,40px);letter-spacing:.42em;padding-left:.42em;opacity:0;transition:opacity 1.4s ease,transform 1.4s ease;transform:translateY(6px);
   text-shadow:0 0 18px rgba(255,255,255,.55)}
+.introv .pres:not(.on){transition-duration:.6s}
 .introv .pres.on{opacity:1;transform:none}
 .introv .tap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.45);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:14px 22px;font-size:16px;font-family:inherit;display:none}
 .introv.blocked .tap{display:block}
@@ -1726,20 +1738,36 @@ const INTRO_VIDEO = "intro/friandasie.mp4";
 function playIntro(){
   return new Promise(resolve => {
     const el = document.createElement("div"); el.className = "introv"; el.setAttribute("role","dialog"); el.setAttribute("aria-label","Friandasie Corp présente");
-    el.innerHTML = `<div class="bgblur"></div><div class="stage">
+    el.innerHTML = `<div class="bgblur"></div><div class="bgblur sav"></div><div class="dim"></div><div class="stage">
         <video src="${INTRO_VIDEO}" poster="intro/friandasie-debut.jpg" muted playsinline preload="auto"></video>
         <div class="pres" aria-hidden="true">PRÉSENTE</div>
+        <div class="sdtitle" aria-hidden="true">Safari<span>dex</span></div>
       </div>
+      <div class="flash"></div>
       <button class="tap" type="button">▶ Lancer l'intro</button>
       <button class="skip" type="button">Passer ›</button>`;
     document.body.appendChild(el);
-    const v = el.querySelector("video"), pres = el.querySelector(".pres");
+    const v = el.querySelector("video"), pres = el.querySelector(".pres"), sav = el.querySelector(".bgblur.sav"),
+          flash = el.querySelector(".flash"), title = el.querySelector(".sdtitle"), dim = el.querySelector(".dim");
     let done = false, holdT = null, safetyT = null;
     const finish = () => { if(done) return; done = true; clearTimeout(holdT); clearTimeout(safetyT); v.pause();
       el.classList.add("out"); setTimeout(()=>{ el.remove(); resolve(); }, 800); };
     const fallback = () => { if(done) return; done = true; clearTimeout(safetyT); el.remove(); playIntroCss().then(resolve); };
-    v.addEventListener("timeupdate", () => { if(v.duration && v.currentTime >= v.duration/2) pres.classList.add("on"); });
-    v.addEventListener("ended", () => { pres.classList.add("on"); holdT = setTimeout(finish, 1800); });   // on reste sur le poisson un instant
+    /* Montage (23,8 s) : poisson 0–10 s (dont 2 s immobile) · fondu au noir de 2 s · marche dans la savane · photo de la girafe.
+       « PRÉSENTE » à la moitié du poisson ; à la fin : flash de l'appareil photo puis titre Safaridex (police et couleurs de l'app). */
+    // Suivi image par image, calé sur la vidéo : le poisson reste 2 s immobile (8–10 s),
+    // s'éteint jusqu'au noir (10,04 → 11,04 s), puis la savane revient (11,04 → 12,14 s).
+    const tick = () => { if(done) return; const t = v.currentTime;
+      pres.classList.toggle("on", t >= 4 && t < 9.4);
+      const a = t < 10.04 ? 0 : t < 11.04 ? (t-10.04)/1.0 : t < 12.14 ? 1-(t-11.04)/1.1 : 0;
+      dim.style.opacity = a.toFixed(3);
+      sav.classList.toggle("on", t >= 11.0);
+      requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+    v.addEventListener("ended", () => {
+      flash.classList.add("go");
+      setTimeout(() => title.classList.add("on"), 250);
+      holdT = setTimeout(finish, 3200); });
     v.addEventListener("error", fallback);
     el.querySelector(".skip").addEventListener("click", e => { e.stopPropagation(); finish(); });
     const start = () => v.play().then(() => el.classList.remove("blocked")).catch(() => el.classList.add("blocked"));
